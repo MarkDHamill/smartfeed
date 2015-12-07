@@ -1,0 +1,3 @@
+phpbbservices_smartfeed_controller:
+    path: /smartfeed/{name}
+    defaults: { _controller: phpbbservices.smartfeed.controller:handle }

@@ -1,0 +1,21 @@
+services:
+    phpbbservices.smartfeed.controller:
+        class: phpbbservices\smartfeed\controller\main
+        arguments:
+            - @config
+            - @controller.helper
+            - @template
+            - @user
+            - %core.php_ext%
+            - @dbal.conn
+            - @auth
+            - %core.root_path%
+            - @request
+    phpbbservices.smartfeed.listener:
+        class: phpbbservices\smartfeed\event\main_listener
+        arguments:
+            - @config
+            - @controller.helper
+            - @template
+        tags:
+            - { name: event.listener }

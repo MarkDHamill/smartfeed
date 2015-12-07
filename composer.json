@@ -1,0 +1,31 @@
+{
+	"name": "phpbbservices/smartfeed",
+	"type": "phpbb-extension",
+	"description": "Provides RSS 1.0, RSS 2.0 or Atom 1.0 customized newsfeeds. Users select forums they want, including protected forums if they can access them. There are myriad options to customize the feed. The following features that were in the phpBB 3.0.x modification are not available in the extension: ability to integrate external feeds, ability for users to access posts in non-public forums if mcrypt is not compiled with PHP, the ability to hide Smartfeed sessions, the ability to make the feed work with a specified IP, and the ability to generate a new Smartfeed key. The URL for smartfeed has changed. The URL argument names are different and more concise, so an old Smartfeed URL will not work. IPV6 support is now supported.",
+	"homepage": "https://phpbbservices.com/smartfeed_wp",
+	"version": "3.0.2",
+	"license": "GPL-2.0",
+	"authors": [
+		{
+			"name": "Mark D. Hamill",
+			"email": "mark@phpbbservices.com",
+			"homepage": "https://phpbbservices.com/",
+			"role": "Developer"
+		}
+	],
+	"require": {
+		"php": ">=5.3.3",
+		"composer/installers": "~1.0"
+	},
+	"extra": {
+		"display-name": "Smartfeed",
+		"soft-require": {
+			"phpbb/phpbb": ">=3.1.0,<3.2"
+		},
+		"version-check": {
+			"host": "https://phpbbservices.com/",
+			"directory": "smartfeed/updatecheck/",
+			"filename": "3.1.json"
+		}
+	}
+}
