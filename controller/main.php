@@ -443,8 +443,8 @@ class main
 				
 				$sql = 'SELECT user_id, user_password, user_smartfeed_key, user_topic_sortby_type, user_topic_sortby_dir, 
 							user_post_sortby_type, user_post_sortby_dir, user_lastvisit, user_type
-						FROM ' . USERS_TABLE . " 
-						WHERE user_id = $user_id";
+						FROM ' . USERS_TABLE . ' 
+						WHERE user_id = ' . (int) $user_id;
 				if ($user_id != ANONYMOUS)
 				{
 					$sql .= ' AND ' . $this->db->sql_in_set('user_type', $allowed_user_types); // Robots and inactive members are not allowed to get into restricted forums
@@ -652,13 +652,26 @@ class main
 					// $fetched_forums_str variable since it is convenient
 					
 					$bookmarked_topic_ids = array();
-					$sql = 'SELECT t.topic_id
-							FROM ' . USERS_TABLE . ' u, ' . BOOKMARKS_TABLE . ' b, ' . TOPICS_TABLE . " t
-							WHERE u.user_id = b.user_id AND b.topic_id = t.topic_id 
-								AND t.topic_last_post_time > $date_limit
-								AND b.user_id = $user_id";
 								
+					$sql_array = array(
+						'SELECT'    => 't.topic_id',
+					
+						'FROM'      => array(
+							USERS_TABLE => 'u',
+							BOOKMARKS_TABLE    => 'b',
+							TOPICS_TABLE    => 't',
+						),
+					
+						'WHERE'     =>  "u.user_id = b.user_id AND b.topic_id = t.topic_id 
+											AND t.topic_last_post_time > $date_limit
+											AND b.user_id = $user_id",
+					);
+					
+					$sql = $this->db->sql_build_query('SELECT', $sql_array);
+					
+					// Run the built query statement
 					$result = $this->db->sql_query($sql);
+
 					while ($row = $this->db->sql_fetchrow($result))
 					{
 						$bookmarked_topic_ids[] = intval($row['topic_id']);
@@ -977,10 +990,10 @@ class main
 					
 					'U_SMARTFEED_FEED_ID'				=> generate_board_url(),
 					'U_SMARTFEED_FEED_LINK' 			=> generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/smartfeed',
-					'U_SMARTFEED_FEED_URL' 				=> ($feed_type == constants::SMARTFEED_ATOM) ? generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/feed?' . $this->request->server('QUERY_STRING') : generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/feed?' . $this->request->server('QUERY_STRING'),
+					'U_SMARTFEED_FEED_URL' 				=> ($feed_type == constants::SMARTFEED_ATOM) ? generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/feed?' . $this->request->server('QUERY_STRING') : generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/feed?' . htmlspecialchars($this->request->server('QUERY_STRING')),
 					'U_SMARTFEED_FEED_IMAGE'			=> ($this->config['phpbbservices_smartfeed_feed_image_path'] <> '') ? generate_board_url() . '/styles/' . trim($this->user->style['style_path']) . '/' . $this->config['phpbbservices_smartfeed_feed_image_path'] : generate_board_url() . '/styles/' . trim($this->user->style['style_path']) . '/theme/images/site_logo.gif', // For RSS 1.0 and 2.0.
 					'U_SMARTFEED_FEED_IMAGE_LINK'		=> generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/smartfeed',	// for RSS 1.0 and RSS 2.0
-					'U_SMARTFEED_FEED_IMAGE_URL' 		=> ($feed_type == constants::SMARTFEED_ATOM) ? generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/feed?' . $this->request->server('QUERY_STRING') : generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/feed?' . $this->request->server('QUERY_STRING'),
+					'U_SMARTFEED_FEED_IMAGE_URL' 		=> ($feed_type == constants::SMARTFEED_ATOM) ? generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/feed?' . $this->request->server('QUERY_STRING') : generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/feed?' . htmlspecialchars($this->request->server('QUERY_STRING')),
 					'U_SMARTFEED_FEED_GENERATOR' 		=> constants::SMARTFEED_GENERATOR,
 					'U_SMARTFEED_FEED_PAGE_URL'			=> $this->config['phpbbservices_smartfeed_url'],
 					'U_SMARTFEED_WEBMASTER'				=> $this->config['phpbbservices_smartfeed_webmaster'],	// RSS 2.0
@@ -1036,14 +1049,14 @@ class main
 							{
 								$username = $this->user->lang['ADMINISTRATOR'];
 								$title = $this->user->lang['SMARTFEED_NEW_PMS_NOTIFICATIONS_SHORT'];
-								$link = $board_url . 'ucp.' . $this->phpEx . '?i=pm&folder=inbox';
+								$link = htmlspecialchars($board_url . 'ucp.' . $this->phpEx . '?i=pm&folder=inbox');
 								$message = $this->user->lang['SMARTFEED_NEW_PMS_NOTIFICATIONS_ONLY'];
 							}
 							else
 							{
 								$username = $row['username']; // Don't need to worry about Anonymous users for private messages, they cannot send them
 								$title = $this->user->lang['PRIVATE_MESSAGE'] . $this->user->lang['SMARTFEED_DELIMITER'] . $row['message_subject'] . $this->user->lang['SMARTFEED_DELIMITER'] . $this->user->lang['FROM'] . ' ' . $username;
-								$link = $board_url . 'ucp.' . $this->phpEx . '?i=pm&mode=view&f=0&p=' . $row['msg_id'];
+								$link = htmlspecialchars($board_url . 'ucp.' . $this->phpEx . '?i=pm&mode=view&f=0&p=' . $row['msg_id']);
 	
 								// Set an email address associated with the poster of the private message. In most cases it should not be seen.
 								if ($this->config['phpbbservices_smartfeed_privacy_mode'])
@@ -1150,18 +1163,27 @@ class main
 								if ($mark_private_messages)
 								{
 									// Mark this private message as read
-									$sql = 'UPDATE ' . PRIVMSGS_TO_TABLE . "
-											SET pm_unread = 0, pm_new = 0, folder_id = 0 
-											WHERE msg_id = " . $row['msg_id'] . " 
-												AND user_id = $user_id
-												AND author_id = " . $row['author_id'] . " 
-												AND folder_id = " . $row['folder_id'];
+									$sql_ary = array(
+										'pm_unread'		=> 0,
+										'pm_new'     	=> 0,
+										'folder_id'		=> 0
+									);
+									
+									$sql = 'UPDATE ' . PRIVMSGS_TO_TABLE . '
+										SET ' . $this->db->sql_build_array('UPDATE', $sql_ary) . '
+										WHERE msg_id = ' . $row['msg_id'] . " 
+											AND user_id = $user_id
+											AND author_id = " . $row['author_id'] . " 
+											AND folder_id = " . $row['folder_id'];
+												
 									$this->db->sql_query($sql);
+									
 									// Decrement the user_unread_privmsg and user_new_privmsg count
-									$sql = 'UPDATE ' . USERS_TABLE . " 
-											SET user_unread_privmsg = user_unread_privmsg - 1,
-												user_new_privmsg = user_new_privmsg - 1
-											WHERE user_id = $user_id";
+									$sql = 'UPDATE ' . USERS_TABLE . ' 
+										SET user_unread_privmsg = user_unread_privmsg - 1,
+											user_new_privmsg = user_new_privmsg - 1
+										WHERE user_id = ' . (int) $user_id;
+										
 									$this->db->sql_query($sql);
 								}
 							}
@@ -1268,9 +1290,9 @@ class main
 								
 								$title = html_entity_decode(censor_text($title));
 								
-								$link = $board_url . 'viewtopic.' . $this->phpEx . '?f=' . $row['forum_id'] . '&t=' . $row['topic_id'] . '&p=' . $row['post_id']  . '#p' . $row['post_id'];
+								$link = htmlspecialchars($board_url . 'viewtopic.' . $this->phpEx . '?f=' . $row['forum_id'] . '&t=' . $row['topic_id'] . '&p=' . $row['post_id']  . '#p' . $row['post_id']);
 								$category = html_entity_decode($row['forum_name']);
-								$comments = $board_url . 'posting.' . $this->phpEx . '?mode=reply&f=' . $row['forum_id'] . '&t=' . $row['topic_id'];
+								$comments = htmlspecialchars($board_url . 'posting.' . $this->phpEx . '?mode=reply&f=' . $row['forum_id'] . '&t=' . $row['topic_id']);
 					
 								// Set an email address associated with the poster. In most cases it should not be seen.
 								if ($this->config['phpbbservices_smartfeed_privacy_mode'])
@@ -1451,7 +1473,7 @@ class main
 						// Store the key
 						$sql = 'UPDATE ' . USERS_TABLE . "
 								SET user_smartfeed_key = '" . $this->db->sql_escape($user_smartfeed_key) . "'
-								WHERE user_id = " . $this->user->data['user_id'];
+								WHERE user_id = " . (int) $this->user->data['user_id'];
 						$result = $this->db->sql_query($sql);
 					}
 					$this->template->assign_vars(array('S_SMARTFEED_IS_GUEST' => false, 'S_SMARTFEED_DAY_DEFAULT' => ''));
