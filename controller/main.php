@@ -9,6 +9,11 @@
 
 namespace phpbbservices\smartfeed\controller;
 
+if (!defined('IN_PHPBB'))
+{
+	exit;
+}
+
 use phpbbservices\smartfeed\constants\constants;
 
 class main
@@ -972,10 +977,10 @@ class main
 					
 					'U_SMARTFEED_FEED_ID'				=> generate_board_url(),
 					'U_SMARTFEED_FEED_LINK' 			=> generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/smartfeed',
-					'U_SMARTFEED_FEED_URL' 				=> ($feed_type == constants::SMARTFEED_ATOM) ? generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/feed?' . $this->request->server('QUERY_STRING') : generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/feed?' . htmlspecialchars($this->request->server('QUERY_STRING')),
+					'U_SMARTFEED_FEED_URL' 				=> ($feed_type == constants::SMARTFEED_ATOM) ? generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/feed?' . $this->request->server('QUERY_STRING') : generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/feed?' . $this->request->server('QUERY_STRING'),
 					'U_SMARTFEED_FEED_IMAGE'			=> ($this->config['phpbbservices_smartfeed_feed_image_path'] <> '') ? generate_board_url() . '/styles/' . trim($this->user->style['style_path']) . '/' . $this->config['phpbbservices_smartfeed_feed_image_path'] : generate_board_url() . '/styles/' . trim($this->user->style['style_path']) . '/theme/images/site_logo.gif', // For RSS 1.0 and 2.0.
 					'U_SMARTFEED_FEED_IMAGE_LINK'		=> generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/smartfeed',	// for RSS 1.0 and RSS 2.0
-					'U_SMARTFEED_FEED_IMAGE_URL' 		=> ($feed_type == constants::SMARTFEED_ATOM) ? generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/feed?' . $this->request->server('QUERY_STRING') : generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/feed?' . htmlspecialchars($this->request->server('QUERY_STRING')),
+					'U_SMARTFEED_FEED_IMAGE_URL' 		=> ($feed_type == constants::SMARTFEED_ATOM) ? generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/feed?' . $this->request->server('QUERY_STRING') : generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/feed?' . $this->request->server('QUERY_STRING'),
 					'U_SMARTFEED_FEED_GENERATOR' 		=> constants::SMARTFEED_GENERATOR,
 					'U_SMARTFEED_FEED_PAGE_URL'			=> $this->config['phpbbservices_smartfeed_url'],
 					'U_SMARTFEED_WEBMASTER'				=> $this->config['phpbbservices_smartfeed_webmaster'],	// RSS 2.0
@@ -1031,14 +1036,14 @@ class main
 							{
 								$username = $this->user->lang['ADMINISTRATOR'];
 								$title = $this->user->lang['SMARTFEED_NEW_PMS_NOTIFICATIONS_SHORT'];
-								$link = htmlspecialchars($board_url . 'ucp.' . $this->phpEx . '?i=pm&folder=inbox');
+								$link = $board_url . 'ucp.' . $this->phpEx . '?i=pm&folder=inbox';
 								$message = $this->user->lang['SMARTFEED_NEW_PMS_NOTIFICATIONS_ONLY'];
 							}
 							else
 							{
 								$username = $row['username']; // Don't need to worry about Anonymous users for private messages, they cannot send them
 								$title = $this->user->lang['PRIVATE_MESSAGE'] . $this->user->lang['SMARTFEED_DELIMITER'] . $row['message_subject'] . $this->user->lang['SMARTFEED_DELIMITER'] . $this->user->lang['FROM'] . ' ' . $username;
-								$link = htmlspecialchars($board_url . 'ucp.' . $this->phpEx . '?i=pm&mode=view&f=0&p=' . $row['msg_id']);
+								$link = $board_url . 'ucp.' . $this->phpEx . '?i=pm&mode=view&f=0&p=' . $row['msg_id'];
 	
 								// Set an email address associated with the poster of the private message. In most cases it should not be seen.
 								if ($this->config['phpbbservices_smartfeed_privacy_mode'])
@@ -1263,9 +1268,9 @@ class main
 								
 								$title = html_entity_decode(censor_text($title));
 								
-								$link = htmlspecialchars($board_url . 'viewtopic.' . $this->phpEx . '?f=' . $row['forum_id'] . '&t=' . $row['topic_id'] . '&p=' . $row['post_id']  . '#p' . $row['post_id']);
+								$link = $board_url . 'viewtopic.' . $this->phpEx . '?f=' . $row['forum_id'] . '&t=' . $row['topic_id'] . '&p=' . $row['post_id']  . '#p' . $row['post_id'];
 								$category = html_entity_decode($row['forum_name']);
-								$comments = htmlspecialchars($board_url . 'posting.' . $this->phpEx . '?mode=reply&f=' . $row['forum_id'] . '&t=' . $row['topic_id']);
+								$comments = $board_url . 'posting.' . $this->phpEx . '?mode=reply&f=' . $row['forum_id'] . '&t=' . $row['topic_id'];
 					
 								// Set an email address associated with the poster. In most cases it should not be seen.
 								if ($this->config['phpbbservices_smartfeed_privacy_mode'])

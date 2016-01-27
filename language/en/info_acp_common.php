@@ -67,4 +67,7 @@ $lang = array_merge($lang, array(
 	'ACP_SMARTFEED_TTL_EXPLAIN'									=> 'How many minutes should the newsreader cache the feed before refreshing it? Throttle the number up if your board is getting overwhelmed, but newsreaders may ignore your advice. Note that this is a feature of RSS 2.0 only, and individual newsreaders may ignore the setting.',
 	'ACP_SMARTFEED_WEBMASTER'									=> 'Webmaster E-Mail Address',
 	'ACP_SMARTFEED_WEBMASTER_EXPLAIN'							=> 'If so inclined, enter the email address of the webmaster of the phpBB forum or whoever handles feed related questions. The email address will appear in RSS 2.0 feeds. For maximum interoperability, include the name of the person associated with the email address in parentheses, ex: jjones@example.com (John Jones).',
+	'LOG_CONFIG_ADDITIONAL' 									=> '<strong>Smartfeed additional settings and options updated</strong>',
+	'LOG_CONFIG_PPT' 											=> '<strong>Smartfeed primary performance throttles updated</strong>',
+	'LOG_CONFIG_SECURITY' 										=> '<strong>Smartfeed security settings updated</strong>',
 ));

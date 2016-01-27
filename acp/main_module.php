@@ -21,13 +21,13 @@ class main_module
 
 	function main($id, $mode)
 	{
-		global $db, $user, $auth, $template;
-		global $config, $phpbb_root_path, $phpbb_admin_path, $phpEx;
+		global $db, $user, $auth, $template, $request;
+		global $config, $phpbb_root_path, $phpbb_admin_path, $phpEx, $phpbb_log;
 		global $cache, $phpbb_container, $phpbb_dispatcher;
 
 		$user->add_lang_ext('phpbbservices/smartfeed', 'info_acp_common');
 
-		$action	= request_var('action', '');
+		$action	= $request->variable('action', '');
 		$submit = (isset($_POST['submit'])) ? true : false;
 
 		$form_key = 'phpbbservices/smartfeed';
@@ -94,7 +94,7 @@ class main_module
 		}
 
 		$this->new_config = $config;
-		$cfg_array = (isset($_REQUEST['config'])) ? utf8_normalize_nfc(request_var('config', array('' => ''), true)) : $this->new_config;
+		$cfg_array = (isset($_REQUEST['config'])) ? utf8_normalize_nfc($request->variable('config', array('' => ''), true)) : $this->new_config;
 		$error = array();
 
 		// We validate the complete config if wished
@@ -130,15 +130,13 @@ class main_module
 					// send the password to the output
 					continue;
 				}
-				set_config($config_name, $config_value);
-
+				$config->set($config_name, $config_value);
 			}
 		}
 
 		if ($submit)
 		{
-			add_log('admin', 'LOG_CONFIG_' . strtoupper($mode));
-
+			$phpbb_log->add('admin', $user->data['user_id'], $user->ip, 'LOG_CONFIG_' . strtoupper($mode));
 			$message = $user->lang('CONFIG_UPDATED');
 			$message_type = E_USER_NOTICE;
 			trigger_error($message . adm_back_link($this->u_action), $message_type);
