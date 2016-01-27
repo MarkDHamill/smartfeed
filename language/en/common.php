@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Smartfeed
-* @copyright (c) 2015 Mark D. Hamill (mark@phpbbservices.com)
+* @copyright (c) 2016 Mark D. Hamill (mark@phpbbservices.com)
 * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
 *
 */
@@ -87,11 +87,10 @@ $lang = array_merge($lang, array(
 	'SMARTFEED_NEW_PMS_NOTIFICATIONS_ONLY'				=> 'You have new private messages on the forum. Please log in to the forum to read them.',
 	'SMARTFEED_NEW_PMS_NOTIFICATIONS_SHORT'				=> 'You have new private messages',
 	'SMARTFEED_NEW_POST_NOTIFICATIONS_ONLY'				=> 'There are new posts in this topic. Please login to the forum to read them.',
-	'SMARTFEED_NO_ACCESSIBLE_FORUMS'					=> 'You have no permission to access any forums on this site. If you are registered on this site, you may need the administrator to give you privileges to read forums orreinstate you as an active member.',
+	'SMARTFEED_NO_ACCESSIBLE_FORUMS'					=> 'You have no permission to access any forums on this site. If you are registered on this site, you may need the administrator to give you privileges to read forums or reinstate you as an active member.',
 	'SMARTFEED_NO_BOOKMARKS'							=> 'You have no bookmarked topics but you requested to show bookmarked topics only. Consequently, there are no posts in the feed. If you wish to use bookmarks with Smartfeed, please visit the forum and bookmark one or more topics.',
 	'SMARTFEED_NO_FORUMS_ACCESSIBLE' 					=> 'Sorry, due to Smartfeed forum exclusions and your forum access privileges, you cannot access any forums',
 	'SMARTFEED_NO_MCRYPT_MODULE'						=> 'Smartfeed cannot support user authentication because the forum does not support the PHP mcrypt module. Please rerun Smartfeed on the forum while logged out to acquire a valid URI for Smartfeed.',
-	'SMARTFEED_NO_MCRYPT_SUPPORT'						=> 'Smartfeed cannot support user authentication because the forum does not support the PHP mcrypt module.',
 	'SMARTFEED_NO_E_ARGUMENT'							=> 'To authenticate a member, the &quot;e&quot; parameter must be used with the &quot;u&quot; parameter. The &quot;u&quot; parameter is present but the &quot;e&quot; parameter is not. Please rerun Smartfeed on the forum to generate a correct feed URL.',
 	'SMARTFEED_NO_ERRORS' 								=> 'No errors.',
 	'SMARTFEED_NO_FORUMS_AVAILABLE' 					=> 'Sorry, due to your user status you cannot access any forums',

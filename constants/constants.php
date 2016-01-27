@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Smartfeed
-* @copyright (c) 2015 Mark D. Hamill (mark@phpbbservices.com)
+* @copyright (c) 2016 Mark D. Hamill (mark@phpbbservices.com)
 * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
 *
 */
@@ -65,9 +65,9 @@ class constants {
 	const SMARTFEED_RSS2 ='2'; 							// Was RSS2.0
 	
 	// Miscellaneous
-	const SMARTFEED_GENERATOR = 'Smartfeed Extension for phpBB 3.1';	// Does not need to be language specific, used in feed text because some feed format require it.
+	const SMARTFEED_GENERATOR = 'Smartfeed Extension for phpBB 3.1';	// Does not need to be language specific, used in feed text because some feed formats require it.
 	const SMARTFEED_IV = 'asdfghjk';	// Used to help encrypt and decrypt user_smartfeed_key. This does not have to be secret but it should be 8 characters. 
 										// See the mcrypt documentation. If you change this authentication for registered users should fail, so don't!
-	const SMARTFEED_VERSION = '3.0.2'; // Update for each release. Needed to support <generator> tag in Atom 1.0.
+	const SMARTFEED_VERSION = '3.0.3'; // Update for each release. Needed to support <generator> tag in Atom 1.0.
 
 }

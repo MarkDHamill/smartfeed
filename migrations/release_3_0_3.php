@@ -2,14 +2,14 @@
 /**
 *
 * @package phpBB Extension - Smartfeed
-* @copyright (c) 2015 Mark D. Hamill (mark@phpbbservices.com)
+* @copyright (c) 2016 Mark D. Hamill (mark@phpbbservices.com)
 * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
 *
 */
 
 namespace phpbbservices\smartfeed\migrations;
 
-class release_3_0_2 extends \phpbb\db\migration\migration
+class release_3_0_3 extends \phpbb\db\migration\migration
 {
 	public function effectively_installed()
 	{

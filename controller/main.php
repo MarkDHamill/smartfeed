@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Smartfeed
-* @copyright (c) 2015 Mark D. Hamill (mark@phpbbservices.com)
+* @copyright (c) 2016 Mark D. Hamill (mark@phpbbservices.com)
 * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
 *
 */
@@ -914,11 +914,11 @@ class main
 				$sql_array['LEFT_JOIN'] = array(
 					array(
 						'FROM'	=> array(TOPICS_TRACK_TABLE => 'tt'),
-						'ON'	=> 't.topic_id = tt.topic_id'
+						'ON'	=> 't.topic_id = tt.topic_id AND tt.user_id = u.user_id'
 					),
 					array(
 						'FROM'	=> array(FORUMS_TRACK_TABLE => 'ft'),
-						'ON'	=> 'f.forum_id = ft.forum_id'
+						'ON'	=> 'f.forum_id = ft.forum_id AND ft.user_id = u.user_id'
 					)
 				);
 				
@@ -1075,6 +1075,10 @@ class main
 									}
 						
 									$message = ($user_sig != '') ? $message . $this->user->lang['SMARTFEED_POST_SIGNATURE_DELIMITER'] . $user_sig : $message;
+
+									$message = str_replace('<img src="./', '<img src="' . $board_url, $message); 
+									$message = str_replace('<img class="smilies" src="./', '<img class="smilies" src="' . $board_url, $message);
+
 									if ($feed_style == constants::SMARTFEED_HTMLSAFE)
 									{
 										$message = strip_tags($message, $allowable_tags);
@@ -1299,7 +1303,6 @@ class main
 										}
 														
 										$post_text = generate_text_for_display($post_text, $row['bbcode_uid'], $row['bbcode_bitfield'], $flags);
-										$post_text = str_replace('<img src="./', '<img src="' . $board_url, $post_text); 
 										
 										if ($user_sig != '')
 										{
@@ -1307,6 +1310,10 @@ class main
 										}
 							
 										$post_text = ($user_sig != '') ? $post_text . $this->user->lang['SMARTFEED_POST_SIGNATURE_DELIMITER'] . $user_sig : $post_text;
+
+										$post_text = str_replace('<img src="./', '<img src="' . $board_url, $post_text); 
+										$post_text = str_replace('<img class="smilies" src="./', '<img class="smilies" src="' . $board_url, $post_text);
+
 										if ($feed_style == constants::SMARTFEED_HTMLSAFE)
 										{
 											$post_text = strip_tags($post_text, $allowable_tags);
