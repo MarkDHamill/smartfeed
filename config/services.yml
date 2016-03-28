@@ -1,6 +1,17 @@
 services:
-    phpbbservices.smartfeed.controller:
-        class: phpbbservices\smartfeed\controller\main
+    phpbbservices.smartfeed.controller.ui:
+        class: phpbbservices\smartfeed\controller\ui
+        arguments:
+            - @config
+            - @controller.helper
+            - @template
+            - @user
+            - %core.php_ext%
+            - @dbal.conn
+            - @auth
+            - %core.root_path%
+    phpbbservices.smartfeed.controller.feed:
+        class: phpbbservices\smartfeed\controller\feed
         arguments:
             - @config
             - @controller.helper
@@ -17,5 +28,6 @@ services:
             - @config
             - @controller.helper
             - @template
+            - %core.php_ext%
         tags:
             - { name: event.listener }

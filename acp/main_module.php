@@ -9,11 +9,6 @@
 
 namespace phpbbservices\smartfeed\acp;
 
-if (!defined('IN_PHPBB'))
-{
-	exit;
-}
-
 class main_module
 {
 	var $u_action;
@@ -47,9 +42,9 @@ class main_module
 					'vars'	=> array(
 						'legend1'											=> 'GENERAL_SETTINGS',
 						'phpbbservices_smartfeed_max_items'					=> array('lang' => 'ACP_SMARTFEED_MAX_ITEMS',							'validate' => 'int:0',	'type' => 'text:5:5', 'explain' => true),
-						'phpbbservices_smartfeed_default_fetch_time_limit'	=> array('lang' => 'ACP_SMARTFEED_DEFAULT_FETCH_TIME_LIMIT',			'validate' => 'int:0',	'type' => 'text:5:5', 'explain' => true, 'append' 				=> ' ' . $user->lang['ACP_SMARTFEED_HOURS']),
+						'phpbbservices_smartfeed_default_fetch_time_limit'	=> array('lang' => 'ACP_SMARTFEED_DEFAULT_FETCH_TIME_LIMIT',			'validate' => 'int:0',	'type' => 'text:5:5', 'explain' => true, 'append' 				=> ' ' . $user->lang('ACP_SMARTFEED_HOURS')),
 						'phpbbservices_smartfeed_max_word_size'				=> array('lang' => 'ACP_SMARTFEED_MAX_WORD_SIZE',							'validate' => 'int:0',	'type' => 'text:5:5', 'explain' => true),
-						'phpbbservices_smartfeed_ttl'						=> array('lang' => 'ACP_SMARTFEED_TTL',									'validate' => 'int:0',	'type' => 'text:4:4', 'explain' => true, 'append' => ' ' . $user->lang['ACP_SMARTFEED_MINUTES']),
+						'phpbbservices_smartfeed_ttl'						=> array('lang' => 'ACP_SMARTFEED_TTL',									'validate' => 'int:0',	'type' => 'text:4:4', 'explain' => true, 'append' => ' ' . $user->lang('ACP_SMARTFEED_MINUTES')),
 					)
 				);
 			break;
@@ -102,7 +97,7 @@ class main_module
 
 		if ($submit && !check_form_key($form_key))
 		{
-			$error[] = $user->lang['FORM_INVALID'];
+			$error[] = $user->lang('FORM_INVALID');
 		}
 		
 		// Do not write values if there is an error
@@ -123,13 +118,6 @@ class main_module
 
 			if ($submit)
 			{
-				if (strpos($data['type'], 'password') === 0 && $config_value === '********')
-				{
-					// Do not update password fields if the content is ********,
-					// because that is the password replacement we use to not
-					// send the password to the output
-					continue;
-				}
 				$config->set($config_name, $config_value);
 			}
 		}
@@ -146,8 +134,8 @@ class main_module
 		$this->page_title = $display_vars['title'];
 
 		$template->assign_vars(array(
-			'L_TITLE'			=> $user->lang[$display_vars['title']],
-			'L_TITLE_EXPLAIN'	=> $user->lang[$display_vars['title'] . '_EXPLAIN'],
+			'L_TITLE'			=> $user->lang($display_vars['title']),
+			'L_TITLE_EXPLAIN'	=> $user->lang($display_vars['title'] . '_EXPLAIN'),
 
 			'S_ERROR'			=> (sizeof($error)) ? true : false,
 			'ERROR_MSG'			=> implode('<br />', $error),
@@ -167,7 +155,7 @@ class main_module
 			{
 				$template->assign_block_vars('options', array(
 					'S_LEGEND'		=> true,
-					'LEGEND'		=> (isset($user->lang[$vars])) ? $user->lang[$vars] : $vars)
+					'LEGEND'		=> (NULL !== $user->lang($vars)) ? $user->lang($vars) : $vars)
 				);
 
 				continue;
@@ -178,11 +166,11 @@ class main_module
 			$l_explain = '';
 			if ($vars['explain'] && isset($vars['lang_explain']))
 			{
-				$l_explain = (isset($user->lang[$vars['lang_explain']])) ? $user->lang[$vars['lang_explain']] : $vars['lang_explain'];
+				$l_explain = (NULL !== $user->lang($vars['lang_explain'])) ? $user->lang($vars['lang_explain']) : $vars['lang_explain'];
 			}
 			else if ($vars['explain'])
 			{
-				$l_explain = (isset($user->lang[$vars['lang'] . '_EXPLAIN'])) ? $user->lang[$vars['lang'] . '_EXPLAIN'] : '';
+				$l_explain = (NULL !== $user->lang($vars['lang'] . '_EXPLAIN')) ? $user->lang($vars['lang'] . '_EXPLAIN') : '';
 			}
 
 			$content = build_cfg_template($type, $config_key, $this->new_config, $config_key, $vars);
@@ -194,7 +182,7 @@ class main_module
 
 			$template->assign_block_vars('options', array(
 				'KEY'			=> $config_key,
-				'TITLE'			=> (isset($user->lang[$vars['lang']])) ? $user->lang[$vars['lang']] : $vars['lang'],
+				'TITLE'			=> (NULL !== $user->lang($vars['lang'])) ? $user->lang($vars['lang']) : $vars['lang'],
 				'S_EXPLAIN'		=> $vars['explain'],
 				'TITLE_EXPLAIN'	=> $l_explain,
 				'CONTENT'		=> $content,

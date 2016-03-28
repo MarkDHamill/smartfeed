@@ -1,3 +1,6 @@
-phpbbservices_smartfeed_controller:
-    path: /smartfeed/{name}
-    defaults: { _controller: phpbbservices.smartfeed.controller:handle }
+phpbbservices_smartfeed_ui_controller:
+    path: /smartfeed/ui
+    defaults: { _controller: phpbbservices.smartfeed.controller.ui:handle }
+phpbbservices_smartfeed_feed_controller:
+    path: /smartfeed/feed
+    defaults: { _controller: phpbbservices.smartfeed.controller.feed:handle }

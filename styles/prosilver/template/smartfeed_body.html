@@ -1,4 +1,3 @@
-<!-- IF S_SMARTFEED_USER_INTERFACE -->
 <!-- INCLUDE overall_header.html -->
 <h2>{L_SMARTFEED_TITLE}</h2>
 
@@ -13,13 +12,13 @@
 <p>{L_SMARTFEED_EXPLANATION}</p>
 <form id="phpbbservices_smartfeed" action="#">
 	<div class="panel">
-		<div class="inner"><span class="corners-top"><span></span></span>
+		<div class="inner">
 
 		<h3>{L_SMARTFEED_FORUM_SELECTION}</h3>
 
 		<fieldset>
 			<dl>
-				<dt><label for="all_forums">{L_SMARTFEED_SELECT_FORUMS}:</label><br /><span class="gensmall">{L_SMARTFEED_SELECT_FORUMS_EXPLAIN}</span></dt>
+				<dt><label for="all_forums">{L_SMARTFEED_SELECT_FORUMS}{L_COLON}</label><br /><span class="gensmall">{L_SMARTFEED_SELECT_FORUMS_EXPLAIN}</span></dt>
 				<dd>
 					<input type="checkbox" name="all_forums" id="all_forums" {S_SMARTFEED_ALL_BY_DEFAULT} onClick="uncheck_subscribed_forums(this);" onChange="reset_url(this);"/> <label for="all_forums"><b>{L_SMARTFEED_ALL_FORUMS}</b></label><br /><br />
 					<div id="div_0">
@@ -47,7 +46,7 @@
 
 		<fieldset>
 			<dl>
-				<dt><label>{L_SMARTFEED_FIRST_POST_ONLY}:</label></dt>
+				<dt><label>{L_SMARTFEED_FIRST_POST_ONLY}{L_COLON}</label></dt>
 				<dd>
 					<input type="radio" name="firstpostonly" id="firstpostonly2" value="NO" onChange="reset_url(this);" onClick="disable_or_enable_all_the_forums(0);" checked="checked" /><label for="firstpostonly2">{L_SMARTFEED_POSTS_TYPE_ANY}</label>
 					<input type="radio" name="firstpostonly" id="firstpostonly1" value="YES" onChange="reset_url(this);" onClick="disable_or_enable_all_the_forums(0);" /><label for="firstpostonly1">{L_SMARTFEED_POSTS_TYPE_FIRST}</label> 
@@ -57,7 +56,7 @@
 				</dd>
 			</dl>
 			<dl>
-				<dt><label>{L_SMARTFEED_LIMIT}:</label><br /><span class="gensmall">{L_SMARTFEED_LIMIT_EXPLAIN} {L_SMARTFEED_LIMIT_SET_EXPLAIN}</span></dt>
+				<dt><label>{L_SMARTFEED_LIMIT}{L_COLON}</label><br /><span class="gensmall">{L_SMARTFEED_LIMIT_EXPLAIN} {L_SMARTFEED_LIMIT_SET_EXPLAIN}</span></dt>
 				<dd>
 					<select name="post_limit" id="post_limit" onChange="reset_url(this);">
 						<!-- IF not S_SMARTFEED_IS_GUEST -->
@@ -79,25 +78,25 @@
 				</dd>
 			</dl>
 			<dl>
-				<dt><label for="max_items">{L_SMARTFEED_MAX_ITEMS}:</label><br /><span class="gensmall">{L_SMARTFEED_MAX_ITEMS_EXPLAIN_MAX}</span></dt>
+				<dt><label for="max_items">{L_SMARTFEED_MAX_ITEMS}{L_COLON}</label><br /><span class="gensmall">{L_SMARTFEED_MAX_ITEMS_EXPLAIN_MAX}</span></dt>
 					<dd><input type="text" class="inputbox autowidth" size="3" maxlength="3" name="max_items" id="max_items" value="{S_SMARTFEED_MAX_ITEMS}" onBlur="check_whole_number_range(this,{S_SMARTFEED_MAX_ITEMS},false);" onChange="reset_url(this);" />
 				</dd>
 			</dl>
 			<dl>
-				<dt><label for="min_words">{L_SMARTFEED_MIN_WORDS}:</label><br /><span class="gensmall">{L_SMARTFEED_MIN_WORDS_EXPLAIN}</span></dt>
+				<dt><label for="min_words">{L_SMARTFEED_MIN_WORDS}{L_COLON}</label><br /><span class="gensmall">{L_SMARTFEED_MIN_WORDS_EXPLAIN}</span></dt>
 					<dd><input type="text" class="inputbox autowidth" size="4" maxlength="4" name="min_words" id="min_words" value="0" onBlur="check_for_negative_value(this);" onChange="reset_url(this);" />
 				</dd>
 			</dl>
 			<!-- IF not S_SMARTFEED_IS_GUEST -->
 			<dl>
-				<dt><label>{L_SMARTFEED_REMOVE_YOURS}:</label></dt>
+				<dt><label>{L_SMARTFEED_REMOVE_YOURS}{L_COLON}</label></dt>
 				<dd>
 					<label for="remove_yours1"><input type="radio" name="remove_yours" id="remove_yours1" value="YES" onChange="reset_url(this);" /> {L_YES}</label> 
 					<label for="remove_yours2"><input type="radio" name="remove_yours" id="remove_yours2" value="NO" onChange="reset_url(this);" checked="checked" /> {L_NO}</label>
 				</dd>
 			</dl>
 			<dl>
-				<dt><label>{L_SMARTFEED_FILTER_FOES}:</label></dt>
+				<dt><label>{L_SMARTFEED_FILTER_FOES}{L_COLON}</label></dt>
 				<dd>
 					<label for="filter_foes1"><input type="radio" name="filter_foes" id="filter_foes1" value="YES" onChange="reset_url(this);" /> {L_YES}</label> 
 					<label for="filter_foes2"><input type="radio" name="filter_foes" id="filter_foes2" value="NO" onChange="reset_url(this);" checked="checked" /> {L_NO}</label>
@@ -110,7 +109,7 @@
 
 		<fieldset>
 			<dl>
-				<dt><label for="sort_by">{L_SMARTFEED_SORT_BY}:</label><br /><span class="gensmall">{L_SMARTFEED_SORT_BY_EXPLAIN}</span></dt>
+				<dt><label for="sort_by">{L_SMARTFEED_SORT_BY}{L_COLON}</label><br /><span class="gensmall">{L_SMARTFEED_SORT_BY_EXPLAIN}</span></dt>
 				<dd>
 					<select name="sort_by" id="sort_by" onChange="reset_url(this);">
 					<!-- IF not S_SMARTFEED_IS_GUEST -->
@@ -125,7 +124,7 @@
 			</dl>
 			<!-- IF not S_SMARTFEED_IS_GUEST -->
 			<dl>
-				<dt><label>{L_SMARTFEED_PRIVATE_MESSAGES_IN_FEED}:</label></dt>
+				<dt><label>{L_SMARTFEED_PRIVATE_MESSAGES_IN_FEED}{L_COLON}</label></dt>
 				<dd>
 					<label for="pms1"><input type="radio" name="pms" id="pms1" value="YES" onChange="reset_url(this);" /> {L_YES}</label> 
 					<label for="pms2"><input type="radio" name="pms" id="pms2" value="NO" onChange="reset_url(this);" checked="checked" /> {L_NO}</label> &nbsp;<input type="checkbox" name="mark_read" id="mark_read" /> <label for="mark_read">{L_SMARTFEED_MARK_READ}</label>
@@ -133,23 +132,23 @@
 			</dl>
 			<!-- ENDIF -->
 			<dl>
-				<dt><label for="max_word_size">{L_SMARTFEED_MAX_WORD_SIZE}:</label><br /><span class="gensmall">{L_SMARTFEED_MAX_WORD_SIZE_EXPLAIN}</span></dt>
+				<dt><label for="max_word_size">{L_SMARTFEED_MAX_WORD_SIZE}{L_COLON}</label><br /><span class="gensmall">{L_SMARTFEED_MAX_WORD_SIZE_EXPLAIN}</span></dt>
 					<dd><input type="text" class="inputbox autowidth" size="4" maxlength="4" name="max_word_size" id="max_word_size" value="{S_SMARTFEED_MAX_WORD_SIZE}" onBlur="check_for_negative_value(this);" onChange="reset_url(this);" />
 				</dd>
 			</dl>
 		</fieldset>
 
-		<span class="corners-bottom"><span></span></span></div>
+		</div>
 	</div>
 
 	<div class="panel bg2">
-		<div class="inner"><span class="corners-top"><span></span></span>
+		<div class="inner">
 
 		<h3>{L_SMARTFEED_FORMAT_AND_ACCESS}</h3>
 
 		<fieldset>
 			<dl>
-				<dt><label>{L_SMARTFEED_FEED_TYPE}:</label></dt>
+				<dt><label>{L_SMARTFEED_FEED_TYPE}{L_COLON}</label></dt>
 				<dd>
 					<label for="feed_type3"><input type="radio" name="feed_type" id="feed_type3" value="{S_SMARTFEED_ATOM_10_VALUE}" onChange="reset_url(this);" checked="checked" /> <img src="{U_SMARTFEED_IMAGE_PATH}newsfeed_atom10.gif" alt="{L_SMARTFEED_ATOM_10}" title="{L_SMARTFEED_ATOM_10}" style="vertical-align:-3px" /></label>
 					<label for="feed_type1"><input type="radio" name="feed_type" id="feed_type1" value="{S_SMARTFEED_RSS_20_VALUE}" onChange="reset_url(this);" /> <img src="{U_SMARTFEED_IMAGE_PATH}newsfeed_rss20.gif" alt="{L_SMARTFEED_RSS_20}" title="{L_SMARTFEED_RSS_20}" style="vertical-align:-3px" /></label> 
@@ -157,7 +156,7 @@
 				</dd>
 			</dl>
 			<dl>
-				<dt><label>{L_SMARTFEED_FEED_STYLING}:</label><br /><span class="gensmall">{L_SMARTFEED_FEED_STYLING_EXPLAIN}</span></dt>
+				<dt><label>{L_SMARTFEED_FEED_STYLING}{L_COLON}</label><br /><span class="gensmall">{L_SMARTFEED_FEED_STYLING_EXPLAIN}</span></dt>
 				<dd>
 					<label for="style1" title="{L_SMARTFEED_STYLE_COMPACT_EXPLAIN}"><input type="radio" name="style" id="style1" value="{S_SMARTFEED_COMPACT_VALUE}" onChange="reset_url(this);" checked="checked" /> {L_SMARTFEED_STYLE_COMPACT}</label><br />
 					<label for="style2" title="{L_SMARTFEED_STYLE_BASIC_EXPLAIN}"><input type="radio" name="style" id="style2" style="margin-top: 3px;" value="{S_SMARTFEED_BASIC_VALUE}" onChange="reset_url(this);" /> {L_SMARTFEED_STYLE_BASIC}</label><br />
@@ -168,14 +167,14 @@
 
 			<!-- IF not S_SMARTFEED_IS_GUEST -->
 			<dl>
-				<dt><label>{L_SMARTFEED_LASTVISIT_RESET}:</label></dt>
+				<dt><label>{L_SMARTFEED_LASTVISIT_RESET}{L_COLON}</label></dt>
 				<dd>
 					<label for="lastvisit1"><input type="radio" name="lastvisit" id="lastvisit1" value="YES" onChange="reset_url(this);" checked="checked" /> {L_YES}</label> 
 					<label for="lastvisit2"><input type="radio" name="lastvisit" id="lastvisit2" value="NO" onChange="reset_url(this);" /> {L_NO}</label>
 				</dd>
 			</dl>
 			<dl>
-				<dt><label>{L_SMARTFEED_IP_AUTH}:</label><br /><span class="gensmall">{L_SMARTFEED_IP_AUTHENTICATION_EXPLAIN}</span></dt>
+				<dt><label>{L_SMARTFEED_IP_AUTH}{L_COLON}</label><br /><span class="gensmall">{L_SMARTFEED_IP_AUTHENTICATION_EXPLAIN}</span></dt>
 				<dd>
 					<label for="ip_auth1"><input type="radio" name="ip_auth" id="ip_auth1" value="YES" onChange="reset_url(this);" /> {L_YES}</label> 
 					<label for="ip_auth2"><input type="radio" name="ip_auth" id="ip_auth2" value="NO" onChange="reset_url(this);" checked="checked" /> {L_NO}</label><br />
@@ -185,24 +184,24 @@
 
 		</fieldset>
 
-		<span class="corners-bottom"><span></span></span></div>
+		</div>
 	</div>
 
 	<div class="panel bg3">
-		<div class="inner"><span class="corners-top"><span></span></span>
+		<div class="inner">
 
 		<h3>{L_SMARTFEED_URL}</h3>
 
 		<fieldset>
 			<dl>
-				<dt><label>{L_SMARTFEED_GENERATE_BUTTON}:</label><br /><span class="gensmall">{L_SMARTFEED_GENERATE_BUTTON_EXPLAIN}</span></dt>
+				<dt><label>{L_SMARTFEED_GENERATE_BUTTON}{L_COLON}</label><br /><span class="gensmall">{L_SMARTFEED_GENERATE_BUTTON_EXPLAIN}</span></dt>
 				<dd>
 					<input type="button" value="{L_SMARTFEED_GENERATE_URL_TEXT}" class="button1" onClick="create_URL();"/><br />
 					<input type="text" class="inputbox" name="url" id="url" style="margin-top: 3px;" maxlength="3000" onFocus="this.select();" />
 				</dd>
 			</dl>
 			<dl>
-				<dt><label>{L_SMARTFEED_TEST_BUTTON}:</label><br /><span class="gensmall">{L_SMARTFEED_TEST_BUTTON_EXPLAIN}</span></dt>
+				<dt><label>{L_SMARTFEED_TEST_BUTTON}{L_COLON}</label><br /><span class="gensmall">{L_SMARTFEED_TEST_BUTTON_EXPLAIN}</span></dt>
 				<dd>
 					<input type="button" name="runit" id="runit" value="{L_SMARTFEED_TEST}" class="button1" onClick="test_feed();"/><br />
 				</dd>
@@ -214,116 +213,13 @@
 			</div>
 		</fieldset>
 
-		<span class="corners-bottom"><span></span></span></div>
+		</div>
 	</div>
 
 </form>
-<!-- ENDIF -->
 
 <div class="copyright">
 	Powered by <a href="{U_SMARTFEED_PAGE_URL}" class="postlink" onClick="window.open(this.href);return false;">{L_SMARTFEED_POWERED_BY}</a>
 </div>
-
+<!-- ENDIF -->
 <!-- INCLUDE overall_footer.html -->
-<!-- ELSE -->
-<!-- IF S_SMARTFEED_FEED_TYPE eq 1 -->
-<?xml version="1.0" encoding="utf-8"?>
-<rdf:RDF
-	xmlns="http://purl.org/rss/1.0/"
-	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
-	xmlns:dc="http://purl.org/dc/elements/1.1/">
-	<channel rdf:about="{S_SMARTFEED_FEED_CHANNEL_ABOUT}">
-		<title><![CDATA[{L_SMARTFEED_FEED_TITLE}]]></title>
-		<description>{L_SMARTFEED_FEED_DESCRIPTION}</description>
-		<link>{U_SMARTFEED_FEED_LINK}</link>
-		<image rdf:resource="{U_SMARTFEED_FEED_IMAGE}" />
-		<dc:date>{S_SMARTFEED_FEED_UPDATED}</dc:date>
-		<items>
-<!-- BEGIN items -->
-			<rdf:Seq>
-				<rdf:li rdf:resource="{items.U_RESOURCE}"/>
-			</rdf:Seq>
-<!-- END items -->
-		</items>
-	</channel>
-	<image rdf:about="{U_SMARTFEED_FEED_IMAGE}">
-		<title><![CDATA[{L_SMARTFEED_FEED_IMAGE_TITLE}]]></title>
-		<link>{U_SMARTFEED_FEED_IMAGE_LINK}</link>
-		<url>{U_SMARTFEED_FEED_IMAGE}</url>
-	</image>
-<!-- BEGIN items -->
-	<item rdf:about="{items.U_LINK}">
-		<dc:format>text/html</dc:format>
-		<dc:date>{items.S_DATE}</dc:date>
-		<dc:source>{items.U_SOURCE}</dc:source>
-		<dc:creator><![CDATA[{items.S_CREATOR}]]></dc:creator>
-		<title><![CDATA[{items.L_TITLE}]]></title>
-		<link>{items.U_LINK}</link>
-		<description><![CDATA[{items.L_DESCRIPTION}]]></description>
-	</item>
-<!-- END items -->
-</rdf:RDF>
-<!-- ELSEIF S_SMARTFEED_FEED_TYPE eq 2 -->
-<?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-	<channel>
-		<title><![CDATA[{L_SMARTFEED_FEED_TITLE}]]></title>
-		<description><![CDATA[{L_SMARTFEED_FEED_DESCRIPTION}]]></description>
-		<link>{U_SMARTFEED_FEED_ID}</link>
-		<lastBuildDate>{S_SMARTFEED_FEED_BUILD_DATE}</lastBuildDate>
-		<generator>{U_SMARTFEED_FEED_GENERATOR}</generator>
-		<atom:link href="{U_SMARTFEED_FEED_LINK}" type="application/rss+xml" />
-		<!-- IF S_SMARTFEED_SHOW_WEBMASTER -->
-		<webMaster>{U_SMARTFEED_WEBMASTER}</webMaster>
-		<!-- ENDIF -->
-		<image>
-			<url>{U_SMARTFEED_FEED_IMAGE}</url>
-			<title><![CDATA[{L_SMARTFEED_FEED_IMAGE_TITLE}]]></title>
-			<link>{U_SMARTFEED_FEED_ID}</link>
-		</image>
-		<language>{S_SMARTFEED_FEED_LANGUAGE}</language>
-		<pubDate>{S_SMARTFEED_FEED_PUBDATE}</pubDate>
-		<ttl>{S_SMARTFEED_FEED_TTL}</ttl>
-<!-- BEGIN items -->
-		<item>
-			<title><![CDATA[{items.L_TITLE}]]></title>
-			<link>{items.U_LINK}</link>
-			<description><![CDATA[{items.L_DESCRIPTION}]]></description>
-			<author>{items.S_AUTHOR}</author>
-			<category><![CDATA[{items.L_CATEGORY}]]></category>
-			<comments>{items.U_COMMENTS}</comments>
-			<pubDate>{items.S_PUBDATE}</pubDate>
-			<guid isPermaLink="false">{items.U_GUID}</guid>
-		</item>
-<!-- END items -->
-	</channel>
-</rss>
-<!-- ELSE -->
-<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en-GB">
-	<title><![CDATA[{L_SMARTFEED_FEED_TITLE}]]></title>
-	<subtitle><![CDATA[{L_SMARTFEED_FEED_DESCRIPTION}]]></subtitle>
-	<id>{U_SMARTFEED_FEED_ID}</id>
-	<link type="application/atom+xml" href="{U_SMARTFEED_FEED_LINK}" />
-	<updated>{S_SMARTFEED_FEED_UPDATED}</updated>
-	<generator uri="{U_SMARTFEED_FEED_PAGE_URL}" version="{S_SMARTFEED_FEED_VERSION}">{U_SMARTFEED_FEED_GENERATOR}</generator>
-<!-- BEGIN items -->
-	<entry>
-		<title><![CDATA[{items.L_TITLE}]]></title>
-		<link rel="alternate" type="text/html" href="{items.U_LINK}"/>
-		<published>{items.S_PUBLISHED}</published>
-		<updated>{items.S_UPDATED}</updated>
-		<id>{items.U_ID}</id>
-		<author>
-			<name><![CDATA[{items.L_NAME}]]></name>
-			<email><![CDATA[{items.L_EMAIL}]]></email>
-		</author>
-		<category term="{items.L_CATEGORY}" />
-		<content type="html"><![CDATA[{items.L_CONTENT}]]></content>
-		<summary type="html"><![CDATA[{items.L_SUMMARY}]]></summary>
-	</entry>
-<!-- END items -->
-</feed>
-<!-- ENDIF -->
-<!-- ENDIF -->

@@ -31,8 +31,8 @@ class constants {
 	const SMARTFEED_USER_ID = 'u';						// unchanged
 	
 	// These constants are used to set the time limit for the feed
-	const SMARTFEED_USE_DEFAULT_FETCH_TIME_LIMIT = 0;	// Not selectable =means was not specified
-	const SMARTFEED_SINCE_LAST_VISIT_VALUE = 1; 				// was LF for Last Visit
+	const SMARTFEED_USE_DEFAULT_FETCH_TIME_LIMIT = 0;	// Not selectable means was not specified
+	const SMARTFEED_SINCE_LAST_VISIT_VALUE = 1; 		// was LF for Last Visit
 	const SMARTFEED_NO_LIMIT_VALUE = 2; 				// was NO_LIMIT
 	const SMARTFEED_LAST_QUARTER_VALUE = 3; 			// was 3_MONTH
 	const SMARTFEED_LAST_MONTH_VALUE = 4; 				// was 1_MONTH

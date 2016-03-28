@@ -9,7 +9,7 @@
 
 namespace phpbbservices\smartfeed\migrations;
 
-class release_3_0_3 extends \phpbb\db\migration\migration
+class release_3_0_4 extends \phpbb\db\migration\migration
 {
 	public function effectively_installed()
 	{

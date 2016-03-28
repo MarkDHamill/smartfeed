@@ -103,27 +103,27 @@ function check_whole_number_range (field, maxValue, allowStar)
 {
 	// If a star (wildcard) is allowed in a field, it is accepted. If the value is negative or it exceeds maxValue an error dialog appears and the default 
 	// value shows in the field again.
-	starMessage = (allowStar) ? '{L_SMARTFEED_STAR_MESSAGE}' : '';
+	starMessage = (allowStar) ? '{LA_SMARTFEED_STAR_MESSAGE}' : '';
 	if ((allowStar) && (field.value === '*')) {
 		return;
 	}
 	
 	if (isNaN(field.value)) {
-		alert("{L_SMARTFEED_SIZE_ERROR}" + starMessage);
+		alert("{LA_SMARTFEED_SIZE_ERROR}" + starMessage);
 		field.value = field.defaultValue;
 		field.focus();
 		return;
 	}
 	size = parseInt(field.value);
 	if (size < 0) {
-		alert("{L_SMARTFEED_SIZE_ERROR}" + starMessage);
+		alert("{LA_SMARTFEED_SIZE_ERROR}" + starMessage);
 		field.value = field.defaultValue;
 		field.focus();
 		return;
 	}
 	
 	if ((parseInt(maxValue) !== 0) && (size > parseInt(maxValue))) {
-		alert("{L_SMARTFEED_SIZE_ERROR}" + starMessage);
+		alert("{LA_SMARTFEED_SIZE_ERROR}" + starMessage);
 		field.value = field.defaultValue;
 		field.focus();
 		return;
@@ -136,14 +136,14 @@ function check_for_negative_value (field) {
 	// Function returns an error if the value is negative or is not a number
 	field_value = field.value;
 	if (isNaN(field_value)) {
-		alert("{L_SMARTFEED_SIZE_ERROR_MIN}");
+		alert("{LA_SMARTFEED_SIZE_ERROR_MIN}");
 		field.value = field.defaultValue;
 		field.focus();
 	}
 	else {
 		field_value = parseInt(field_value);
 		if (field_value < 0) {
-			alert("{L_SMARTFEED_SIZE_ERROR_MIN}");
+			alert("{LA_SMARTFEED_SIZE_ERROR_MIN}");
 			field.value = field.defaultValue;
 			field.focus();
 		}
@@ -203,7 +203,7 @@ function create_URL() {
 	if ((numChecked===0) && (newsID.all_forums.checked===false) && (bookmarksID.checked===false) && (pms1ID.checked===false))
 	<!-- ELSE -->
 	if ((numChecked===0) && (newsID.all_forums.checked===false)) <!-- ENDIF --> {
-		alert("{L_SMARTFEED_NO_FORUMS_SELECTED}");
+		alert("{LA_SMARTFEED_NO_FORUMS_SELECTED}");
 	}
 	else {
 		createMyURL = true;
@@ -299,7 +299,7 @@ function create_URL() {
 				url = url + append + "{S_SMARTFEED_MAX_ITEMS_L}=" + newsID.max_items.value;
 			}
 			else if (maxItems < 0) {
-				alert("{L_SMARTFEED_SIZE_ERROR}");
+				alert("{LA_SMARTFEED_SIZE_ERROR}");
 				newsID.max_items.focus();
 				return;
 			}
@@ -316,7 +316,7 @@ function create_URL() {
 				url = url + append + "{S_SMARTFEED_MIN_WORDS}=" + newsID.min_words.value;
 			}
 			else  if (newsID.min_words.value < 0) {
-				alert("{L_SMARTFEED_SIZE_ERROR_MIN}");
+				alert("{LA_SMARTFEED_SIZE_ERROR_MIN}");
 				newsID.min_words.focus();
 				return;
 			}
@@ -363,7 +363,7 @@ function create_URL() {
 				url = url + append + "{S_SMARTFEED_MAX_WORDS}=" + newsID.max_word_size.value;
 			}
 			else if (newsID.max_word_size.value < 0) {
-				alert("{L_SMARTFEED_SIZE_ERROR_MIN}");
+				alert("{LA_SMARTFEED_SIZE_ERROR_MIN}");
 				newsID.max_word_size.focus();
 				return
 			}

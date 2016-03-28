@@ -30,18 +30,22 @@ class main_listener implements EventSubscriberInterface
 	/* @var \phpbb\template\template */
 	protected $template;
 
+	protected $phpEx;
+	
 	/**
 	* Constructor
 	*
 	* @param \phpbb\config\config		$config
 	* @param \phpbb\controller\helper	$helper		Controller helper object
 	* @param \phpbb\template			$template	Template object
+	* @param string						$php_ext
 	*/
-	public function __construct(\phpbb\config\config $config, \phpbb\controller\helper $helper, \phpbb\template\template $template)
+	public function __construct(\phpbb\config\config $config, \phpbb\controller\helper $helper, \phpbb\template\template $template, $php_ext)
 	{
 		$this->config = $config;
 		$this->helper = $helper;
 		$this->template = $template;
+		$this->phpEx = $php_ext;
 	}
 
 	static public function getSubscribedEvents()
@@ -66,21 +70,19 @@ class main_listener implements EventSubscriberInterface
 	public function add_page_header_link($event)
 	{
 		$this->template->assign_vars(array(
-			'U_SMARTFEED_PAGE'	=> $this->helper->route('phpbbservices_smartfeed_controller', array('name' => 'smartfeed')),
-			'U_SMARTFEED_FEED'	=> $this->helper->route('phpbbservices_smartfeed_controller', array('name' => 'feed')),
+			'U_SMARTFEED_PAGE'	=> $this->helper->route('phpbbservices_smartfeed_ui_controller'),
+			'U_SMARTFEED_FEED'	=> $this->helper->route('phpbbservices_smartfeed_feed_controller'),
 		));
 	}
 	
 	public function overall_header_head_append($event)
 	{
 		
-		global $phpEx;
-
 		$this->template->assign_vars(array(
 			'S_AUTO_ADVERTISE_PUBLIC_FEED'	=> !empty($this->config['phpbbservices_smartfeed_auto_advertise_public_feed']) ? $this->config['phpbbservices_smartfeed_auto_advertise_public_feed'] : false,
 			'U_ATOM_PARAMETERS'					=> $this->config['phpbbservices_smartfeed_public_feed_url_suffix_atom'],
 			'U_RSS_PARAMETERS'					=> $this->config['phpbbservices_smartfeed_public_feed_url_suffix_rss'], 
-			'U_SMARTFEED_URL'					=> generate_board_url() . "/app.$phpEx/smartfeed/feed?",
+			'U_SMARTFEED_URL'					=> generate_board_url() . "/app.$this->phpEx/smartfeed/feed?",
 		));
 	}
    	
