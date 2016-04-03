@@ -71,7 +71,6 @@ class main_listener implements EventSubscriberInterface
 	{
 		$this->template->assign_vars(array(
 			'U_SMARTFEED_PAGE'	=> $this->helper->route('phpbbservices_smartfeed_ui_controller'),
-			'U_SMARTFEED_FEED'	=> $this->helper->route('phpbbservices_smartfeed_feed_controller'),
 		));
 	}
 	
