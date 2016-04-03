@@ -83,6 +83,7 @@ class feed
 		$this->min_words = NULL;
 		$this->feed_style = NULL;
 		$this->remove_my_posts = NULL;
+		$this->show_pms = NULL;
 		$this->mark_private_messages = NULL;
 		$this->bookmarks_only = NULL;
 		$this->filter_foes = NULL;
@@ -282,6 +283,18 @@ class feed
 			else if (!in_array($this->remove_my_posts, $this->true_false_array) || !(is_numeric($this->remove_my_posts)))
 			{
 				throw new \Exception($this->user->lang('SMARTFEED_REMOVE_MINE_ERROR'));
+			}
+
+			// Validate the private messages switch
+			$this->show_pms = $this->request->variable(constants::SMARTFEED_PRIVATE_MESSAGE, 'NONE');
+			
+			if ($this->show_pms == 'NONE')
+			{
+				$this->show_pms = false;	// Default is to not show your private messages
+			}
+			else if (!in_array($this->show_pms, $this->true_false_array) || !(is_numeric($this->show_pms)))
+			{
+				throw new \Exception($this->user->lang('SMARTFEED_BAD_PMS_VALUE'));
 			}
 
 			// Validate the mark read private messages switch
@@ -878,7 +891,7 @@ class feed
 			$rowset = $this->db->sql_fetchrowset($result); // Get all the posts as a set
 	
 			// Add private messages, if requested
-			if ($this->is_registered && $show_pms)
+			if ($this->is_registered && $this->show_pms)
 			{
 			
 				$pm_sql = 	'SELECT *
