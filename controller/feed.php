@@ -9,11 +9,6 @@
 
 namespace phpbbservices\smartfeed\controller;
 
-if (!defined('IN_PHPBB'))
-{
-	exit;
-}
-
 use phpbbservices\smartfeed\constants\constants;
 
 class feed
