@@ -88,6 +88,9 @@ class feed
 		$this->bookmarks_only = NULL;
 		$this->filter_foes = NULL;
 		$this->lastvisit = NULL;
+		
+		// Load language variable specifically for this class
+		$this->user->add_lang_ext('phpbbservices/smartfeed', 'feed');
 	}
 	
 	private function check_for_errors ()
