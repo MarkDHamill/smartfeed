@@ -20,4 +20,5 @@ if (empty($lang) || !is_array($lang))
 $lang = array_merge($lang, array(
 	'SMARTFEED_FEED_TYPE'								=> 'Newsfeed format',
 	'SMARTFEED_FIRST_POST_ONLY'							=> 'Types of posts in feed',
+	'SMARTFEED_PAGE'									=> 'Smartfeed',
 ));
