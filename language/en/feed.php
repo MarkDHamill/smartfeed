@@ -46,7 +46,6 @@ $lang = array_merge($lang, array(
 	'SMARTFEED_NO_MCRYPT_MODULE'						=> 'Smartfeed cannot support user authentication because the forum does not support the PHP mcrypt module. Please rerun Smartfeed on the forum while logged out to acquire a valid URI for Smartfeed.',
 	'SMARTFEED_NO_E_ARGUMENT'							=> 'To authenticate a member, the &quot;e&quot; parameter must be used with the &quot;u&quot; parameter. The &quot;u&quot; parameter is present but the &quot;e&quot; parameter is not. Please rerun Smartfeed on the forum to generate a correct feed URL.',
 	'SMARTFEED_NO_ERRORS' 								=> 'No errors.',
-	'SMARTFEED_NO_FORUMS_AVAILABLE' 					=> 'Sorry, due to your user status you cannot access any forums',
 	'SMARTFEED_NO_U_ARGUMENT'							=> 'To authenticate a member, the &quot;u&quot; parameter must be used with the &quot;e&quot; parameter. The &quot;e&quot; parameter is present but the &quot;u&quot; parameter is not. Please rerun Smartfeed on the forum to generate a correct feed URL.',
 	'SMARTFEED_POST_IMAGE_TEXT'							=> '<br />(Click on the image to see it full size.)',
 	'SMARTFEED_POST_SIGNATURE_DELIMITER'				=> '<br />____________________<br />', // Place here whatever code (make sure it is valid HTML) you want to use to distinguish the end of a post from the beginning of the signature line
