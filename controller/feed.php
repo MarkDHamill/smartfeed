@@ -673,7 +673,7 @@ class feed
 						{
 							if (($auth_setting == 1) && $this->check_all_parents($this->auth, $parent_array, $key))
 							{
-								$allowed_forum_ids[] = $key;
+								$allowed_forum_ids[] = (int) $key;
 							}
 						}
 					}
@@ -702,14 +702,14 @@ class feed
 					}
 					if (substr($item,0,2) == constants::SMARTFEED_FORUMS . '=')
 					{
-						$requested_forum_ids[] = substr($item,2);
+						$requested_forum_ids[] = (int) substr($item,2);
 					}
 				}
 				
 				// To capture global announcements when forums are specified, we have to add the pseudo-forum with a forum_id = 0.
 				if (sizeof($requested_forum_ids) > 0)
 				{
-					$requested_forum_ids[] = '0';
+					$requested_forum_ids[] = (int) 0;
 				}
 				
 				// Sort requested forums by forum_id and ensure there are no duplicates
@@ -731,7 +731,7 @@ class feed
 				}
 				else
 				{
-					$fetched_forums = explode(',', $this->config['phpbbservices_smartfeed_include_forums']);
+					$fetched_forums = explode(',', (int) $this->config['phpbbservices_smartfeed_include_forums']);
 				}
 			
 				// Remove any prohibited forums
@@ -745,7 +745,7 @@ class feed
 				// Create a SQL fragment to return posts from the correct forums
 				if (sizeof($fetched_forums) > 0)
 				{
-					$fetched_forums_str = ' AND ' . $this->db->sql_in_set('p.forum_id', $fetched_forums);
+					$fetched_forums_str = ' AND ' . str_replace("'", '', $this->db->sql_in_set('p.forum_id', $fetched_forums));
 				}
 				else
 				{
@@ -883,7 +883,7 @@ class feed
 			);
 			
 			$sql = $this->db->sql_build_query('SELECT', $sql_array);
-			
+						
 			// Now finally, let's fetch the actual posts to be placed in this newsfeed
 			$result = $this->db->sql_query_limit($sql, $this->max_items); // Execute the SQL to retrieve the relevant posts. Note, if $this->max_items is 0 then there is no limit on the rows returned
 			$rowset = $this->db->sql_fetchrowset($result); // Get all the posts as a set
