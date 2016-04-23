@@ -1038,8 +1038,8 @@ class feed
 				
 							$message = ($user_sig != '') ? $message . $this->user->lang('SMARTFEED_POST_SIGNATURE_DELIMITER') . $user_sig : $message;
 
-							$message = str_replace('<img src="./', '<img src="' . $board_url, $message); 
-							$message = str_replace('<img class="smilies" src="./', '<img class="smilies" src="' . $board_url, $message);
+							$message = str_replace('<img src="./../../', '<img src="' . $board_url, $message); 
+							$message = str_replace('<img class="smilies" src="./../../', '<img class="smilies" src="' . $board_url, $message);
 
 							if ($this->feed_style == constants::SMARTFEED_HTMLSAFE)
 							{
@@ -1282,8 +1282,8 @@ class feed
 					
 								$post_text = ($user_sig != '') ? $post_text . $this->user->lang('SMARTFEED_POST_SIGNATURE_DELIMITER') . $user_sig : $post_text;
 
-								$post_text = str_replace('<img src="./', '<img src="' . $board_url, $post_text); 
-								$post_text = str_replace('<img class="smilies" src="./', '<img class="smilies" src="' . $board_url, $post_text);
+								$post_text = str_replace('<img src="./../../', '<img src="' . $board_url, $post_text); 
+								$post_text = str_replace('<img class="smilies" src="./../../', '<img class="smilies" src="' . $board_url, $post_text);
 
 								if ($this->feed_style == constants::SMARTFEED_HTMLSAFE)
 								{
@@ -1452,10 +1452,11 @@ class feed
 			}
 			else
 			{
+				$my_styles = $this->template->get_user_style();
 				$attachment_markup .= ($row['attach_comment'] == '') ? '' : '<em>' . $row['attach_comment'] . '</em><br />';
 				$attachment_markup .= 
 					sprintf("<img src=\"%s\" title=\"\" alt=\"\" /> ", 
-						generate_board_url() . '/styles/' . get_default_style() . '/theme/images/icon_topic_attach.gif') .
+						generate_board_url() . '/styles/' . $my_styles[0] . '/theme/images/icon_topic_attach.gif') .
 					sprintf("<b><a href=\"%s\">%s</a></b> (%s KiB)<br />",
 						generate_board_url() . "/download/file.$phpEx?id=" . $row['attach_id'], 
 						$row['real_filename'], 
