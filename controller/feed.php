@@ -1419,6 +1419,8 @@ class feed
 		// Both posts and private messages can have attachments. The code for attaching these attachments to feed items is pretty much identical. Only
 		// the source of the data differs (from a post or private message). Consequently it makes sense to have one function.
 		
+		static $my_styles, $icon_topic_attach_styles;
+		
 		$attachment_markup = sprintf("<div class=\"box\">\n<p>%s</p>\n", $attach_lang_string);
 		
 		// Get all attachments
@@ -1427,6 +1429,30 @@ class feed
 			WHERE post_msg_id = ' . $item_id . ' AND in_message = ';
 		$sql .= ($is_post) ? '0' : '1';
 		$sql .= ' ORDER BY attach_id';
+
+		// Find the first occurrence of icon_topic_attach.gif in the user's styles. Most styles use the image from the parent style but there's no way to know
+		// for sure. We want to present the image "closest" to the user's preferred style. As a practical matter it's unlikely that anything other than prosilver's
+		// image will be used.
+		if (!isset($my_styles))
+		{
+			$my_styles = $this->template->get_user_style();
+			
+			$found_image = false;
+			foreach ($my_styles as $this_style)
+			{
+				if (file_exists($this->phpbb_root_path . 'styles/' . $this_style . '/theme/images/icon_topic_attach.gif'))
+				{
+					$icon_topic_attach_style = $this_style;
+					$found_image = true;
+					break;
+				}
+			}
+			if (!$found_image)
+			{
+				// This should not happen but if it does assume prosilver is installed and can be used
+				$icon_topic_attach_style = 'prosilver';
+			}
+		}
 		
 		$result = $db->sql_query($sql);
 		while ($row = $db->sql_fetchrow($result))
@@ -1452,11 +1478,10 @@ class feed
 			}
 			else
 			{
-				$my_styles = $this->template->get_user_style();
 				$attachment_markup .= ($row['attach_comment'] == '') ? '' : '<em>' . $row['attach_comment'] . '</em><br />';
 				$attachment_markup .= 
 					sprintf("<img src=\"%s\" title=\"\" alt=\"\" /> ", 
-						generate_board_url() . '/styles/' . $my_styles[0] . '/theme/images/icon_topic_attach.gif') .
+						generate_board_url() . '/styles/' . $icon_topic_attach_style . '/theme/images/icon_topic_attach.gif') .
 					sprintf("<b><a href=\"%s\">%s</a></b> (%s KiB)<br />",
 						generate_board_url() . "/download/file.$phpEx?id=" . $row['attach_id'], 
 						$row['real_filename'], 
