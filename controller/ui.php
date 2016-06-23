@@ -421,7 +421,7 @@ class ui
 			'S_SMARTFEED_USER_ID' 				=> constants::SMARTFEED_USER_ID,
 			'S_SMARTFEED_VERSION' 				=> $this->config['phpbbservices_smartfeed_version'],
 			
-			'U_SMARTFEED_IMAGE_PATH'			=> './../../ext/phpbbservices/smartfeed/styles/all/theme/images/',
+			'U_SMARTFEED_IMAGE_PATH'			=> './../ext/phpbbservices/smartfeed/styles/all/theme/images/',
 			'U_SMARTFEED_PAGE_URL'				=> $this->config['phpbbservices_smartfeed_url'],
 
 			'UA_SMARTFEED_SITE_URL'				=> generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/',
