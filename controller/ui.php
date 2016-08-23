@@ -390,8 +390,17 @@ class ui
 			'S_SMARTFEED_STANDARD_DESC'			=> constants::SMARTFEED_STANDARD_DESC,
 			'S_SMARTFEED_TIME_LIMIT' 			=> constants::SMARTFEED_TIME_LIMIT,
 			'S_SMARTFEED_USER_ID' 				=> constants::SMARTFEED_USER_ID,
+<<<<<<< HEAD
          	'U_SMARTFEED_IMAGE_PATH'         	=> $this->phpbb_root_path . '../../ext/phpbbservices/smartfeed/styles/all/theme/images/',
 		 	'UA_SMARTFEED_SITE_URL'				=> generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/',
+=======
+			'S_SMARTFEED_VERSION' 				=> $this->config['phpbbservices_smartfeed_version'],
+			
+			'U_SMARTFEED_IMAGE_PATH'			=> './../ext/phpbbservices/smartfeed/styles/all/theme/images/',
+			'U_SMARTFEED_PAGE_URL'				=> $this->config['phpbbservices_smartfeed_url'],
+
+			'UA_SMARTFEED_SITE_URL'				=> generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/',
+>>>>>>> origin/master
 			'UA_SMARTFEED_USER_ID'				=> $smartfeed_user_id,
 
 			)
