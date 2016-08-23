@@ -16,13 +16,10 @@ class main_module
 
 	function main($id, $mode)
 	{
-		global $db, $user, $auth, $template, $request;
-		global $config, $phpbb_root_path, $phpbb_admin_path, $phpEx, $phpbb_log;
-		global $cache, $phpbb_container, $phpbb_dispatcher;
+		global $user, $template, $request, $config, $phpbb_log;
 
 		$user->add_lang_ext('phpbbservices/smartfeed', 'info_acp_common');
 
-		$action	= $request->variable('action', '');
 		$submit = (isset($_POST['submit'])) ? true : false;
 
 		$form_key = 'phpbbservices/smartfeed';
@@ -71,6 +68,8 @@ class main_module
 						'legend1'											=> 'GENERAL_SETTINGS',
 						'phpbbservices_smartfeed_include_forums'			=> array('lang' => 'ACP_SMARTFEED_INCLUDE_FORUMS',						'validate' => 'string',	'type' => 'text:15:255', 'explain' => true),
 						'phpbbservices_smartfeed_exclude_forums'			=> array('lang' => 'ACP_SMARTFEED_EXCLUDE_FORUMS',						'validate' => 'string',	'type' => 'text:15:255', 'explain' => true),
+						'phpbbservices_smartfeed_external_feeds'			=> array('lang' => 'ACP_SMARTFEED_EXTERNAL_FEEDS',						'validate' => 'string',	'type' => 'textarea:3:85', 'explain' => true),
+						'phpbbservices_smartfeed_external_feeds_top'		=> array('lang' => 'ACP_SMARTFEED_EXTERNAL_FEEDS_TOP',					'validate' => 'bool',	'type' => 'radio:yes_no', 'explain' => true),
 						'phpbbservices_smartfeed_rfc1766_lang'				=> array('lang' => 'ACP_SMARTFEED_RFC1766_LANG',						'validate' => 'string',	'type' => 'text:8:8', 'explain' => true),
 						'phpbbservices_smartfeed_feed_image_path'			=> array('lang' => 'ACP_SMARTFEED_FEED_IMAGE_PATH',						'validate' => 'string',	'type' => 'text:40:255', 'explain' => true),
 						'phpbbservices_smartfeed_webmaster'					=> array('lang' => 'ACP_SMARTFEED_WEBMASTER',							'validate' => 'string',	'type' => 'text:40:255', 'explain' => true),

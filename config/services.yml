@@ -10,6 +10,7 @@ services:
             - @dbal.conn
             - @auth
             - %core.root_path%
+            - '@phpbbservices.smartfeed.common'
     phpbbservices.smartfeed.controller.feed:
         class: phpbbservices\smartfeed\controller\feed
         arguments:
@@ -22,6 +23,12 @@ services:
             - @auth
             - %core.root_path%
             - @request
+            - @log
+            - '@phpbbservices.smartfeed.common'
+    phpbbservices.smartfeed.common:
+        class: phpbbservices\smartfeed\core\common
+        arguments:
+            - @auth
     phpbbservices.smartfeed.listener:
         class: phpbbservices\smartfeed\event\main_listener
         arguments:

@@ -31,6 +31,10 @@ $lang = array_merge($lang, array(
 	'ACP_SMARTFEED_DEFAULT_FETCH_TIME_LIMIT_EXPLAIN'			=> 'This will set a point in time in hours from now beyond which no posts can be retrieved. Otherwise on highly trafficked boards it could take minutes or hours to assemble a newsfeed, possibly impacting other members. The default is to go back 30 days (720 hours). Caution: if you set this to zero, you could be giving permission for all members to create a feed with hundreds or thousands of posts.',
 	'ACP_SMARTFEED_EXCLUDE_FORUMS'								=> 'Always exclude these forums',
 	'ACP_SMARTFEED_EXCLUDE_FORUMS_EXPLAIN'						=> 'Enter the forum_ids for forums that must never appear in any newsfeed. Separate the forum_ids with commas. If left blank, no forums have to be excluded. To determine the forum_ids, when browsing a forum observe the "f" parameter on the URL field. This is the forum_id. Example: http://www.example.com/phpBB3/viewforum.php?f=1. Do not use forum_ids that correspond to categories. Categories cannot be selected with phpBB Smartfeed. Note that by default Smartfeed prohibits anyone from reading forums for which they do not have read privileges.',
+	'ACP_SMARTFEED_EXTERNAL_FEEDS'								=> 'External feeds',
+	'ACP_SMARTFEED_EXTERNAL_FEEDS_EXPLAIN'						=> 'Enter the URIs of external feeds that you want to appear in the newsfeed, putting each URL on a separate line. External feeds appear in the order they are entered. Note: filtering rules that apply to posts also apply to items in external feeds, except these items do not count against the maximum number of posts in the feed. No more than 255 characters can physically be stored in this field.',
+	'ACP_SMARTFEED_EXTERNAL_FEEDS_TOP'							=> 'External feed items at top of feed',
+	'ACP_SMARTFEED_EXTERNAL_FEEDS_TOP_EXPLAIN'					=> 'If you select No, external feed items will be at the bottom of the feed. Private messages, if any, will always appear first in the feed.',
 	'ACP_SMARTFEED_FEED_IMAGE_PATH'								=> 'Feed image path',
 	'ACP_SMARTFEED_FEED_IMAGE_PATH_EXPLAIN'						=> 'The image you want to appear in the feed to brand your feed. The default is site_logo.gif, which is the phpBB logo (or the image you substituted for it). The default style folder will be used, so set it to the relative path from your board&apos;s default style directory. Markup appears in RSS 1.0 and RSS 2.0 feeds only. Whether the logo actually shows depends on the capabilities of the newsreader used.',
 	'ACP_SMARTFEED_HOURS'										=> 'hrs',
@@ -70,4 +74,4 @@ $lang = array_merge($lang, array(
 	'LOG_CONFIG_ADDITIONAL' 									=> '<strong>Smartfeed additional settings and options updated</strong>',
 	'LOG_CONFIG_PPT' 											=> '<strong>Smartfeed primary performance throttles updated</strong>',
 	'LOG_CONFIG_SECURITY' 										=> '<strong>Smartfeed security settings updated</strong>',
-));
+	'LOG_CONFIG_SMARTFEED_EXTFEED'								=> '<strong>Smartfeed requested external feed "%s" is bad or cannot be parsed as a feed.</strong>',));

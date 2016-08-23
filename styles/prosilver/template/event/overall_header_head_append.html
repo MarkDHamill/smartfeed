@@ -1,6 +1,6 @@
 <!-- IF S_AUTO_ADVERTISE_PUBLIC_FEED -->
-<link rel="alternate" type="application/rss+xml" title="RSS" href="{U_SMARTFEED_URL}{U_RSS_PARAMETERS}" />
-<link rel="alternate" type="application/atom+xml" title="ATOM" href="{U_SMARTFEED_URL}{U_ATOM_PARAMETERS}" />
+<link rel="alternate" type="application/atom+xml" title="ATOM" href="{U_SMARTFEED_URL_ATOM}" />
+<link rel="alternate" type="application/rss+xml" title="RSS" href="{U_SMARTFEED_URL_RSS}" />
 <!-- ENDIF -->
 <!-- INCLUDECSS @phpbbservices_smartfeed/custom.css -->
 <!-- IF S_SMARTFEED_IN_SMARTFEED -->
@@ -9,7 +9,6 @@
 
 // global variables
 <!-- IF not S_SMARTFEED_IS_GUEST -->
-var isIPV6 = {S_SMARTFEED_IS_IPV6};
 var smartfeedKey = '{S_SMARTFEED_PWD}';
 var smartfeedKeyWithIP = '{S_SMARTFEED_PWD_WITH_IP}';
 var thisIP = '{S_SMARTFEED_IP}';

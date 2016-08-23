@@ -64,7 +64,9 @@
 			<description><![CDATA[{items.L_DESCRIPTION}]]></description>
 			<author>{items.S_AUTHOR}</author>
 			<category><![CDATA[{items.L_CATEGORY}]]></category>
+			<!-- IF items.S_COMMENTS -->
 			<comments>{items.U_COMMENTS}</comments>
+			<!-- ENDIF -->
 			<pubDate>{items.S_PUBDATE}</pubDate>
 			<guid isPermaLink="false">{items.U_GUID}</guid>
 		</item>

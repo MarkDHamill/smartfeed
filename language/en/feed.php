@@ -26,6 +26,7 @@ $lang = array_merge($lang, array(
 	'SMARTFEED_BAD_PMS_VALUE'							=> 'If present, the show private messages (m) parameter must have a value of 1. Please rerun Smartfeed on the forum to generate a correct feed URL.',
 	'SMARTFEED_BOARD_DISABLED'							=> 'This board is currently offline. Consequently, the newsfeed functionality has been disabled. When the board goes back online, you will be able to retrieve newsfeeds again.',
 	'SMARTFEED_DELIMITER'								=> ' :: ', // Used to break up forum names, topic name and post subjects that all appear together in the feed, such as in the item title
+	'SMARTFEED_EXTERNAL_ITEM'							=> 'External item',
 	'SMARTFEED_ERROR'									=> 'Smartfeed error',
 	'SMARTFEED_FEED'									=> 'Smartfeed newsfeed',
 	'SMARTFEED_FILTER_FOES_ERROR'						=> 'The filter foes (ff) parameter value is invalid. If present it should only have a value of 1. Please rerun Smartfeed on the forum to generate a correct feed URL.',

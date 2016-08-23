@@ -34,22 +34,25 @@ class ui
 	protected $auth;
 
 	protected $phpbb_root_path; // Only used in functions.
+	
+	protected $common;
 
 	/**
 	* Constructor
 	*
-	* @param \phpbb\config\config		$config
-	* @param \phpbb\controller\helper	$helper
-	* @param \phpbb\template\template	$template
-	* @param \phpbb\user				$user
-	* @param string						$php_ext
-	* @param \phpbb\db\driver\driver_interface	$db
-	* @param \phpbb\auth\auth			$auth
-	* @param string						$phpbb_root_path
+	* @param \phpbb\config\config					$config
+	* @param \phpbb\controller\helper				$helper
+	* @param \phpbb\template\template				$template
+	* @param \phpbb\user							$user
+	* @param string									$php_ext
+	* @param \phpbb\db\driver\factory				$db
+	* @param \phpbb\auth\auth						$auth
+	* @param string									$phpbb_root_path
+	* @param \phpbbservices\smartfeed\core\common	$common
 	*/
 	
-	public function __construct( \phpbb\config\config $config, \phpbb\controller\helper $helper, \phpbb\template\template $template, \phpbb\user $user,
-		$php_ext, \phpbb\db\driver\factory $db, \phpbb\auth\auth $auth, $phpbb_root_path)
+	public function __construct(\phpbb\config\config $config, \phpbb\controller\helper $helper, \phpbb\template\template $template, \phpbb\user $user,
+		$php_ext, \phpbb\db\driver\factory $db, \phpbb\auth\auth $auth, $phpbb_root_path, \phpbbservices\smartfeed\core\common $common)
 	{
 		$this->config = $config;
 		$this->helper = $helper;
@@ -59,6 +62,7 @@ class ui
 		$this->db = $db;
 		$this->auth = $auth;
 		$this->phpbb_root_path = $phpbb_root_path;
+		$this->common = $common;
 		
 		// Load language variable specifically for this class
 		$this->user->add_lang_ext('phpbbservices/smartfeed', 'ui');
@@ -67,8 +71,7 @@ class ui
 	/**
 	* Smartfeed controller for route /smartfeed/{name}
 	*
-	* @param string		$name
-	* @return \Symfony\Component\HttpFoundation\Response A Symfony Response object
+	* @return \phpbb\controller\helper
 	*/
 	public function handle()
 	{
@@ -87,8 +90,8 @@ class ui
 		$required_forum_ids = (isset($this->config['phpbbservices_smartfeed_include_forums']) && strlen(trim($this->config['phpbbservices_smartfeed_include_forums'])) > 0) ? explode(',', $this->config['phpbbservices_smartfeed_include_forums']) : array();
 		$excluded_forum_ids = (isset($this->config['phpbbservices_smartfeed_exclude_forums']) && strlen(trim($this->config['phpbbservices_smartfeed_exclude_forums'])) > 0) ? explode(',', $this->config['phpbbservices_smartfeed_exclude_forums']) : array();
 
-		// Pass encryption tokens to the user interface for generating URLs, unless of the user is not registered or mcrypt is not supported.
-		$is_guest = !$this->user->data['is_registered'] || !extension_loaded('mcrypt');
+		// Pass encryption tokens to the user interface for generating URLs, unless of the user is not registered, mcrypt is not supported or OAuth authentication is used
+		$is_guest = !$this->user->data['is_registered'] || !extension_loaded('mcrypt') || $this->config['auth_method'] == 'oauth';
 		
 		if (!$is_guest)
 		{
@@ -98,21 +101,21 @@ class ui
 			if ($this->user->data['user_smartfeed_key'])
 			{
 				$user_smartfeed_key = $this->user->data['user_smartfeed_key'];
-				$encrypted_password = $this->encrypt($this->phpbb_root_path, $this->phpEx, $user_password, $user_smartfeed_key);
-				$encrypted_password_with_ip = $this->encrypt($this->phpbb_root_path, $this->phpEx, $user_password . '~' . $this->user->ip, $user_smartfeed_key);
+				$encrypted_password = $this->encrypt($user_password, $user_smartfeed_key);
+				$encrypted_password_with_ip = $this->encrypt($user_password . '~' . $this->user->ip, $user_smartfeed_key);
 			}
 			else
 			{
 				// Generate a smartfeed encryption key. This is a one time action. It is used to authenticate the user when they call smartfeed.php.
 				$user_smartfeed_key = gen_rand_string(32);
-				$encrypted_password = $this->encrypt($this->phpbb_root_path, $this->phpEx, $user_password, $user_smartfeed_key);
-				$encrypted_password_with_ip = $this->encrypt($this->phpbb_root_path, $this->phpEx, $user_password . '~' . $this->user->ip, $user_smartfeed_key);
+				$encrypted_password = $this->encrypt($user_password, $user_smartfeed_key);
+				$encrypted_password_with_ip = $this->encrypt($user_password . '~' . $this->user->ip, $user_smartfeed_key);
 				
 				// Store the key
 				$sql = 'UPDATE ' . USERS_TABLE . "
 						SET user_smartfeed_key = '" . $this->db->sql_escape($user_smartfeed_key) . "'
 						WHERE user_id = " . (int) $this->user->data['user_id'];
-				$result = $this->db->sql_query($sql);
+				$this->db->sql_query($sql);
 			}
 			$this->template->assign_vars(array('S_SMARTFEED_IS_GUEST' => false, 'S_SMARTFEED_DAY_DEFAULT' => ''));
 		}
@@ -162,7 +165,7 @@ class ui
 		{
 			foreach ($forum_read_ary as $forum_id => $allowed)
 			{
-				if ($this->auth->acl_get('f_read', $forum_id) && $this->auth->acl_get('f_list', $forum_id) && $this->check_all_parents($this->auth, $parent_array, $forum_id))
+				if ($this->auth->acl_get('f_read', $forum_id) && $this->auth->acl_get('f_list', $forum_id) && $this->common->check_all_parents($this->auth, $parent_array, $forum_id))
 				{
 					// Since this user has read access to this forum, add it to the $allowed_forum_ids array
 					$allowed_forum_ids[] = (int) $forum_id;
@@ -315,48 +318,18 @@ class ui
 			$no_forums = true;
 		}
 
-		if ($this->user->ip == '::1')	// Can happen in local test environment, like XAMPP
-		{
-			$this->user->ip = '127.0.0.1';	// Typical default IP for localhost
-		}
-		
-		// If user_smartfeed_ip exists, parse it, otherwise use $this->user->ip
 		// For IPV6 testing, if no IPV6 IP is available, uncomment the following line to test:
-		// $this->user->data['user_smartfeed_ip'] = 'fe80.fe80.fe80.fe80.fe80.fe80.fe80.fe80';
-		
-		if (isset($this->user->data['user_smartfeed_ip']))
-		{
-			$user_smartfeed_ip = explode('.', $this->user->data['user_smartfeed_ip']);
-		}
-		else
-		{
-			$user_smartfeed_ip = explode('.', $this->user->ip);
-		}
-		
-		// For IPV6 testing, if no IPV6 IP is available, uncomment the following line to test:
-		// $this->user->ip = 'fe80.fe80.fe80.fe80.fe80.fe80.fe80.fe80';
-		
-		$client_ip_parts = explode('.', $this->user->ip);
-		$is_ipV6 = (sizeof($client_ip_parts) == 8) ? true : false;
-		$IPV6 = (sizeof($client_ip_parts) == 8) ? 'true' : 'false';
-	
-		// Handles an improbable PHP Notice problem
-		for ($i = 0; $i < sizeof($client_ip_parts); $i++)
-		{
-			if (is_null($client_ip_parts[$i]))
-			{
-				$client_ip_parts[$i] = 0;
-			}
-		}
-		
+		// $this->user->ip = '2001:0DB8:AC10:FE01:0000:0000:0000:0000';
+
 		// Set up text for the IP authentication explanation string
 		$smartfeed_ip_auth_explain = sprintf($this->user->lang('SMARTFEED_IP_AUTHENTICATION_EXPLAIN'), $this->user->ip);
 		$max_items = ($this->config['phpbbservices_smartfeed_max_items'] == '0') ? 0 : 1;
 		$size_error_msg = $this->user->lang('SMARTFEED_SIZE_ERROR', $this->config['phpbbservices_smartfeed_max_items'], 0);
-
+		
 		// Set the template variables needed to generate a URL for Smartfeed. Note: most can be handled by template language variable substitution.
 		$this->template->assign_vars(array(
 		
+			'L_POWERED_BY'						=> sprintf($this->user->lang['POWERED_BY'], '<a href="' . $this->config['phpbbservices_smartfeed_url'] . '" class="postlink" onclick="window.open(this.href);return false;">' . $this->user->lang['SMARTFEED_POWERED_BY'] . '</a>'),
 			'L_SMARTFEED_IP_AUTHENTICATION_EXPLAIN'	=> $smartfeed_ip_auth_explain,
 			'L_SMARTFEED_LIMIT_SET_EXPLAIN'		=> ($this->config['phpbbservices_smartfeed_default_fetch_time_limit'] == '0') ? '' : sprintf($this->user->lang('SMARTFEED_LIMIT_SET_EXPLAIN'), round(($this->config['phpbbservices_smartfeed_default_fetch_time_limit']/24), 0)),
 			'L_SMARTFEED_MAX_ITEMS_EXPLAIN_MAX' => ($this->config['phpbbservices_smartfeed_max_items'] == 0) ? $this->user->lang('SMARTFEED_MAX_ITEMS_EXPLAIN_BLANK') : sprintf($this->user->lang('SMARTFEED_MAX_ITEMS_EXPLAIN'), $this->config['phpbbservices_smartfeed_max_items'], $max_items),
@@ -381,8 +354,6 @@ class ui
 			'S_SMARTFEED_HTMLSAFE_VALUE'		=> constants::SMARTFEED_HTMLSAFE,
 			'S_SMARTFEED_IN_SMARTFEED' 			=> true,	// Suppress inclusion of Smartfeed Javascript if not in Smartfeed user interface
 			'S_SMARTFEED_IS_GUEST' 				=> $is_guest,
-			'S_SMARTFEED_IS_IPV6'				=> $IPV6,	// text for true or false, needed for Javascript
-			'S_SMARTFEED_IS_IPV6_BOOLEAN'		=> $is_ipV6,	// boolean for true or false, needed for template engine
 			'S_SMARTFEED_IP'					=> $this->user->ip,
 			'S_SMARTFEED_LAST_QUARTER_VALUE'	=> constants::SMARTFEED_LAST_QUARTER_VALUE,
 			'S_SMARTFEED_LAST_MONTH_VALUE'		=> constants::SMARTFEED_LAST_MONTH_VALUE,
@@ -402,7 +373,7 @@ class ui
 			'S_SMARTFEED_MAX_WORDS' 			=> constants::SMARTFEED_MAX_WORDS,
 			'S_SMARTFEED_MIN_WORDS' 			=> constants::SMARTFEED_MIN_WORDS,
 			'S_SMARTFEED_NO_FORUMS'				=> $no_forums,
-			'S_SMARTFEED_NO_LIMIT_VALUE' 		=> constants::SMARTFEED_NO_LIMIT_VALUE,
+			'S_SMARTFEED_NO_LIMIT_VALUE' 		=> constants::SMARTFEED_NO_LIMIT_VALUE, $this->config['phpbbservices_smartfeed_url'],
 			'S_SMARTFEED_POSTDATE_ASCENDING'	=> constants::SMARTFEED_POSTDATE,
 			'S_SMARTFEED_POSTDATE_DESCENDING'	=> constants::SMARTFEED_POSTDATE_DESC,
 			'S_SMARTFEED_PRIVATE_MESSAGE' 		=> constants::SMARTFEED_PRIVATE_MESSAGE,
@@ -419,12 +390,8 @@ class ui
 			'S_SMARTFEED_STANDARD_DESC'			=> constants::SMARTFEED_STANDARD_DESC,
 			'S_SMARTFEED_TIME_LIMIT' 			=> constants::SMARTFEED_TIME_LIMIT,
 			'S_SMARTFEED_USER_ID' 				=> constants::SMARTFEED_USER_ID,
-			'S_SMARTFEED_VERSION' 				=> $this->config['phpbbservices_smartfeed_version'],
-			
-			'U_SMARTFEED_IMAGE_PATH'			=> './../../ext/phpbbservices/smartfeed/styles/all/theme/images/',
-			'U_SMARTFEED_PAGE_URL'				=> $this->config['phpbbservices_smartfeed_url'],
-
-			'UA_SMARTFEED_SITE_URL'				=> generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/',
+         	'U_SMARTFEED_IMAGE_PATH'         	=> $this->phpbb_root_path . '../../ext/phpbbservices/smartfeed/styles/all/theme/images/',
+		 	'UA_SMARTFEED_SITE_URL'				=> generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/',
 			'UA_SMARTFEED_USER_ID'				=> $smartfeed_user_id,
 
 			)
@@ -434,52 +401,13 @@ class ui
 	
 	}
 		
-	private function check_all_parents($auth, $parent_array, $forum_id)
-	{
-	
-		// This function checks all parents for a given forum_id. If any of them do not have the f_list permission
-		// the function returns false, meaning the forum should not be displayed because it has a parent that should
-		// not be listed. Otherwise it returns true, indicating the forum can be listed.
-		
-		$there_are_parents = sizeof($parent_array) > 0;
-		$current_forum_id = $forum_id;
-		$include_this_forum = true;
-		
-		while ($there_are_parents)
-		{
-		
-			if ($parent_array[$current_forum_id] == 0) 	// No parent
-			{
-				$there_are_parents = false;
-			}
-			else
-			{
-				if ($auth->acl_get('f_list', $current_forum_id) == 1)
-				{
-					// So far so good
-					$current_forum_id = $parent_array[$current_forum_id];
-				}
-				else
-				{
-					// Danger Will Robinson! No list permission exists for a parent of the requested forum, so this forum should not be shown
-					$there_are_parents = false;
-					$include_this_forum = false;
-				}
-			}
-			
-		}
-		
-		return $include_this_forum;
-			
-	}
-
 	private function base64_encode_urlsafe($input)
 	{
 		// Thanks to phpBB forum user klapray for this logic for creating a "urlsafe" versions of base64_encode and _decode.
 		return strtr(base64_encode($input), '+/=', '-_.');
 	}
 		
-	private function encrypt($phpbb_root_path, $phpEx, $data_input, $key)
+	private function encrypt($data_input, $key)
 	{   
 	
 		// This function encrypts $data_input with the given $key using the TRIPLEDES encryption algorithm. If mcrypt is not available then private access is not supported.
@@ -489,7 +417,7 @@ class ui
 		mcrypt_generic_init($cipher, $key, constants::SMARTFEED_IV);
 		$encrypted_string = mcrypt_generic($cipher, $data_input);
 		$encrypted_data = $this->base64_encode_urlsafe($encrypted_string);
-		mcrypt_generic_end($cipher);
+		mcrypt_generic_deinit($cipher);
 		
 		return $encrypted_data;
 	

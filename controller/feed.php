@@ -38,23 +38,30 @@ class feed
 	/* @var \phpbb\request\request */
 	protected $request;
 
+	protected $common;
+
 	/**
 	* Constructor
 	*
-	* @param \phpbb\config\config		$config
-	* @param \phpbb\controller\helper	$helper
-	* @param \phpbb\template\template	$template
-	* @param \phpbb\user				$user
-	* @param string						$php_ext
-	* @param \phpbb\db\driver\driver_interface	$db
-	* @param \phpbb\auth\auth			$auth
-	* @param string						$phpbb_root_path
-	* @param \phpbb\request\request 	$request
+	* @param \phpbb\config\config					$config
+	* @param \phpbb\controller\helper				$helper
+	* @param \phpbb\template\template				$template
+	* @param \phpbb\user							$user
+	* @param string									$php_ext
+	* @param \phpbb\db\driver\factory				$db
+	* @param \phpbb\auth\auth						$auth
+	* @param string									$phpbb_root_path
+	* @param \phpbb\request\request 				$request
+	* @param \phpbb\log\log							$phpbb_log
+	* @param \phpbbservices\smartfeed\core\common	$common
 	*/
 	
-	public function __construct( \phpbb\config\config $config, \phpbb\controller\helper $helper, \phpbb\template\template $template, \phpbb\user $user,
-		$php_ext, \phpbb\db\driver\factory $db, \phpbb\auth\auth $auth, $phpbb_root_path, \phpbb\request\request $request)
+	public function __construct(\phpbb\config\config $config, \phpbb\controller\helper $helper, \phpbb\template\template $template, \phpbb\user $user,
+		$php_ext, \phpbb\db\driver\factory $db, \phpbb\auth\auth $auth, $phpbb_root_path, \phpbb\request\request $request, \phpbb\log\log $phpbb_log, 
+		\phpbbservices\smartfeed\core\common $common)
 	{
+		
+		// External classes and variables injected into the class
 		$this->config = $config;
 		$this->helper = $helper;
 		$this->template = $template;
@@ -65,24 +72,31 @@ class feed
 		$this->phpbb_root_path = $phpbb_root_path;
 		$this->request = $request;
 		$this->query_string = $this->user->page['query_string'];	// The entire query string will be needed later to parse out the forums wanted.
-		$this->feed_type = NULL;
-		$this->user_id = ANONYMOUS;	// Assume guest
-		$this->is_registered = false;
+		$this->phpbb_log = $phpbb_log;
+		$this->common = $common;
+		
+		// Other useful class variables
+		$this->bookmarks_only = NULL;
+		$this->date_limit = NULL;
 		$this->encrypted_pswd = NULL;
-		$this->time_limit = NULL;
-		$this->sort_by = NULL;
-		$this->first_post_only = NULL;
-		$this->true_false_array = array(0, 1);
-		$this->max_items = NULL;
-		$this->max_words = NULL;
-		$this->min_words = NULL;
 		$this->feed_style = NULL;
+		$this->feed_type = NULL;
+		$this->filter_foes = NULL;
+		$this->first_post_only = NULL;
+		$this->is_registered = false;
+		$this->lastvisit = NULL;
+		$this->mark_private_messages = NULL;
+		$this->max_items = NULL;
+		$this->max_word_size = NULL;
+		$this->max_words = NULL;
+		$this->min_word_size = NULL;
+		$this->min_words = NULL;
 		$this->remove_my_posts = NULL;
 		$this->show_pms = NULL;
-		$this->mark_private_messages = NULL;
-		$this->bookmarks_only = NULL;
-		$this->filter_foes = NULL;
-		$this->lastvisit = NULL;
+		$this->sort_by = NULL;
+		$this->time_limit = NULL;
+		$this->true_false_array = array(0, 1);
+		$this->user_id = ANONYMOUS;	// Assume guest
 		
 		// Load language variable specifically for this class
 		$this->user->add_lang_ext('phpbbservices/smartfeed', 'feed');
@@ -349,8 +363,7 @@ class feed
 	/**
 	* Smartfeed controller for route /smartfeed/{name}
 	*
-	* @param string		$name
-	* @return \Symfony\Component\HttpFoundation\Response A Symfony Response object
+	* @return \phpbb\controller\helper
 	*/
 	public function handle()
 	{
@@ -381,10 +394,18 @@ class feed
 			$error = true;
 			$error_msg = $e->getMessage();
 		}
-				
+
+		$ext_feeds = '';
 		if (!$error)
 		{
 			
+			// Get any external newsfeeds URLs
+			$ext_feeds = explode("\n", trim($this->config['phpbbservices_smartfeed_external_feeds']));
+
+			$user_smartfeed_key = '';
+			$user_password = '';
+			$user_lastvisit ='';
+
 			$sql = 'SELECT user_id, user_password, user_smartfeed_key, user_topic_sortby_type, user_topic_sortby_dir, 
 						user_post_sortby_type, user_post_sortby_dir, user_lastvisit, user_type
 					FROM ' . USERS_TABLE . ' 
@@ -396,7 +417,7 @@ class feed
 			
 			$result = $this->db->sql_query($sql);
 			$rowset = $this->db->sql_fetchrowset($result);
-			
+
 			if (sizeof($rowset) == 0)
 			{
 				$error = true;
@@ -410,11 +431,7 @@ class feed
 				
 				// Save the user variables, although only the first is unneeded for guests.
 				$user_smartfeed_key = $row['user_smartfeed_key'];
-				$user_topic_sortby_type = $row['user_topic_sortby_type']; 
-				$user_topic_sortby_dir = $row['user_topic_sortby_dir']; 
-				$user_post_sortby_type = $row['user_post_sortby_type']; 
-				$user_post_sortby_dir = $row['user_post_sortby_dir'];
-				
+
 				// These other variables are only used by registered users
 				$user_password = $row['user_password'];
 				$user_lastvisit = $row['user_lastvisit'];
@@ -440,7 +457,7 @@ class feed
 				else
 				{
 				
-					$encoded_pswd = $this->decrypt($this->phpbb_root_path, $this->phpEx, $this->encrypted_pswd, $user_smartfeed_key);
+					$encoded_pswd = $this->decrypt($this->encrypted_pswd, $user_smartfeed_key);
 					
 					// If IP Authentication was enabled, the encoded password is to the left of the ~ and the IP to the right of the ~
 					$tilde = strpos($encoded_pswd, '~');
@@ -456,8 +473,7 @@ class feed
 						$encoded_pswd = substr($encoded_pswd, 0, $tilde);
 						$client_ip_parts = explode('.', $this->user->ip);	// Client's current IP, based on what the web server recorded.
 						$source_ip_parts = explode('.', $authorized_ip);	// IP range authorized for this user
-						$is_ipV4 = (sizeof($client_ip_parts) == 4) ? true : false;	// Is this a IP version 4 or 6 IP address?
-						
+
 						// Show error message if requested from incorrect range of IP addresses
 						switch (sizeof($client_ip_parts))
 						{
@@ -517,72 +533,61 @@ class feed
 			{
 	
 				case constants::SMARTFEED_NO_LIMIT_VALUE:
-					$date_limit = $start_time;
-					$date_limit_sql = ' AND p.post_time > ' . $date_limit;
+					$this->date_limit = $start_time;
 				break;
 				
 				case constants::SMARTFEED_LAST_QUARTER_VALUE:
-					$date_limit = max($start_time, time() - (90 * 24 * 60 * 60));
-					$date_limit_sql = ' AND p.post_time > ' . $date_limit;
+					$this->date_limit = max($start_time, time() - (90 * 24 * 60 * 60));
 				break;
 				
 				case constants::SMARTFEED_LAST_MONTH_VALUE:
-					$date_limit = max($start_time, time() - (30 * 24 * 60 * 60));
-					$date_limit_sql = ' AND p.post_time > ' . $date_limit;
+					$this->date_limit = max($start_time, time() - (30 * 24 * 60 * 60));
 				break;
 				
 				case constants::SMARTFEED_LAST_TWO_WEEKS_VALUE:
-					$date_limit = max($start_time, time() - (14 * 24 * 60 * 60));
-					$date_limit_sql = ' AND p.post_time > ' . $date_limit;
+					$this->date_limit = max($start_time, time() - (14 * 24 * 60 * 60));
 				break;
 				
 				case constants::SMARTFEED_LAST_WEEK_VALUE:
-					$date_limit = max($start_time, time() - (7 * 24 * 60 * 60));
-					$date_limit_sql = ' AND p.post_time > ' . $date_limit;
+					$this->date_limit = max($start_time, time() - (7 * 24 * 60 * 60));
 				break;
 				
 				case constants::SMARTFEED_LAST_DAY_VALUE:
-					$date_limit = max($start_time, time() - (24 * 60 * 60));
-					$date_limit_sql = ' AND p.post_time > ' . $date_limit;
+					$this->date_limit = max($start_time, time() - (24 * 60 * 60));
 				break;
 				
 				case constants::SMARTFEED_LAST_12_HOURS_VALUE:
-					$date_limit = max($start_time, time() - (12 * 60 * 60));
-					$date_limit_sql = ' AND p.post_time > ' . $date_limit;
+					$this->date_limit = max($start_time, time() - (12 * 60 * 60));
 				break;
 				
 				case constants::SMARTFEED_LAST_6_HOURS_VALUE:
-					$date_limit = max($start_time, time() - (6 * 60 * 60));
-					$date_limit_sql = ' AND p.post_time > ' . $date_limit;
+					$this->date_limit = max($start_time, time() - (6 * 60 * 60));
 				break;
 				
 				case constants::SMARTFEED_LAST_3_HOURS_VALUE:
-					$date_limit = max($start_time, time() - (3 * 60 * 60));
-					$date_limit_sql = ' AND p.post_time > ' . $date_limit;
+					$this->date_limit = max($start_time, time() - (3 * 60 * 60));
 				break;
 				
 				case constants::SMARTFEED_LAST_1_HOURS_VALUE:
-					$date_limit = max($start_time, time() - (60 * 60));
-					$date_limit_sql = ' AND p.post_time > ' . $date_limit;
+					$this->date_limit = max($start_time, time() - (60 * 60));
 				break;
 				
 				case constants::SMARTFEED_LAST_30_MINUTES_VALUE:
-					$date_limit = max($start_time, time() - (30 * 60));
-					$date_limit_sql = ' AND p.post_time > ' . $date_limit;
+					$this->date_limit = max($start_time, time() - (30 * 60));
 				break;
 				
 				case constants::SMARTFEED_LAST_15_MINUTES_VALUE:
-					$date_limit = max($start_time, time() - (15 * 60));
-					$date_limit_sql = ' AND p.post_time > ' . $date_limit;
+					$this->date_limit = max($start_time, time() - (15 * 60));
 				break;
 				
 				case constants::SMARTFEED_SINCE_LAST_VISIT_VALUE:
 				default:
-					$date_limit = max($start_time, $user_lastvisit);
-					$date_limit_sql = ' AND p.post_time > ' . $date_limit;
+					$this->date_limit = max($start_time, $user_lastvisit);
 				break;
 				
 			}
+
+			$date_limit_sql = ' AND p.post_time > ' . $this->date_limit;
 			
 			$fetched_forums_str = '';
 			
@@ -605,7 +610,7 @@ class feed
 					),
 				
 					'WHERE'     =>  "u.user_id = b.user_id AND b.topic_id = t.topic_id 
-										AND t.topic_last_post_time > $date_limit
+										AND t.topic_last_post_time > $this->date_limit
 										AND b.user_id = $this->user_id",
 				);
 				
@@ -637,8 +642,8 @@ class feed
 			
 				// Getting a list of allowed forums is now much simpler now that I know about the acl_raw_data_single_user function. 
 				
-				// We need to know which auth_option_id corresponds to the forum read privilege (f_read) and forum list (f_list) privilege.
-				$auth_options = array('f_read', 'f_list');
+				// We need to know which auth_option_id corresponds to the forum read privilege (f_read) privilege.
+				$auth_options = array('f_read');
 				$sql = 'SELECT auth_option, auth_option_id
 						FROM ' . ACL_OPTIONS_TABLE . '
 						WHERE ' . $this->db->sql_in_set('auth_option', $auth_options);
@@ -649,10 +654,7 @@ class feed
 					if ($row['auth_option'] == 'f_read')
 					{
 						$read_id = $row['auth_option_id'];
-					}
-					if ($row['auth_option'] == 'f_list')
-					{
-						$list_id = $row['auth_option_id'];
+						break;
 					}
 				}
 				
@@ -669,9 +671,9 @@ class feed
 				{
 					foreach ($value as $auth_option_id => $auth_setting)
 					{
-						if ($auth_option_id == $read_id)
+						if (isset($read_id) && $auth_option_id == $read_id)
 						{
-							if (($auth_setting == 1) && $this->check_all_parents($this->auth, $parent_array, $key))
+							if (($auth_setting == 1) && $this->common->check_all_parents($this->auth, $parent_array, $key))
 							{
 								$allowed_forum_ids[] = (int) $key;
 							}
@@ -757,6 +759,12 @@ class feed
 			}
 	
 			// Create the SQL stub for the sort order
+			$order_by_sql = '';
+			$user_post_sortby_dir = '';
+			$user_post_sortby_type = '';
+			$user_topic_sortby_dir = '';
+			$user_topic_sortby_type = '';
+
 			switch($this->sort_by)
 			{
 				case constants::SMARTFEED_BOARD:
@@ -813,7 +821,7 @@ class feed
 			// Create the first_post_only SQL stubs
 			if ($this->first_post_only)
 			{
-				$new_topics_sql = " AND t.topic_time > $date_limit ";
+				$new_topics_sql = " AND t.topic_time > $this->date_limit ";
 				$topics_posts_join_sql = ' t.topic_first_post_id = p.post_id AND t.forum_id = f.forum_id';
 			}
 			
@@ -967,7 +975,6 @@ class feed
 				'L_DESCRIPTION'	=> $error_msg,
 				'S_CREATOR'		=> ($this->config['board_contact_name'] <> '') ? $this->config['board_contact_name'] : $this->config['board_contact'],
 				'S_DATE'		=> date('c'),
-				'U_RDF'			=> generate_board_url() . '/app.' . $this->phpEx .'/smartfeed/ui',
 				'U_RESOURCE'	=> generate_board_url() . '/app.' . $this->phpEx .'/smartfeed/ui',
 				'U_SOURCE'		=> generate_board_url(),
 				
@@ -985,6 +992,8 @@ class feed
 			// If there are any unread private messages, publish them first.
 			if (isset($pm_rowset))
 			{
+				$email = '';
+
 				foreach ($pm_rowset as $row)
 				{
 					
@@ -1026,9 +1035,9 @@ class feed
 								
 							$message = generate_text_for_display($message, $row['bbcode_uid'], $row['bbcode_bitfield'], $flags);
 							// Add any attachments to the private message item
-							if ($row[message_attachment] > 0)
+							if ($row['message_attachment'] > 0)
 							{
-								$message .= $this->create_attachment_markup ($this->db, $this->phpEx, $row['msg_id'], false, $this->user->lang('ATTACHMENTS'), $this->user->lang('SMARTFEED_POST_IMAGE_TEXT'), $this->user->lang('KIB'));
+								$message .= $this->create_attachment_markup ($row['msg_id'], false);
 							}
 
 							if ($user_sig != '')
@@ -1064,7 +1073,7 @@ class feed
 					// Handle the maximum number of words requested per PM logic
 					if ($this->max_words != 0)
 					{
-						$message = $this->truncate_words($this->user, $message, intval($this->max_words), $this->user->lang('SMARTFEED_MAX_WORDS_NOTIFIER'));
+						$message = $this->truncate_words($message, intval($this->max_words), $this->user->lang('SMARTFEED_MAX_WORDS_NOTIFIER'));
 					}
 
 					// Attach the private message to the feed as an item
@@ -1091,6 +1100,7 @@ class feed
 						
 						// RSS 2.0 block variables follow
 						'S_AUTHOR'		=> $email . ' (' . $username . ')',
+						'S_COMMENTS' 	=> true,
 						'S_PUBDATE'		=> ($row['message_edit_time'] > 0) ? date('D, d M Y H:i:s O', $row['message_edit_time']) : date('D, d M Y H:i:s O', $row['message_time']),	// RFC-822 date format required.
 						'U_COMMENTS'	=> $link,
 						'U_GUID'		=> $link,
@@ -1135,6 +1145,12 @@ class feed
 				}
 			}
 			
+			// If requested to put external items at the top of the feed, do it here.
+			if ($this->config['phpbbservices_smartfeed_external_feeds_top'] == 1)
+			{
+				$this->publish_external_feeds($ext_feeds);
+			}
+
 			// Loop through the rowset, each row is an item in the feed.
 			if (isset($rowset))
 			{
@@ -1156,8 +1172,8 @@ class feed
 					
 					// Is this topic or forum associated with the post being tracked by this user? If so, exclude the post if the topic track 
 					// time or forum track time is before the earliest time allowed for a post.
-					if (((!is_null($row['forum_mark_time']) && ($row['forum_mark_time']) < $date_limit)) ||
-						((!is_null($row['topic_mark_time']) && ($row['topic_mark_time']) < $date_limit)))
+					if (((!is_null($row['forum_mark_time']) && ($row['forum_mark_time']) < $this->date_limit)) ||
+						((!is_null($row['topic_mark_time']) && ($row['topic_mark_time']) < $this->date_limit)))
 					{
 						$include_post = false;
 					}
@@ -1172,7 +1188,7 @@ class feed
 					// condition above for being after a forum or topic's marked time for the user.
 					
 					if ((($this->min_words == 0 && !$this->config['phpbbservices_smartfeed_new_post_notifications_only']) ||
-						($this->min_words != 0 && !$this->config['phpbbservices_smartfeed_new_post_notifications_only'] && $this->truncate_words($this->user, $row['post_text'], intval($this->max_words), $this->user->lang('SMARTFEED_MAX_WORDS_NOTIFIER'), true) >= $this->min_words)) ||
+						($this->min_words != 0 && !$this->config['phpbbservices_smartfeed_new_post_notifications_only'] && $this->truncate_words($row['post_text'], intval($this->max_words), $this->user->lang('SMARTFEED_MAX_WORDS_NOTIFIER'), true) >= $this->min_words)) ||
 						($this->config['phpbbservices_smartfeed_new_post_notifications_only'] && $new_topic && $include_post))
 					{
 						// This post goes in the newsfeed
@@ -1236,8 +1252,7 @@ class feed
 						
 						$link = htmlspecialchars($board_url . 'viewtopic.' . $this->phpEx . '?f=' . $row['forum_id'] . '&t=' . $row['topic_id'] . '&p=' . $row['post_id']  . '#p' . $row['post_id']);
 						$category = html_entity_decode($row['forum_name']);
-						$comments = htmlspecialchars($board_url . 'posting.' . $this->phpEx . '?mode=reply&f=' . $row['forum_id'] . '&t=' . $row['topic_id']);
-			
+
 						// Set an email address associated with the poster. In most cases it should not be seen.
 						if ($this->config['phpbbservices_smartfeed_privacy_mode'])
 						{
@@ -1270,7 +1285,7 @@ class feed
 								// If there is an image, show it. If there is a file, link to the attachment
 								if ($row['post_attachment'] > 0)
 								{
-									$post_text .= $this->create_attachment_markup ($this->db, $this->phpEx, $row['post_id'], true, $this->user->lang('ATTACHMENTS'), $this->user->lang('SMARTFEED_POST_IMAGE_TEXT'), $this->user->lang('KIB'));
+									$post_text .= $this->create_attachment_markup ($row['post_id'], true);
 								}
 												
 								$post_text = generate_text_for_display($post_text, $row['bbcode_uid'], $row['bbcode_bitfield'], $flags);
@@ -1307,15 +1322,15 @@ class feed
 							// Handle the maximum number of words to display in a post.
 							if ($this->config['phpbbservices_smartfeed_max_word_size'] > 0 && $this->max_words > 0)
 							{
-								$post_text = $this->truncate_words($this->user, $post_text, min($this->config['phpbbservices_smartfeed_max_word_size'],$this->max_words), $this->user->lang('SMARTFEED_MAX_WORDS_NOTIFIER'));
+								$post_text = $this->truncate_words($post_text, min($this->config['phpbbservices_smartfeed_max_word_size'],$this->max_words), $this->user->lang('SMARTFEED_MAX_WORDS_NOTIFIER'));
 							}
 							else if ($this->config['phpbbservices_smartfeed_max_word_size'] > 0 && $this->max_words == 0)
 							{
-								$post_text = $this->truncate_words($this->user, $post_text, $this->config['phpbbservices_smartfeed_max_word_size'], $this->user->lang('SMARTFEED_MAX_WORDS_NOTIFIER'));
+								$post_text = $this->truncate_words($post_text, $this->config['phpbbservices_smartfeed_max_word_size'], $this->user->lang('SMARTFEED_MAX_WORDS_NOTIFIER'));
 							}
 							else if ($this->max_words > 0)
 							{
-								$post_text = $this->truncate_words($this->user, $post_text, intval($this->max_words), $this->user->lang('SMARTFEED_MAX_WORDS_NOTIFIER'));
+								$post_text = $this->truncate_words($post_text, intval($this->max_words), $this->user->lang('SMARTFEED_MAX_WORDS_NOTIFIER'));
 							}
 						}
 						
@@ -1339,12 +1354,12 @@ class feed
 							'L_DESCRIPTION'	=> $post_text,
 							'S_CREATOR'		=> $email . ' (' . $username . ')',
 							'S_DATE'		=> date('c', $row['post_time']),
-							'U_RDF'			=> generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/ui',
 							'U_RESOURCE'	=> generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/ui',
 							'U_SOURCE'		=> generate_board_url(),
 							
 							// RSS 2.0 block variables follow
 							'S_AUTHOR'		=> $email . ' (' . $username . ')',
+							'S_COMMENTS' 	=> true,
 							'S_PUBDATE'		=> ($row['post_edit_time'] > 0) ? date('D, d M Y H:i:s O', $row['post_edit_time']) : date('D, d M Y H:i:s O', $row['post_time']),	// RFC-822 data format required
 							'U_COMMENTS'	=> $link,
 							'U_GUID'		=> $link,
@@ -1353,6 +1368,12 @@ class feed
 					}
 
 				}
+			}
+			
+			// If requested to put external items at the bottom of the feed, do it here.
+			if ($this->config['phpbbservices_smartfeed_external_feeds_top'] == 0)
+			{
+				$this->publish_external_feeds($ext_feeds);
 			}
 			
 		}
@@ -1374,54 +1395,15 @@ class feed
 	
 	}
 	
-	private function check_all_parents($auth, $parent_array, $forum_id)
-	{
-	
-		// This function checks all parents for a given forum_id. If any of them do not have the f_list permission
-		// the function returns false, meaning the forum should not be displayed because it has a parent that should
-		// not be listed. Otherwise it returns true, indicating the forum can be listed.
-		
-		$there_are_parents = sizeof($parent_array) > 0;
-		$current_forum_id = $forum_id;
-		$include_this_forum = true;
-		
-		while ($there_are_parents)
-		{
-		
-			if ($parent_array[$current_forum_id] == 0) 	// No parent
-			{
-				$there_are_parents = false;
-			}
-			else
-			{
-				if ($auth->acl_get('f_list', $current_forum_id) == 1)
-				{
-					// So far so good
-					$current_forum_id = $parent_array[$current_forum_id];
-				}
-				else
-				{
-					// Danger Will Robinson! No list permission exists for a parent of the requested forum, so this forum should not be shown
-					$there_are_parents = false;
-					$include_this_forum = false;
-				}
-			}
-			
-		}
-		
-		return $include_this_forum;
-			
-	}
-
-	private function create_attachment_markup ($db, $phpEx, $item_id, $is_post = true, $attach_lang_string, $post_image_text_lang_string, $kib_lang_string)
+	private function create_attachment_markup ($item_id, $is_post = true)
 	{
 		
 		// Both posts and private messages can have attachments. The code for attaching these attachments to feed items is pretty much identical. Only
 		// the source of the data differs (from a post or private message). Consequently it makes sense to have one function.
+
+		static $my_styles;
 		
-		static $my_styles, $icon_topic_attach_styles;
-		
-		$attachment_markup = sprintf("<div class=\"box\">\n<p>%s</p>\n", $attach_lang_string);
+		$attachment_markup = sprintf("<div class=\"box\">\n<p>%s</p>\n", $this->user->lang('ATTACHMENTS'));
 		
 		// Get all attachments
 		$sql = 'SELECT *
@@ -1433,6 +1415,7 @@ class feed
 		// Find the first occurrence of icon_topic_attach.gif in the user's styles. Most styles use the image from the parent style but there's no way to know
 		// for sure. We want to present the image "closest" to the user's preferred style. As a practical matter it's unlikely that anything other than prosilver's
 		// image will be used.
+		$icon_topic_attach_style = '';
 		if (!isset($my_styles))
 		{
 			$my_styles = $this->template->get_user_style();
@@ -1454,8 +1437,8 @@ class feed
 			}
 		}
 		
-		$result = $db->sql_query($sql);
-		while ($row = $db->sql_fetchrow($result))
+		$result = $this->db->sql_query($sql);
+		while ($row = $this->db->sql_fetchrow($result))
 		{
 			$file_size = round(($row['filesize']/1024),2);
 			// Show images, link to other attachments
@@ -1469,12 +1452,12 @@ class feed
 				// Logic to resize the image, if needed
 				if ($is_thumbnail)
 				{
-					$anchor_begin = sprintf("<a href=\"%s\">", generate_board_url() . "/download/file.$phpEx?id=" . $row['attach_id']);
+					$anchor_begin = sprintf("<a href=\"%s\">", generate_board_url() . "/download/file.$this->phpEx?id=" . $row['attach_id']);
 					$anchor_end = '</a>';
-					$pm_image_text = $post_image_text_lang_string;
+					$pm_image_text = $this->user->lang('SMARTFEED_POST_IMAGE_TEXT');
 					$thumbnail_parameter = '&t=1';
 				}
-				$attachment_markup .= sprintf("%s<br /><em>%s</em> (%s %s)<br />%s<img src=\"%s\" alt=\"%s\" title=\"%s\" />%s\n<br />%s", $row['attach_comment'], $row['real_filename'], $file_size, $kib_lang_string, $anchor_begin, generate_board_url() . "/download/file.$phpEx?id=" . $row['attach_id'] . $thumbnail_parameter, $row['attach_comment'], $row['attach_comment'], $anchor_end, $pm_image_text);
+				$attachment_markup .= sprintf("%s<br /><em>%s</em> (%s %s)<br />%s<img src=\"%s\" alt=\"%s\" title=\"%s\" />%s\n<br />%s", $row['attach_comment'], $row['real_filename'], $file_size, $this->user->lang('KIB'), $anchor_begin, generate_board_url() . "/download/file.$this->phpEx?id=" . $row['attach_id'] . $thumbnail_parameter, $row['attach_comment'], $row['attach_comment'], $anchor_end, $pm_image_text);
 			}
 			else
 			{
@@ -1483,12 +1466,12 @@ class feed
 					sprintf("<img src=\"%s\" title=\"\" alt=\"\" /> ", 
 						generate_board_url() . '/styles/' . $icon_topic_attach_style . '/theme/images/icon_topic_attach.gif') .
 					sprintf("<b><a href=\"%s\">%s</a></b> (%s KiB)<br />",
-						generate_board_url() . "/download/file.$phpEx?id=" . $row['attach_id'], 
+						generate_board_url() . "/download/file.$this->phpEx?id=" . $row['attach_id'],
 						$row['real_filename'], 
 						$file_size);
 			}
 		}
-		$db->sql_freeresult($result);
+		$this->db->sql_freeresult($result);
 		
 		$attachment_markup .= '</div>';
 		
@@ -1502,7 +1485,7 @@ class feed
 		return base64_decode(strtr($input, '-_.', '+/='));
 	}
 	
-	private function decrypt($phpbb_root_path, $phpEx, $data_input, $key)
+	private function decrypt($data_input, $key)
 	{   
 	
 		// This function encrypts $data_input with the given $key using the TRIPLEDES encryption algorithm. If mcrypt is not available then private access is not supported.
@@ -1512,13 +1495,13 @@ class feed
 		mcrypt_generic_init($cipher, $key, constants::SMARTFEED_IV);
 		
 		$decrypted_data = mdecrypt_generic($cipher, $this->base64_decode_urlsafe($data_input));
-		mcrypt_generic_end($cipher);
+		mcrypt_generic_deinit($cipher);
 		
 		return $decrypted_data;
 	
 	}
 	
-	private function truncate_words($user, $text, $max_words, $max_words_lang_string, $just_count_words = false)
+	private function truncate_words($text, $max_words, $max_words_lang_string, $just_count_words = false)
 	{
 	
 		// This function returns the first $max_words from the supplied $text. If $just_count_words === true, a word count is returned. Note:
@@ -1546,5 +1529,122 @@ class feed
 		}
 		
 	}
+
+	private function publish_external_feeds($feeds)
+	{
+		
+		include($this->phpbb_root_path . 'ext/phpbbservices/smartfeed/vendor/simplepie/simplepie/autoloader.php'); // $this->phpEx is not used because the library hardcodes .php suffix
+				
+		// If there are external feeds, publish one at a time
+		foreach($feeds as $feed_url)
+		{
+			
+			if ($feed_url <> '')
+			{
+
+				// Fetch external feeds using SimplePie.
+
+				$feed = new \SimplePie();
+				$feed->set_feed_url($feed_url);
+				$feed->set_cache_location($this->phpbb_root_path . 'cache');	// Use phpBB's cache folder
+				$feed->enable_cache(true);
+
+				$success = $feed->init();
+						
+				if ($success)
+				{
+
+					$feed_title = $feed->get_title();
+
+					foreach ($feed->get_items(0, 0) as $feed_item)
+					{
+						
+						if (
+								(
+									($this->date_limit == 0) || // No date range is set OR		
+									($feed_item->get_date('U') >= $this->date_limit)	// Article is within post date range limit set
+								) &&	
+								(
+									($this->min_word_size == 0) || // There is no minimum number of words to worry about OR
+									($this->truncate_words($feed_item->get_content(), intval($this->max_word_size), true) >= $this->min_word_size) // Article has minimum words
+								)	
+							)
+						{
+							
+							// Add the external item to the feed
+							
+							if (trim($this->user->lang['SMARTFEED_EXTERNAL_ITEM']) == '')
+							{
+								$title = $feed_item->get_title();
+							}
+							else
+							{
+								$title = trim($this->user->lang['SMARTFEED_EXTERNAL_ITEM']) . $this->user->lang['SMARTFEED_DELIMITER'] . $feed_item->get_title();
+							}
+
+							if ((int) ($this->max_word_size) > 0)
+							{
+								$content = $this->truncate_words($feed_item->get_content(), intval($this->max_word_size), false);
+							}
+							else
+							{
+								$content = $feed_item->get_content();
+							}
+							
+							// Create proper email syntax for feed based on type of feed
+							$authors = $feed_item->get_authors();	// Returns array
+							foreach ($authors as $author)
+							{
+								$author_names[] = $author->get_name();
+								$author_emails[] = $author->get_email();
+							}
+							$email = (sizeof($author_emails) > 0 && $author_emails[0] != '') ? $author_emails[0] : 'no_email@example.com';
+							$rss2_email = (sizeof($author_names) > 0 && $author_names[0] != '') ? $email . ' (' . $author_names[0] . ')' : '';
+
+							$this->template->assign_block_vars('items', array(
+			
+								// Common and Atom 1.0 block variables follow
+								'L_CATEGORY'	=> (!is_null($feed_item->get_category())) ? $feed_item->get_category() : $this->user->lang['SMARTFEED_EXTERNAL_ITEM'],
+								'L_CONTENT'		=> $content,
+								'L_EMAIL'		=> $email,
+								'L_NAME'		=> (sizeof($author_names) > 0) ? $author_names[0] : '',
+								'L_SUMMARY'		=> $content,
+								'L_TITLE'		=> $this->user->lang['SMARTFEED_EXTERNAL_ITEM'] . $this->user->lang['SMARTFEED_DELIMITER'] . html_entity_decode($feed_title) . $this->user->lang['SMARTFEED_DELIMITER'] . html_entity_decode(censor_text($title)),
+								'S_PUBLISHED'	=> $feed_item->get_date('c'),
+								'S_UPDATED'		=> $feed_item->get_date('c'),
+								'U_ID'			=> $feed_item->get_permalink(),
+								'U_LINK'		=> $feed_item->get_permalink(),
+								
+								// RSS 1.0 block variables follow
+								'L_DESCRIPTION'	=> $content,
+								'S_CREATOR'		=> $feed_item->get_authors(),
+								'S_DATE'		=> $feed_item->get_date('c'),
+								'U_RESOURCE'	=> generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/ui',
+								'U_SOURCE'		=> generate_board_url(),
+								
+								// RSS 2.0 block variables follow
+								'S_AUTHOR'		=> $rss2_email,
+								'S_COMMENTS' 	=> false,
+								'S_PUBDATE'		=> $feed_item->get_date('D, d M Y H:i:s O'),	// RFC-822 data format required
+								'U_GUID'		=> $feed_item->get_permalink(),
+								
+							));
+							
+						}
+					}
+		
+				}
+				else
+				{
+					// Send a note to administrator there is a bad feed URL
+					$this->phpbb_log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_CONFIG_SMARTFEED_EXTFEED', false, array($feed_url));
+				}
+			}
+				
+		}
+		
+		return true;
+
+	}	
 
 }
