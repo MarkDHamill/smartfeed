@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Smartfeed
-* @copyright (c) 2016 Mark D. Hamill (mark@phpbbservices.com)
+* @copyright (c) 2017 Mark D. Hamill (mark@phpbbservices.com)
 * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
 *
 */
@@ -376,7 +376,7 @@ class feed
 		$board_url = generate_board_url() . '/';
 		
 		// $allowable_tags used when Safe HTML is wanted for item feed output. Only these tags are allowed for HTML in the feed. Others will be stripped. <br> is not technically Safe HTML but without it paragraphs cannot be discerned so I allowed it.
-		$allowable_tags = '<abbr><accept><accept-charset><accesskey><action><align><alt><axis><border><br><cellpadding><cellspacing><char><charoff><charset><checked><cite><class><clear><cols><colspan><color><compact><coords><datetime><dir><disabled><enctype><for><frame><headers><height><href><hreflang><hspace><id><ismap><label><lang><longdesc><maxlength><media><method><multiple><name><nohref><noshade><nowrap><prompt><readonly><rel><rev><rows><rowspan><rules><scope><selected><shape><size><span><src><start><summary><tabindex><target><title><type><usemap><valign><value><vspace><width>'; 
+		$allowable_tags = '<abbr><accept><accept-charset><accesskey><action><align><alt><axis><border><br><cellpadding><cellspacing><char><charoff><charset><checked><cite><class><clear><cols><colspan><color><compact><coords><datetime><disabled><enctype><for><headers><height><href><hreflang><hspace><id><ismap><label><lang><longdesc><maxlength><media><method><multiple><name><nohref><noshade><nowrap><prompt><readonly><rel><rev><rows><rowspan><rules><scope><selected><shape><size><span><src><start><summary><tabindex><target><title><type><usemap><valign><value><vspace><width>';
 
 		// Get the user id. The feed may be customized based on a user's privilege. A public user won't be identified as a user in the URL.
 		$this->user_id = $this->request->variable(constants::SMARTFEED_USER_ID, ANONYMOUS);
@@ -439,11 +439,7 @@ class feed
 			}
 			
 			$this->db->sql_freeresult($result); // Query be gone!
-	
-			// Decrypt password using the user_smartfeed_key column in the phpbb_users table. This should have been created 
-			// the first time the user interface was run by this user. Note the encoded password is typically md5. There should not be
-			// a clear text password in the database.
-				
+
 			if ($this->is_registered)
 			{
 				
@@ -456,9 +452,12 @@ class feed
 				}
 				else
 				{
-				
+
+					// Decrypt password using the user_smartfeed_key column in the phpbb_users table. This should have been created
+					// the first time the user interface was run by this user. Note the encoded password is typically md5. There should not be
+					// a clear text password in the database.
 					$encoded_pswd = $this->decrypt($this->encrypted_pswd, $user_smartfeed_key);
-					
+
 					// If IP Authentication was enabled, the encoded password is to the left of the ~ and the IP to the right of the ~
 					$tilde = strpos($encoded_pswd, '~');
 					if (($tilde == 0) && ($this->config['phpbbservices_smartfeed_require_ip_authentication'] == '1'))
@@ -673,7 +672,7 @@ class feed
 					{
 						if (isset($read_id) && $auth_option_id == $read_id)
 						{
-							if (($auth_setting == 1) && $this->common->check_all_parents($this->auth, $parent_array, $key))
+							if (($auth_setting == 1) && $this->common->check_all_parents($parent_array, $key))
 							{
 								$allowed_forum_ids[] = (int) $key;
 							}
@@ -1572,15 +1571,7 @@ class feed
 						{
 							
 							// Add the external item to the feed
-							
-							if (trim($this->user->lang['SMARTFEED_EXTERNAL_ITEM']) == '')
-							{
-								$title = $feed_item->get_title();
-							}
-							else
-							{
-								$title = trim($this->user->lang['SMARTFEED_EXTERNAL_ITEM']) . $this->user->lang['SMARTFEED_DELIMITER'] . $feed_item->get_title();
-							}
+							$title = $feed_item->get_title();
 
 							if ((int) ($this->max_word_size) > 0)
 							{

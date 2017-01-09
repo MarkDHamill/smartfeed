@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Smartfeed
-* @copyright (c) 2016 Mark D. Hamill (mark@phpbbservices.com)
+* @copyright (c) 2017 Mark D. Hamill (mark@phpbbservices.com)
 * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
 *
 */
@@ -165,7 +165,7 @@ class ui
 		{
 			foreach ($forum_read_ary as $forum_id => $allowed)
 			{
-				if ($this->auth->acl_get('f_read', $forum_id) && $this->auth->acl_get('f_list', $forum_id) && $this->common->check_all_parents($this->auth, $parent_array, $forum_id))
+				if ($this->auth->acl_get('f_read', $forum_id) && $this->auth->acl_get('f_list', $forum_id) && $this->common->check_all_parents($parent_array, $forum_id))
 				{
 					// Since this user has read access to this forum, add it to the $allowed_forum_ids array
 					$allowed_forum_ids[] = (int) $forum_id;
@@ -325,18 +325,19 @@ class ui
 		$smartfeed_ip_auth_explain = sprintf($this->user->lang('SMARTFEED_IP_AUTHENTICATION_EXPLAIN'), $this->user->ip);
 		$max_items = ($this->config['phpbbservices_smartfeed_max_items'] == '0') ? 0 : 1;
 		$size_error_msg = $this->user->lang('SMARTFEED_SIZE_ERROR', $this->config['phpbbservices_smartfeed_max_items'], 0);
-		
+
 		// Set the template variables needed to generate a URL for Smartfeed. Note: most can be handled by template language variable substitution.
 		$this->template->assign_vars(array(
 		
-			'L_POWERED_BY'						=> sprintf($this->user->lang['POWERED_BY'], '<a href="' . $this->config['phpbbservices_smartfeed_url'] . '" class="postlink" onclick="window.open(this.href);return false;">' . $this->user->lang['SMARTFEED_POWERED_BY'] . '</a>'),
+			'L_POWERED_BY'						=> sprintf($this->user->lang('POWERED_BY'), '<a href="' . $this->config['phpbbservices_smartfeed_url'] . '" class="postlink" onclick="window.open(this.href);return false;">' . $this->user->lang('SMARTFEED_POWERED_BY') . '</a>'),
+			'L_SMARTFEED_EXCLUDED_FORUMS'		=> implode(",", $excluded_forum_ids),
+			'L_SMARTFEED_IGNORED_FORUMS'		=> implode(",", array_merge($required_forum_ids, $excluded_forum_ids)),
 			'L_SMARTFEED_IP_AUTHENTICATION_EXPLAIN'	=> $smartfeed_ip_auth_explain,
 			'L_SMARTFEED_LIMIT_SET_EXPLAIN'		=> ($this->config['phpbbservices_smartfeed_default_fetch_time_limit'] == '0') ? '' : sprintf($this->user->lang('SMARTFEED_LIMIT_SET_EXPLAIN'), round(($this->config['phpbbservices_smartfeed_default_fetch_time_limit']/24), 0)),
 			'L_SMARTFEED_MAX_ITEMS_EXPLAIN_MAX' => ($this->config['phpbbservices_smartfeed_max_items'] == 0) ? $this->user->lang('SMARTFEED_MAX_ITEMS_EXPLAIN_BLANK') : sprintf($this->user->lang('SMARTFEED_MAX_ITEMS_EXPLAIN'), $this->config['phpbbservices_smartfeed_max_items'], $max_items),
 			'L_SMARTFEED_MAX_WORD_SIZE_EXPLAIN' => ($this->config['phpbbservices_smartfeed_max_word_size'] == '0') ? $this->user->lang('SMARTFEED_MAX_WORD_SIZE_EXPLAIN_BLANK') : sprintf($this->user->lang('SMARTFEED_MAX_WORD_SIZE_EXPLAIN'), $this->config['phpbbservices_smartfeed_max_word_size']),
 			'L_SMARTFEED_NOT_LOGGED_IN'			=> !extension_loaded('mcrypt') ? $this->user->lang('SMARTFEED_NO_MCRYPT_SUPPORT') : sprintf($this->user->lang('SMARTFEED_NOT_LOGGED_IN'), $this->phpEx, $this->phpEx),
 			'LA_SMARTFEED_SIZE_ERROR'			=> $size_error_msg,
-
 			'S_SMARTFEED_ALL_BY_DEFAULT'		=> ($this->config['phpbbservices_smartfeed_all_by_default'] == '1') ? 'checked="checked"' : '',
 			'S_SMARTFEED_ATOM_10_VALUE'			=> constants::SMARTFEED_ATOM,
 			'S_SMARTFEED_AUTO_ADVERTISE_FEED'	=> $this->config['phpbbservices_smartfeed_auto_advertise_public_feed'],  // can this be done here for all pages?
@@ -354,7 +355,6 @@ class ui
 			'S_SMARTFEED_HTMLSAFE_VALUE'		=> constants::SMARTFEED_HTMLSAFE,
 			'S_SMARTFEED_IN_SMARTFEED' 			=> true,	// Suppress inclusion of Smartfeed Javascript if not in Smartfeed user interface
 			'S_SMARTFEED_IS_GUEST' 				=> $is_guest,
-			'S_SMARTFEED_IP'					=> $this->user->ip,
 			'S_SMARTFEED_LAST_QUARTER_VALUE'	=> constants::SMARTFEED_LAST_QUARTER_VALUE,
 			'S_SMARTFEED_LAST_MONTH_VALUE'		=> constants::SMARTFEED_LAST_MONTH_VALUE,
 			'S_SMARTFEED_LAST_TWO_WEEKS_VALUE'	=> constants::SMARTFEED_LAST_TWO_WEEKS_VALUE,
@@ -381,6 +381,7 @@ class ui
 			'S_SMARTFEED_PWD_WITH_IP'			=> $encrypted_password_with_ip, 
 			'S_SMARTFEED_REMOVE_MINE' 			=> constants::SMARTFEED_REMOVE_MINE,
 			'S_SMARTFEED_REQUIRED_FORUMS'		=> (sizeof($required_forum_ids) > 0) ? 'true' : 'false',
+			'S_SMARTFEED_REQUIRED_IP_AUTHENTICATION'	=> $this->config['phpbbservices_smartfeed_require_ip_authentication'],
 			'S_SMARTFEED_RSS_10_VALUE'			=> constants::SMARTFEED_RSS1,
 			'S_SMARTFEED_RSS_20_VALUE'			=> constants::SMARTFEED_RSS2,
 			'S_SMARTFEED_SINCE_LAST_VISIT'		=> constants::SMARTFEED_SINCE_LAST_VISIT,

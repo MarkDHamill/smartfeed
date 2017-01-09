@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Smartfeed
-* @copyright (c) 2016 Mark D. Hamill (mark@phpbbservices.com)
+* @copyright (c) 2017 Mark D. Hamill (mark@phpbbservices.com)
 * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
 *
 */
@@ -11,14 +11,31 @@ namespace phpbbservices\smartfeed\acp;
 
 class main_module
 {
+
+	private $config;
+	private $phpbb_log;
+	private $request;
+	private $template;
+	private $user;
+
 	var $u_action;
-	var $new_config = array();
+
+	function __construct()
+	{
+		global $phpbb_container;
+
+		// Encapsulate certain phpBB objects inside this class to minimize security issues
+		$this->config = $phpbb_container->get('config');
+		$this->phpbb_log = $phpbb_container->get('log');
+		$this->request = $phpbb_container->get('request');
+		$this->template = $phpbb_container->get('template');
+		$this->user = $phpbb_container->get('user');
+	}
 
 	function main($id, $mode)
 	{
-		global $user, $template, $request, $config, $phpbb_log;
 
-		$user->add_lang_ext('phpbbservices/smartfeed', 'info_acp_common');
+		$this->user->add_lang_ext('phpbbservices/smartfeed', 'info_acp_common');
 
 		$submit = (isset($_POST['submit'])) ? true : false;
 
@@ -39,9 +56,9 @@ class main_module
 					'vars'	=> array(
 						'legend1'											=> 'GENERAL_SETTINGS',
 						'phpbbservices_smartfeed_max_items'					=> array('lang' => 'ACP_SMARTFEED_MAX_ITEMS',							'validate' => 'int:0',	'type' => 'text:5:5', 'explain' => true),
-						'phpbbservices_smartfeed_default_fetch_time_limit'	=> array('lang' => 'ACP_SMARTFEED_DEFAULT_FETCH_TIME_LIMIT',			'validate' => 'int:0',	'type' => 'text:5:5', 'explain' => true, 'append' 				=> ' ' . $user->lang('ACP_SMARTFEED_HOURS')),
+						'phpbbservices_smartfeed_default_fetch_time_limit'	=> array('lang' => 'ACP_SMARTFEED_DEFAULT_FETCH_TIME_LIMIT',			'validate' => 'int:0',	'type' => 'text:5:5', 'explain' => true, 'append' 				=> ' ' . $this->user->lang('ACP_SMARTFEED_HOURS')),
 						'phpbbservices_smartfeed_max_word_size'				=> array('lang' => 'ACP_SMARTFEED_MAX_WORD_SIZE',							'validate' => 'int:0',	'type' => 'text:5:5', 'explain' => true),
-						'phpbbservices_smartfeed_ttl'						=> array('lang' => 'ACP_SMARTFEED_TTL',									'validate' => 'int:0',	'type' => 'text:4:4', 'explain' => true, 'append' => ' ' . $user->lang('ACP_SMARTFEED_MINUTES')),
+						'phpbbservices_smartfeed_ttl'						=> array('lang' => 'ACP_SMARTFEED_TTL',									'validate' => 'int:0',	'type' => 'text:4:4', 'explain' => true, 'append' => ' ' . $this->user->lang('ACP_SMARTFEED_MINUTES')),
 					)
 				);
 			break;
@@ -82,13 +99,14 @@ class main_module
 			break;
 
 			default:
+				$display_vars = array();	// Keep phpStorm happy
 				trigger_error('NO_MODE', E_USER_ERROR);
 			break;
 				
 		}
 
-		$this->new_config = $config;
-		$cfg_array = (isset($_REQUEST['config'])) ? utf8_normalize_nfc($request->variable('config', array('' => ''), true)) : $this->new_config;
+		$new_config = $this->config;
+		$cfg_array = (isset($_REQUEST['config'])) ? utf8_normalize_nfc($this->request->variable('config', array('' => ''), true)) : $new_config;
 		$error = array();
 
 		// We validate the complete config if wished
@@ -96,7 +114,7 @@ class main_module
 
 		if ($submit && !check_form_key($form_key))
 		{
-			$error[] = $user->lang('FORM_INVALID');
+			$error[] = $this->user->lang('FORM_INVALID');
 		}
 		
 		// Do not write values if there is an error
@@ -113,18 +131,18 @@ class main_module
 				continue;
 			}
 
-			$this->new_config[$config_name] = $config_value = $cfg_array[$config_name];
+			$new_config[$config_name] = $config_value = $cfg_array[$config_name];
 
 			if ($submit)
 			{
-				$config->set($config_name, $config_value);
+				$this->config->set($config_name, $config_value);
 			}
 		}
 
 		if ($submit)
 		{
-			$phpbb_log->add('admin', $user->data['user_id'], $user->ip, 'LOG_CONFIG_' . strtoupper($mode));
-			$message = $user->lang('CONFIG_UPDATED');
+			$this->phpbb_log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_CONFIG_' . strtoupper($mode));
+			$message = $this->user->lang('CONFIG_UPDATED');
 			$message_type = E_USER_NOTICE;
 			trigger_error($message . adm_back_link($this->u_action), $message_type);
 		}
@@ -132,9 +150,9 @@ class main_module
 		$this->tpl_name = 'acp_smartfeed';
 		$this->page_title = $display_vars['title'];
 
-		$template->assign_vars(array(
-			'L_TITLE'			=> $user->lang($display_vars['title']),
-			'L_TITLE_EXPLAIN'	=> $user->lang($display_vars['title'] . '_EXPLAIN'),
+		$this->template->assign_vars(array(
+			'L_TITLE'			=> $this->user->lang($display_vars['title']),
+			'L_TITLE_EXPLAIN'	=> $this->user->lang($display_vars['title'] . '_EXPLAIN'),
 
 			'S_ERROR'			=> (sizeof($error)) ? true : false,
 			'ERROR_MSG'			=> implode('<br />', $error),
@@ -152,9 +170,9 @@ class main_module
 
 			if (strpos($config_key, 'legend') !== false)
 			{
-				$template->assign_block_vars('options', array(
+				$this->template->assign_block_vars('options', array(
 					'S_LEGEND'		=> true,
-					'LEGEND'		=> (NULL !== $user->lang($vars)) ? $user->lang($vars) : $vars)
+					'LEGEND'		=> (NULL !== $this->user->lang($vars)) ? $this->user->lang($vars) : $vars)
 				);
 
 				continue;
@@ -165,23 +183,23 @@ class main_module
 			$l_explain = '';
 			if ($vars['explain'] && isset($vars['lang_explain']))
 			{
-				$l_explain = (NULL !== $user->lang($vars['lang_explain'])) ? $user->lang($vars['lang_explain']) : $vars['lang_explain'];
+				$l_explain = (NULL !== $this->user->lang($vars['lang_explain'])) ? $this->user->lang($vars['lang_explain']) : $vars['lang_explain'];
 			}
 			else if ($vars['explain'])
 			{
-				$l_explain = (NULL !== $user->lang($vars['lang'] . '_EXPLAIN')) ? $user->lang($vars['lang'] . '_EXPLAIN') : '';
+				$l_explain = (NULL !== $this->user->lang($vars['lang'] . '_EXPLAIN')) ? $this->user->lang($vars['lang'] . '_EXPLAIN') : '';
 			}
 
-			$content = build_cfg_template($type, $config_key, $this->new_config, $config_key, $vars);
+			$content = build_cfg_template($type, $config_key, $new_config, $config_key, $vars);
 
 			if (empty($content))
 			{
 				continue;
 			}
 
-			$template->assign_block_vars('options', array(
+			$this->template->assign_block_vars('options', array(
 				'KEY'			=> $config_key,
-				'TITLE'			=> (NULL !== $user->lang($vars['lang'])) ? $user->lang($vars['lang']) : $vars['lang'],
+				'TITLE'			=> (NULL !== $this->user->lang($vars['lang'])) ? $this->user->lang($vars['lang']) : $vars['lang'],
 				'S_EXPLAIN'		=> $vars['explain'],
 				'TITLE_EXPLAIN'	=> $l_explain,
 				'CONTENT'		=> $content,

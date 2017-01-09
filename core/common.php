@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Smartfeed
-* @copyright (c) 2016 Mark D. Hamill (mark@phpbbservices.com)
+* @copyright (c) 2017 Mark D. Hamill (mark@phpbbservices.com)
 * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
 *
 */
@@ -26,7 +26,7 @@ class common
 			$this->auth = 	$auth;
 	}
 	
-	public function check_all_parents($auth, $parent_array, $forum_id)
+	public function check_all_parents($parent_array, $forum_id)
 	{
 	
 		// This function checks all parents for a given forum_id. If any of them do not have the f_list permission

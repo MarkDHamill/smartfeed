@@ -1,82 +1,99 @@
-function uncheck_subscribed_forums (checkbox) {
-	
-	isChecked = checkbox.checked;
-	var elementName = new String();
-	var x = document.getElementById('div_0').getElementsByTagName("input");
+$(document).ready(function(){
 
-	for(i=0;i<x.length;i++) {
-		thisObject = x[i];
-		elementName = thisObject.id;
-		if(elementName != null) {
-			if(elementName.substr(0,4) == "elt_") {
-				thisObject.checked = isChecked;
-			}
-		}
-	}
-	
-	return true;
-	
-}
-
-function check_or_uncheck_all_forums () {
-
-	// Unchecks or checks the all forums checkbox
-	var newsID = document.getElementById('phpbbservices_smartfeed');
-	anyUnchecked = false;
-	
-	var x = document.getElementById('div_0');
-	var y = x.getElementsByTagName("input");
-	for(i=0;((i<y.length) && (anyUnchecked === false));i++) {
-		thisObject = y[i];
-		elementName = thisObject.name;
-		if(elementName !== null) {
-			if(elementName.substr(0,4) === "elt_") {
-				if (thisObject.checked === false) {
-					newsID.all_forums.checked = false;
-					anyUnchecked = true;
+	// Error handling popup settings
+	$("#dialog").dialog({
+		title: dialogError,
+		autoOpen: false,
+		buttons: [
+			{
+				text: ok,
+				click: function() {
+					$(this).dialog("close");
 				}
 			}
+		]
+	});
+
+	// Clear the generated URL field when an input or select field changes.
+	$("input, select").change(function(){
+		$("#url").val('');
+	});
+
+	// Ensure certain numeric fields must be a whole number or blank
+	$("#max_items, #min_words, #max_word_size").blur(function() {
+		var size = $(this).val();
+		var message = ($(this).attr('id') == 'count_limit') ? sizeErrorRange : sizeError;
+		if ((size === '') || (size === 0)){
+			return;
 		}
-	}
-	if (anyUnchecked === false) {
-		newsID.all_forums.checked = true;
-	}
+		if ((size < 0) || ($(this).attr('id') == 'count_limit' && size > adminMaxItems) || (isNaN(size)) || size.indexOf('.') !== -1) {
+			$("#dialog").text(message);
+			$("#dialog").dialog("open");
+			$(this).val($(this).prop('defaultValue'));
+			$(this).focus();
+		}
+	});
 
-	return;
-}
+	// If the all forums checkbox is checked, all individual forums should be checked, and visa versa. Ignore excluded
+	// and included forums as these should always retain their original disabled setting.
+	$("#all_forums").click(function(){
+		if ($("#all_forums").is(':checked')) {
+			$("[id*=elt_]").each(function() {
+				if (!exclude_forum($(this).attr('id'))) {
+					$(this).prop("checked", true);
+				}
+			});
+		}
+		else {
+			$("[id*=elt_]").each(function() {
+				if (!exclude_forum($(this).attr('id'))) {
+					$(this).prop("checked", false);
+				}
+			});
+		}
+	});
 
-function disable_or_enable_all_the_forums(disabledFlag) {
-	
-	// This function disables the checkboxes next to the forum names so it cannot be checked or enables it, based on the value of disabledFlag.  
-	var elementName = new String();
-	var newsID = document.getElementById('phpbbservices_smartfeed');
-	
-	var x = document.getElementById('div_0').getElementsByTagName('input');
-	for(i=0;i<x.length;i++) {
-		thisObject = x[i];
-		elementName = thisObject.id;
-		if(elementName !== null) {
-			if(elementName.substr(0,4) === "elt_") {
-				thisObject.disabled = disabledFlag;
+	// If any individual forum is unchecked, the all_forums checkbox should be unchecked. Exception: required or excluded forums.
+	// If all individual forums are checked, the all_forums checkbox should be checked. Exception: required or excluded forums.
+	$("[id*=elt_]").click(function() {
+		var allChecked = true;	// Assume all forums are checked
+		$("[id*=elt_]").each(function() {
+			$("#all_forums").prop('checked', false);
+			if ((!ignore_forum($(this).attr('id'))) && !$(this).is(':checked')) {
+				allChecked = false;	// Flag if any forum is unchecked
 			}
+		});
+		if (allChecked) {
+			($("#all_forums").prop('checked', true));
 		}
-	}
-	
-	newsID.all_forums.disabled = disabledFlag;
-	return true;
-}
+	});
 
-function reset_url(element) {
-	// Blank out the generated URL field
-	var newsID = document.getElementById('phpbbservices_smartfeed');
-	newsID.url.value = '';
-}
+	// If bookmarked topics only is selected, disable the forum controls, otherwise enable them. All forums checkbox also needs
+	// to be enabled or disabled.
+	$("#bookmarks, #firstpostonly1, #firstpostonly2").click(function() {
+		var disabled = $("#bookmarks").is(':checked');
+		$("[id*=elt_]").each(function() {
+			if (!ignore_forum($(this).attr('id'))) {
+				$(this).prop('disabled', disabled);
+			}
+		});
+		$("#all_forums").prop('disabled', disabled);
+	});
 
-function test_feed() {
-	// Executed when the Test button is pressed. It opens the created URL in a new window/tab for testing
-	var url = document.getElementById("url");
-	if (url.value.length > 0) {
-		window.open(url.value);
+	function exclude_forum(forumId) {
+		// Returns true if the forum representing forumId should be excluded. Pattern is elt_1_2 where 1 is the forum_id
+		// and 2 is the parent forum_id.
+		var start = forumId.indexOf('_');
+		var end = forumId.lastIndexOf('_');
+		return excludedForumsArray.indexOf(forumId.substring(start+1,end)) !== -1;
 	}
-	return;
-}
+
+	function ignore_forum(forumId) {
+		// Returns true the forum representing forumId should be ignored. Pattern is elt_1_2 where 1 is the forum_id
+		// and 2 is the parent forum_id.
+		var start = forumId.indexOf('_');
+		var end = forumId.lastIndexOf('_');
+		return ignoredForumsArray.indexOf(forumId.substring(start+1,end)) !== -1;
+	}
+
+});

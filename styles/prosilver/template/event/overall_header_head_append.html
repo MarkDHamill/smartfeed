@@ -4,110 +4,56 @@
 <!-- ENDIF -->
 <!-- INCLUDECSS @phpbbservices_smartfeed/custom.css -->
 <!-- IF S_SMARTFEED_IN_SMARTFEED -->
-<script type="text/javascript">
-// <![CDATA[
+<!-- INCLUDECSS @phpbbservices_smartfeed/smartfeed.css -->
+<!-- INCLUDEJS @phpbbservices_smartfeed/js/jquery-ui-1.12.1.min.js -->
+<script>
 
 // global variables
+var adminMaxItems = {S_SMARTFEED_MAX_ITEMS};
+var dialogError = "{LA_ERROR}";
+var excludedForums = "{LA_SMARTFEED_EXCLUDED_FORUMS}";
+var excludedForumsArray = excludedForums.split(',');
+var ignoredForums = "{LA_SMARTFEED_IGNORED_FORUMS}";
+var ignoredForumsArray = ignoredForums.split(',');
+var ok = "{LA_OK}";
+var sizeError = "{LA_SMARTFEED_SIZE_ERROR_MIN}";
+var sizeErrorRange = "{LA_SMARTFEED_SIZE_ERROR}";
 <!-- IF not S_SMARTFEED_IS_GUEST -->
 var smartfeedKey = '{S_SMARTFEED_PWD}';
 var smartfeedKeyWithIP = '{S_SMARTFEED_PWD_WITH_IP}';
-var thisIP = '{S_SMARTFEED_IP}';
 <!-- ENDIF -->
 var thereAreRequiredForums = {S_SMARTFEED_REQUIRED_FORUMS};
 <!-- INCLUDEJS @phpbbservices_smartfeed/js/smartfeed.js -->
-function check_whole_number_range (field, maxValue, allowStar)
-{
-	// If a star (wildcard) is allowed in a field, it is accepted. If the value is negative or it exceeds maxValue an error dialog appears and the default 
-	// value shows in the field again.
-	starMessage = (allowStar) ? '{LA_SMARTFEED_STAR_MESSAGE}' : '';
-	if ((allowStar) && (field.value === '*')) {
-		return;
-	}
-	
-	if (isNaN(field.value)) {
-		alert("{LA_SMARTFEED_SIZE_ERROR}" + starMessage);
-		field.value = field.defaultValue;
-		field.focus();
-		return;
-	}
-	size = parseInt(field.value);
-	if (size < 0) {
-		alert("{LA_SMARTFEED_SIZE_ERROR}" + starMessage);
-		field.value = field.defaultValue;
-		field.focus();
-		return;
-	}
-	
-	if ((parseInt(maxValue) !== 0) && (size > parseInt(maxValue))) {
-		alert("{LA_SMARTFEED_SIZE_ERROR}" + starMessage);
-		field.value = field.defaultValue;
-		field.focus();
-		return;
-	}
-	field.value = size;
-	return;
-}
-
-function check_for_negative_value (field) {
-	// Function returns an error if the value is negative or is not a number
-	field_value = field.value;
-	if (isNaN(field_value)) {
-		alert("{LA_SMARTFEED_SIZE_ERROR_MIN}");
-		field.value = field.defaultValue;
-		field.focus();
-	}
-	else {
-		field_value = parseInt(field_value);
-		if (field_value < 0) {
-			alert("{LA_SMARTFEED_SIZE_ERROR_MIN}");
-			field.value = field.defaultValue;
-			field.focus();
-		}
-		else {
-			//field.value = field.defaultValue;
-			field.value = field_value;
-		}
-	}
-}
 
 function create_URL() {
 
 	// Creates a URL for display to be used by the newsreader to actually retrieve the newsfeed.
-	var newsID = document.getElementById('phpbbservices_smartfeed');
-	var numChecked;
+	var numChecked = 0;
 	var forumString = '';
 	<!-- IF S_SMARTFEED_IS_GUEST -->
 	var loggedIn = 0;
 	<!-- ELSE -->
 	var loggedIn = 1;
-	var bookmarksID = document.getElementById('bookmarks');
-	var pms1ID = document.getElementById('pms1');
 	<!-- ENDIF -->
-	 
+
 	// Get # of checked forums
-	numChecked = 0;
-	var x = document.getElementById('div_0').getElementsByTagName('input');
-	for(i=0;i<x.length;i++) {
-		thisObject = x[i];
-		elementName = thisObject.name;
-		if(elementName !== null) {
-			if(elementName.substr(0,4) === "elt_") {
-				if (thisObject.checked === true) {
-					numChecked++;
-					underscoreLoc = thisObject.id.indexOf('_',5); // Look for underscore past the "elt_", or first 4 characters
-					forumString = forumString + "&{S_SMARTFEED_FORUMS}=" + elementName.substring(4,underscoreLoc);
-				}
-			}
+	$("[id*=elt_]").each(function() {
+		if ($(this).is(':checked')) {
+			numChecked++;
+			itemId = $(this).attr('id');
+			underscoreLoc = itemId.indexOf('_', 5); // Look for underscore past the "elt_", or first 4 characters
+			forumString = forumString + "&{S_SMARTFEED_FORUMS}=" + itemId.substring(4, underscoreLoc);
 		}
-	}
-	if ((thereAreRequiredForums) && (numChecked===0)) {
+	});
+
+	if ((thereAreRequiredForums) && (numChecked === 0)) {
 		forumString = forumString + "&f=-1"; // -1 means that no forums were selected but there are required forums
 		numChecked++;
 	}
 	<!-- IF not S_SMARTFEED_IS_GUEST -->
 	// If bookmarks are checked, then the forum string should be blank
-	if (bookmarksID.checked) {
-		forumString = null;
+	if ($("#bookmarks").is(':checked')) {
+		forumString = '';
 	}
 	<!-- ENDIF -->
 
@@ -116,184 +62,161 @@ function create_URL() {
 	createMyURL = false;
 
 	<!-- IF not S_SMARTFEED_IS_GUEST -->
-	if ((numChecked===0) && (newsID.all_forums.checked===false) && (bookmarksID.checked===false) && (pms1ID.checked===false))
+	if ((numChecked === 0) && (!$("#all_forums").is(':checked')) && (!$("#bookmarks").is(':checked')) && (!$("#pms1").is(':checked'))) {
 	<!-- ELSE -->
-	if ((numChecked===0) && (newsID.all_forums.checked===false)) <!-- ENDIF --> {
-		alert("{LA_SMARTFEED_NO_FORUMS_SELECTED}");
-	}
-	else {
-		createMyURL = true;
+	if ((numChecked === 0) && (!$("#all_forums").is(':checked'))) {
+	<!-- ENDIF -->
+		$("#dialog").text("{LA_SMARTFEED_NO_FORUMS_SELECTED}");
+		$("#dialog").dialog("open");
+		return false;
 	}
 
-	// Forums are selected so let's go
-	if (createMyURL) {
-		// Initialise the URL
-		url = "{UA_SMARTFEED_SITE_URL}feed";
-		
-		// If user logged in, add the specific variables
-		if (loggedIn) {
-			// Add his user ID
-			append = (url.indexOf('?') === -1) ? '?' : '&';
-			url = url + append + "{S_SMARTFEED_USER_ID}={UA_SMARTFEED_USER_ID}";
+	// Initialise the URL
+	url = "{UA_SMARTFEED_SITE_URL}feed";
 
-			// Add his password + if needed address IP
-			append = (url.indexOf('?') === -1) ? '?' : '&';
-			<!-- IF S_SMARTFEED_REQUIRED_IP_AUTHENTICATION -->
+	// If user logged in, add the specific variables
+	if (loggedIn) {
+		// Add user ID
+		append = (url.indexOf('?') === -1) ? '?' : '&';
+		url = url + append + "{S_SMARTFEED_USER_ID}={UA_SMARTFEED_USER_ID}";
+
+		// Add password + if needed address IP
+		append = (url.indexOf('?') === -1) ? '?' : '&';
+		<!-- IF S_SMARTFEED_REQUIRED_IP_AUTHENTICATION -->
+		url = url + append + "{S_SMARTFEED_ENCRYPTION_KEY}=" + smartfeedKeyWithIP;
+		<!-- ELSE -->
+		if ($("#ip_auth1").is(':checked')) {
 			url = url + append + "{S_SMARTFEED_ENCRYPTION_KEY}=" + smartfeedKeyWithIP;
-			<!-- ELSE -->
-			if (newsID.ip_auth1.checked === true) {
-				url = url + append + "{S_SMARTFEED_ENCRYPTION_KEY}=" + smartfeedKeyWithIP;
-			}
-			else {
-				url = url + append + "{S_SMARTFEED_ENCRYPTION_KEY}=" + smartfeedKey;
-			}
-			<!-- ENDIF -->
-
-			// If checked, add to reset the last visit date
-			append = (url.indexOf('?') === -1) ? '?' : '&';
-			if (newsID.lastvisit1.checked === true) {
-				url = url + append + "{S_SMARTFEED_SINCE_LAST_VISIT}=1";
-			}
-
-			// If checked, add to add his unread private messages
-			append = (url.indexOf('?') === -1) ? '?' : '&';
-			if (newsID.pms1.checked === true) {
-				url = url + append + "{S_SMARTFEED_PRIVATE_MESSAGE}=1";
-				if (newsID.mark_read.checked === true) {
-					append = (url.indexOf('?') === -1) ? '?' : '&';
-					url = url + append + "{S_SMARTFEED_MARK_PRIVATE_MESSAGES}=1";
-				}
-			}
-
-			// If checked, add to remove his posts
-			append = (url.indexOf('?') === -1) ? '?' : '&';
-			if (newsID.remove_yours1.checked === true) {
-				url = url + append + "{S_SMARTFEED_REMOVE_MINE}=1";
-			}
-
-			append = (url.indexOf('?') === -1) ? '?' : '&';
-			// If checked, add to remove posts from his foes
-			if (newsID.filter_foes1.checked === true) {
-				url = url + append + "{S_SMARTFEED_FILTER_FOES}=1";
-			}
-
-			// If checked, add to select posts only from bookmarked topics, or from selected forums
-			append = (url.indexOf('?') === -1) ? '?' : '&';
-			if (newsID.bookmarks.checked === true) {
-				url = url + append + "{S_SMARTFEED_BOOKMARKS}=1";
-			}
-			else {
-				if (newsID.all_forums.checked === false && numChecked > 0) {
-					// Remove the 1st "&" of the string as it'll be the 1st variable of the url
-					url = url + append + forumString.substring(1);
-				}
-			}
 		}
 		else {
-			append = (url.indexOf('?') === -1) ? '?' : '&';
-			if (newsID.all_forums.checked === false && numChecked > 0) {
-				// Add to select posts from selected forums
+			url = url + append + "{S_SMARTFEED_ENCRYPTION_KEY}=" + smartfeedKey;
+		}
+		<!-- ENDIF -->
+
+		// If checked, add to reset the last visit date
+		append = (url.indexOf('?') === -1) ? '?' : '&';
+		if ($("#lastvisit1").is(':checked')) {
+			url = url + append + "{S_SMARTFEED_SINCE_LAST_VISIT}=1";
+		}
+
+		// If checked, add to add his unread private messages
+		append = (url.indexOf('?') === -1) ? '?' : '&';
+		if ($("#pms1").is(':checked')) {
+			url = url + append + "{S_SMARTFEED_PRIVATE_MESSAGE}=1";
+			if ($("#mark_read").is(':checked')) {
+				append = (url.indexOf('?') === -1) ? '?' : '&';
+				url = url + append + "{S_SMARTFEED_MARK_PRIVATE_MESSAGES}=1";
+			}
+		}
+
+		// If checked, add to remove his posts
+		append = (url.indexOf('?') === -1) ? '?' : '&';
+		if ($("#remove_yours1").is(':checked')) {
+			url = url + append + "{S_SMARTFEED_REMOVE_MINE}=1";
+		}
+
+		append = (url.indexOf('?') === -1) ? '?' : '&';
+		if ($("#filter_foes1").is(':checked')) {
+			url = url + append + "{S_SMARTFEED_FILTER_FOES}=1";
+		}
+
+		// If checked, add to select posts only from bookmarked topics, or from selected forums
+		append = (url.indexOf('?') === -1) ? '?' : '&';
+		if ($("#bookmarks").is(':checked')) {
+			url = url + append + "{S_SMARTFEED_BOOKMARKS}=1";
+		}
+		else {
+			if (!$("#all_forums").is(':checked') && numChecked > 0) {
+				// Remove the 1st "&" of the string as it'll be the 1st variable of the url
 				url = url + append + forumString.substring(1);
 			}
 		}
-
-		// Add the type of posts
-		append = (url.indexOf('?') === -1) ? '?' : '&';
-		if (newsID.firstpostonly1.checked === true) {
-			url = url + append + "{S_SMARTFEED_FIRST_POST}=1";
-		}
-
-		// Add the time limit
-		append = (url.indexOf('?') === -1) ? '?' : '&';
-		url = url + append + "{S_SMARTFEED_TIME_LIMIT}=" + newsID.post_limit.value;
-		
-		// Add the max number of posts
-		append = (url.indexOf('?') === -1) ? '?' : '&';
-		maxItems = newsID.max_items.value;
-		if (maxItems > 0) {
-			if (newsID.max_items.value <= maxItems) {
-				url = url + append + "{S_SMARTFEED_MAX_ITEMS_L}=" + newsID.max_items.value;
-			}
-			else if (maxItems < 0) {
-				alert("{LA_SMARTFEED_SIZE_ERROR}");
-				newsID.max_items.focus();
-				return;
-			}
-		}
-
-		// Add the sort order
-		append = (url.indexOf('?') === -1) ? '?' : '&';
-		url = url + append + "{S_SMARTFEED_SORT_BY}=" + newsID.sort_by.value;
-
-		// Add to select posts with minimum words
-		if (newsID.min_words.value !== '') {
-			if (newsID.min_words.value > 0) {
-				append = (url.indexOf('?') === -1) ? '?' : '&';
-				url = url + append + "{S_SMARTFEED_MIN_WORDS}=" + newsID.min_words.value;
-			}
-			else  if (newsID.min_words.value < 0) {
-				alert("{LA_SMARTFEED_SIZE_ERROR_MIN}");
-				newsID.min_words.focus();
-				return;
-			}
-		}
-
-		// Add the news feed type
-		append = (url.indexOf('?') === -1) ? '?' : '&';
-		if (newsID.feed_type1.checked === true) {
-			url = url + append + "{S_SMARTFEED_FEED_TYPE}=" + "{S_SMARTFEED_RSS_20_VALUE}";
-		}
-		else {
-			if (newsID.feed_type2.checked === true) {
-				url = url + append + "{S_SMARTFEED_FEED_TYPE}=" + "{S_SMARTFEED_RSS_10_VALUE}";
-			}
-			else {
-				url = url + append + "{S_SMARTFEED_FEED_TYPE}=" + "{S_SMARTFEED_ATOM_10_VALUE}";
-			}
-		}
-
-		// Add the news format
-		append = (url.indexOf('?') === -1) ? '?' : '&';
-		if (newsID.style1.checked === true) {
-			url = url + append + "{S_SMARTFEED_FEED_STYLE}=" + newsID.style1.value;
-		}
-		else {
-			if (newsID.style2.checked === true) {
-				url = url + append + "{S_SMARTFEED_FEED_STYLE}=" + newsID.style2.value;
-			}
-			else {
-				if (newsID.style3.checked === true) {
-					url = url + append + "{S_SMARTFEED_FEED_STYLE}=" + newsID.style3.value;
-				}
-				else {
-					url = url + append + "{S_SMARTFEED_FEED_STYLE}=" + newsID.style4.value;
-				}
-			}
-		}
-
-
-		append = (url.indexOf('?') === -1) ? '?' : '&';
-		// Add the maximum words in news
-		if (newsID.max_word_size.value !== '') {
-			if (newsID.max_word_size.value > 0) {
-				url = url + append + "{S_SMARTFEED_MAX_WORDS}=" + newsID.max_word_size.value;
-			}
-			else if (newsID.max_word_size.value < 0) {
-				alert("{LA_SMARTFEED_SIZE_ERROR_MIN}");
-				newsID.max_word_size.focus();
-				return
-			}
-		}
-
-		// Place the url in the field
-		newsID.url.value = encodeURI(url);
-		return true;
 	}
 	else {
-		return false;	// Failed validation
+		append = (url.indexOf('?') === -1) ? '?' : '&';
+		if (!$("#all_forums").is(':checked') && numChecked > 0) {
+			// Add to select posts from selected forums
+			url = url + append + forumString.substring(1);
+		}
 	}
+
+	// Add the type of posts
+	append = (url.indexOf('?') === -1) ? '?' : '&';
+	if ($("#firstpostonly1").is(':checked')) {
+		url = url + append + "{S_SMARTFEED_FIRST_POST}=1";
+	}
+
+	// Add the time limit
+	append = (url.indexOf('?') === -1) ? '?' : '&';
+	url = url + append + "{S_SMARTFEED_TIME_LIMIT}=" + $("#post_limit").val();
+
+	// Add the max number of posts
+	append = (url.indexOf('?') === -1) ? '?' : '&';
+	if ($("max_items").val() > 0) {
+		url = url + append + "{S_SMARTFEED_MAX_ITEMS_L}=" + $("max_items").val();
+	}
+
+	// Add the sort order
+	append = (url.indexOf('?') === -1) ? '?' : '&';
+	url = url + append + "{S_SMARTFEED_SORT_BY}=" + $("#sort_by").val();
+
+	// Add to select posts with minimum words
+	append = (url.indexOf('?') === -1) ? '?' : '&';
+	url = url + append + "{S_SMARTFEED_MIN_WORDS}=" + $("#min_words").val();
+
+	// Add the news feed type
+	append = (url.indexOf('?') === -1) ? '?' : '&';
+	if ($("#feed_type1").is(':checked')) {
+		url = url + append + "{S_SMARTFEED_FEED_TYPE}=" + "{S_SMARTFEED_RSS_20_VALUE}";
+	}
+	else {
+		if ($("#feed_type2").is(':checked')) {
+			url = url + append + "{S_SMARTFEED_FEED_TYPE}=" + "{S_SMARTFEED_RSS_10_VALUE}";
+		}
+		else {
+			url = url + append + "{S_SMARTFEED_FEED_TYPE}=" + "{S_SMARTFEED_ATOM_10_VALUE}";
+		}
+	}
+
+	// Add the news format
+	append = (url.indexOf('?') === -1) ? '?' : '&';
+	if ($("#style1").is(':checked')) {
+		url = url + append + "{S_SMARTFEED_FEED_STYLE}=" + $("#style1").val();
+	}
+	else {
+		if ($("#style2").is(':checked')) {
+			url = url + append + "{S_SMARTFEED_FEED_STYLE}=" + $("#style2").val();
+		}
+		else {
+			if ($("#style3").is(':checked')) {
+				url = url + append + "{S_SMARTFEED_FEED_STYLE}=" + $("#style3").val();
+			}
+			else {
+				url = url + append + "{S_SMARTFEED_FEED_STYLE}=" + $("#style4").val();
+			}
+		}
+	}
+
+	// Add the maximum words in news
+	append = (url.indexOf('?') === -1) ? '?' : '&';
+	if ($("#max_word_size").val() !== '') {
+		url = url + append + "{S_SMARTFEED_MAX_WORDS}=" + $("#max_word_size").val();
+	}
+
+	// Place the url in the field
+	$("#url").val(encodeURI(url));
+	return true;
+
 }
 
-// ]]>  
+function test_feed() {
+	// Executed when the Test button is pressed. It opens the created URL in a new window/tab for testing
+	var url = document.getElementById("url");
+	if (url.value.length > 0) {
+		window.open(url.value);
+	}
+	return;
+}
+
 </script>
 <!-- ENDIF -->

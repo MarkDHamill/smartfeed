@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Smartfeed
-* @copyright (c) 2016 Mark D. Hamill (mark@phpbbservices.com)
+* @copyright (c) 2017 Mark D. Hamill (mark@phpbbservices.com)
 * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
 *
 */
@@ -16,6 +16,11 @@ if (empty($lang) || !is_array($lang))
 {
 	$lang = array();
 }
+
+global $phpbb_container;
+
+// Encapsulate certain phpBB objects inside this class to minimize security issues
+$this->config = $phpbb_container->get('config');
 
 $lang = array_merge($lang, array(
 	'SMARTFEED_ADDITIONAL_CRITERIA'						=> 'Additional criteria',
@@ -78,8 +83,8 @@ $lang = array_merge($lang, array(
 	'SMARTFEED_SELECT_FORUMS'							=> 'Include posts for these forums',
 	'SMARTFEED_SELECT_FORUMS_EXPLAIN'					=> 'Bolded forum names, if any, are forums that the administrator requires to be shown in any newsfeed. You cannot unselect these forums. Forum names that have strikethrough text are not allowed in a newsfeed and cannot be selected. If looged in then all forum selection is disabled when you select bookmarked topics only.',
 	'SMARTFEED_SINCE_LAST_VISIT_TEXT'					=> 'Since My Last Visit',
-	'SMARTFEED_SIZE_ERROR'								=> 'You must enter a whole number, less than or equal to %d and greater than or equal to %d',
-	'SMARTFEED_SIZE_ERROR_MIN'							=> 'You must enter a whole number, zero or greater in this field.',
+	'SMARTFEED_SIZE_ERROR'								=> sprintf("This field is a required field. You must enter a positive whole number, less than or equal to the maximum allowed by the Forum Administrator. The maximum allowed is %u. If this value is zero, there is no limit.", $this->config['phpbbservices_smartfeed_max_items']),
+	'SMARTFEED_SIZE_ERROR_MIN'							=> 'You must enter a whole number or leave the field blank. If this value is zero, there is no limit.',
 	'SMARTFEED_SORT_BY'									=> 'Post sort order',
 	'SMARTFEED_SORT_BY_EXPLAIN'							=> 'Default order is the order used by phpBB if you don&apos;t change it in the User Control Panel. By default, posts in the feed are shown in category order (ascending), then forum order (ascending) within categories, then last topic post time (descending) within a forum and then post time (ascending) within a topic.',
 	'SMARTFEED_SORT_FORUM_TOPIC'						=> 'Default order',
