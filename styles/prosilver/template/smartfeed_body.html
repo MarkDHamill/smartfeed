@@ -3,7 +3,7 @@
 <h2>{L_SMARTFEED_TITLE}</h2>
 
 <!-- IF S_SMARTFEED_NO_FORUMS -->
-<p style="text-align:center"><span class="gen">{L_SMARTFEED_NO_FORUMS_AVAILABLE}<br /><br /></span></p>
+<p style="text-align:center"><span class="gen">{L_SMARTFEED_NO_FORUMS_AVAILABLE}<br><br></span></p>
 <!-- ELSE -->
 
 <!-- IF S_SMARTFEED_IS_GUEST -->
@@ -19,9 +19,9 @@
 
 		<fieldset>
 			<dl>
-				<dt><label for="all_forums">{L_SMARTFEED_SELECT_FORUMS}{L_COLON}</label><br /><span class="gensmall">{L_SMARTFEED_SELECT_FORUMS_EXPLAIN}</span></dt>
+				<dt><label for="all_forums">{L_SMARTFEED_SELECT_FORUMS}{L_COLON}</label><br><span class="gensmall">{L_SMARTFEED_SELECT_FORUMS_EXPLAIN}</span></dt>
 				<dd>
-					<input type="checkbox" name="all_forums" id="all_forums" {S_SMARTFEED_ALL_BY_DEFAULT} /> <label for="all_forums"><b>{L_SMARTFEED_ALL_FORUMS}</b></label><br /><br />
+					<input type="checkbox" name="all_forums" id="all_forums" {S_SMARTFEED_ALL_BY_DEFAULT} /> <label for="all_forums"><b>{L_SMARTFEED_ALL_FORUMS}</b></label><br><br>
 					<div id="div_0">
 					<!-- BEGIN forums -->
 						<!-- IF not forums.S_SMARTFEED_PRINT and forums.S_SMARTFEED_DIV_OPEN -->
@@ -29,9 +29,9 @@
 						<!-- ENDIF -->
 						<!-- IF forums.S_SMARTFEED_PRINT -->
 							<!-- IF forums.S_SMARTFEED_IS_FORUM -->
-							<input type="checkbox" name="{forums.FORUM_NAME}" id="{forums.FORUM_NAME}" {forums.FORUM_CHECKED} {forums.FORUM_DISABLED} /><label for="{forums.FORUM_NAME}">{forums.FORUM_PREFIX}{forums.FORUM_LABEL}{forums.FORUM_SUFFIX}</label><br />
+							<input type="checkbox" name="{forums.FORUM_NAME}" id="{forums.FORUM_NAME}" {forums.FORUM_CHECKED} {forums.FORUM_DISABLED} /><label for="{forums.FORUM_NAME}">{forums.FORUM_PREFIX}{forums.FORUM_LABEL}{forums.FORUM_SUFFIX}</label><br>
 							<!-- ELSE -->
-							<i>{forums.FORUM_LABEL}</i><br />
+							<i>{forums.FORUM_LABEL}</i><br>
 							<!-- ENDIF -->
 						<!-- ENDIF -->
 						<!-- IF not forums.S_SMARTFEED_PRINT and not forums.S_SMARTFEED_DIV_OPEN -->
@@ -57,7 +57,7 @@
 				</dd>
 			</dl>
 			<dl>
-				<dt><label for="post_limit">{L_SMARTFEED_LIMIT}{L_COLON}</label><br /><span class="gensmall">{L_SMARTFEED_LIMIT_EXPLAIN} {L_SMARTFEED_LIMIT_SET_EXPLAIN}</span></dt>
+				<dt><label for="post_limit">{L_SMARTFEED_LIMIT}{L_COLON}</label><br><span class="gensmall">{L_SMARTFEED_LIMIT_EXPLAIN} {L_SMARTFEED_LIMIT_SET_EXPLAIN}</span></dt>
 				<dd>
 					<select name="post_limit" id="post_limit" >
 						<!-- IF not S_SMARTFEED_IS_GUEST -->
@@ -79,12 +79,12 @@
 				</dd>
 			</dl>
 			<dl>
-				<dt><label for="max_items">{L_SMARTFEED_MAX_ITEMS}{L_COLON}</label><br /><span class="gensmall">{L_SMARTFEED_MAX_ITEMS_EXPLAIN_MAX}</span></dt>
+				<dt><label for="max_items">{L_SMARTFEED_MAX_ITEMS}{L_COLON}</label><br><span class="gensmall">{L_SMARTFEED_MAX_ITEMS_EXPLAIN_MAX}</span></dt>
 					<dd><input type="text" class="inputbox autowidth" size="3" maxlength="3" name="max_items" id="max_items" value="{S_SMARTFEED_MAX_ITEMS}" />
 				</dd>
 			</dl>
 			<dl>
-				<dt><label for="min_words">{L_SMARTFEED_MIN_WORDS}{L_COLON}</label><br /><span class="gensmall">{L_SMARTFEED_MIN_WORDS_EXPLAIN}</span></dt>
+				<dt><label for="min_words">{L_SMARTFEED_MIN_WORDS}{L_COLON}</label><br><span class="gensmall">{L_SMARTFEED_MIN_WORDS_EXPLAIN}</span></dt>
 					<dd><input type="text" class="inputbox autowidth" size="4" maxlength="4" name="min_words" id="min_words" value="0" />
 				</dd>
 			</dl>
@@ -110,7 +110,7 @@
 
 		<fieldset>
 			<dl>
-				<dt><label for="sort_by">{L_SMARTFEED_SORT_BY}{L_COLON}</label><br /><span class="gensmall">{L_SMARTFEED_SORT_BY_EXPLAIN}</span></dt>
+				<dt><label for="sort_by">{L_SMARTFEED_SORT_BY}{L_COLON}</label><br><span class="gensmall">{L_SMARTFEED_SORT_BY_EXPLAIN}</span></dt>
 				<dd>
 					<select name="sort_by" id="sort_by" >
 					<!-- IF not S_SMARTFEED_IS_GUEST -->
@@ -133,7 +133,7 @@
 			</dl>
 			<!-- ENDIF -->
 			<dl>
-				<dt><label for="max_word_size">{L_SMARTFEED_MAX_WORD_SIZE}{L_COLON}</label><br /><span class="gensmall">{L_SMARTFEED_MAX_WORD_SIZE_EXPLAIN}</span></dt>
+				<dt><label for="max_word_size">{L_SMARTFEED_MAX_WORD_SIZE}{L_COLON}</label><br><span class="gensmall">{L_SMARTFEED_MAX_WORD_SIZE_EXPLAIN}</span></dt>
 					<dd><input type="text" class="inputbox autowidth" size="4" maxlength="4" name="max_word_size" id="max_word_size" value="{S_SMARTFEED_MAX_WORD_SIZE}" />
 				</dd>
 			</dl>
@@ -157,11 +157,11 @@
 				</dd>
 			</dl>
 			<dl>
-				<dt><label>{L_SMARTFEED_FEED_STYLING}{L_COLON}</label><br /><span class="gensmall">{L_SMARTFEED_FEED_STYLING_EXPLAIN}</span></dt>
+				<dt><label>{L_SMARTFEED_FEED_STYLING}{L_COLON}</label><br><span class="gensmall">{L_SMARTFEED_FEED_STYLING_EXPLAIN}</span></dt>
 				<dd>
-					<label for="style1" title="{L_SMARTFEED_STYLE_COMPACT_EXPLAIN}"><input type="radio" name="style" id="style1" value="{S_SMARTFEED_COMPACT_VALUE}" checked="checked" /> {L_SMARTFEED_STYLE_COMPACT}</label><br />
-					<label for="style2" title="{L_SMARTFEED_STYLE_BASIC_EXPLAIN}"><input type="radio" name="style" id="style2" style="margin-top: 3px;" value="{S_SMARTFEED_BASIC_VALUE}" /> {L_SMARTFEED_STYLE_BASIC}</label><br />
-					<label for="style3" title="{L_SMARTFEED_STYLE_HTML_SAFE_EXPLAIN}"><input type="radio" name="style" id="style3" style="margin-top: 3px;" value="{S_SMARTFEED_HTMLSAFE_VALUE}" /> {L_SMARTFEED_STYLE_HTML_SAFE}</label><br />
+					<label for="style1" title="{L_SMARTFEED_STYLE_COMPACT_EXPLAIN}"><input type="radio" name="style" id="style1" value="{S_SMARTFEED_COMPACT_VALUE}" checked="checked" /> {L_SMARTFEED_STYLE_COMPACT}</label><br>
+					<label for="style2" title="{L_SMARTFEED_STYLE_BASIC_EXPLAIN}"><input type="radio" name="style" id="style2" style="margin-top: 3px;" value="{S_SMARTFEED_BASIC_VALUE}" /> {L_SMARTFEED_STYLE_BASIC}</label><br>
+					<label for="style3" title="{L_SMARTFEED_STYLE_HTML_SAFE_EXPLAIN}"><input type="radio" name="style" id="style3" style="margin-top: 3px;" value="{S_SMARTFEED_HTMLSAFE_VALUE}" /> {L_SMARTFEED_STYLE_HTML_SAFE}</label><br>
 					<label for="style4" title="{L_SMARTFEED_STYLE_HTML_EXPLAIN}"><input type="radio" name="style" id="style4" style="margin-top: 3px;" value="{S_SMARTFEED_HTML_VALUE}" checked="checked" /> {L_SMARTFEED_STYLE_HTML}</label>
 				</dd>
 			</dl>
@@ -175,10 +175,10 @@
 				</dd>
 			</dl>
 			<dl>
-				<dt><label>{L_SMARTFEED_IP_AUTH}{L_COLON}</label><br /><span class="gensmall">{L_SMARTFEED_IP_AUTHENTICATION_EXPLAIN}</span></dt>
+				<dt><label>{L_SMARTFEED_IP_AUTH}{L_COLON}</label><br><span class="gensmall">{L_SMARTFEED_IP_AUTHENTICATION_EXPLAIN}</span></dt>
 				<dd>
 					<label for="ip_auth1"><input type="radio" name="ip_auth" id="ip_auth1" value="YES" /> {L_YES}</label>
-					<label for="ip_auth2"><input type="radio" name="ip_auth" id="ip_auth2" value="NO" checked="checked" /> {L_NO}</label><br />
+					<label for="ip_auth2"><input type="radio" name="ip_auth" id="ip_auth2" value="NO" checked="checked" /> {L_NO}</label><br>
 				</dd>
 			</dl>
 		<!-- ENDIF -->
@@ -195,16 +195,16 @@
 
 		<fieldset>
 			<dl>
-				<dt><label for="url">{L_SMARTFEED_GENERATE_BUTTON}{L_COLON}</label><br /><span class="gensmall">{L_SMARTFEED_GENERATE_BUTTON_EXPLAIN}</span></dt>
+				<dt><label for="url">{L_SMARTFEED_GENERATE_BUTTON}{L_COLON}</label><br><span class="gensmall">{L_SMARTFEED_GENERATE_BUTTON_EXPLAIN}</span></dt>
 				<dd>
-					<input type="button" value="{L_SMARTFEED_GENERATE_URL_TEXT}" id="generate" class="button1" onClick="create_URL();" /><br />
+					<input type="button" value="{L_SMARTFEED_GENERATE_URL_TEXT}" id="generate" class="button1" onClick="create_URL();" /><br>
 					<input type="text" class="inputbox" name="url" id="url" style="margin-top: 3px;" maxlength="3000" onFocus="this.select();" />
 				</dd>
 			</dl>
 			<dl>
-				<dt><label>{L_SMARTFEED_TEST_BUTTON}{L_COLON}</label><br /><span class="gensmall">{L_SMARTFEED_TEST_BUTTON_EXPLAIN}</span></dt>
+				<dt><label>{L_SMARTFEED_TEST_BUTTON}{L_COLON}</label><br><span class="gensmall">{L_SMARTFEED_TEST_BUTTON_EXPLAIN}</span></dt>
 				<dd>
-					<input type="button" name="runit" id="runit" value="{L_SMARTFEED_TEST}" class="button1" onClick="test_feed();"/><br />
+					<input type="button" name="runit" id="runit" value="{L_SMARTFEED_TEST}" class="button1" onClick="test_feed();"/><br>
 				</dd>
 			</dl>
 			<div style="text-align: center;">

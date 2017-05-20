@@ -2,39 +2,40 @@ services:
     phpbbservices.smartfeed.controller.ui:
         class: phpbbservices\smartfeed\controller\ui
         arguments:
-            - @config
-            - @controller.helper
-            - @template
-            - @user
-            - %core.php_ext%
-            - @dbal.conn
-            - @auth
-            - %core.root_path%
+            - '@config'
+            - '@controller.helper'
+            - '@template'
+            - '@user'
+            - '%core.php_ext%'
+            - '@dbal.conn'
+            - '@auth'
+            - '%core.root_path%'
             - '@phpbbservices.smartfeed.common'
+            - '/ext/phpbbservices/smartfeed/'
     phpbbservices.smartfeed.controller.feed:
         class: phpbbservices\smartfeed\controller\feed
         arguments:
-            - @config
-            - @controller.helper
-            - @template
-            - @user
-            - %core.php_ext%
-            - @dbal.conn
-            - @auth
-            - %core.root_path%
-            - @request
-            - @log
+            - '@config'
+            - '@controller.helper'
+            - '@template'
+            - '@user'
+            - '%core.php_ext%'
+            - '@dbal.conn'
+            - '@auth'
+            - '%core.root_path%'
+            - '@request'
+            - '@log'
             - '@phpbbservices.smartfeed.common'
     phpbbservices.smartfeed.common:
         class: phpbbservices\smartfeed\core\common
         arguments:
-            - @auth
+            - '@auth'
     phpbbservices.smartfeed.listener:
         class: phpbbservices\smartfeed\event\main_listener
         arguments:
-            - @config
-            - @controller.helper
-            - @template
-            - %core.php_ext%
+            - '@config'
+            - '@controller.helper'
+            - '@template'
+            - '%core.php_ext%'
         tags:
             - { name: event.listener }

@@ -37,7 +37,7 @@ class main_module
 
 		$this->user->add_lang_ext('phpbbservices/smartfeed', 'info_acp_common');
 
-		$submit = (isset($_POST['submit'])) ? true : false;
+		$submit = $this->request->is_set_post('submit');
 
 		$form_key = 'phpbbservices/smartfeed';
 		add_form_key($form_key);
@@ -106,7 +106,11 @@ class main_module
 		}
 
 		$new_config = $this->config;
-		$cfg_array = (isset($_REQUEST['config'])) ? utf8_normalize_nfc($this->request->variable('config', array('' => ''), true)) : $new_config;
+		$cfg_array = $this->request->variable('config', array('' => ''), true);
+		if (sizeof($cfg_array) == 0)
+		{
+			$cfg_array = $new_config;
+		}
 		$error = array();
 
 		// We validate the complete config if wished

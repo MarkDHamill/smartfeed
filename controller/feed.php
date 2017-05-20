@@ -74,7 +74,7 @@ class feed
 		$this->query_string = $this->user->page['query_string'];	// The entire query string will be needed later to parse out the forums wanted.
 		$this->phpbb_log = $phpbb_log;
 		$this->common = $common;
-		
+
 		// Other useful class variables
 		$this->bookmarks_only = NULL;
 		$this->date_limit = NULL;
@@ -279,10 +279,10 @@ class feed
 		if ($this->is_registered)
 		{
 
-			// If mcrypt is not compiled with PHP, a user cannot get a feed with posts from non-public forums, so tell the user what to do.
-			if (!extension_loaded('mcrypt'))
+			// If openssl is not compiled with PHP, a user cannot get a feed with posts from non-public forums, so tell the user what to do.
+			if (!extension_loaded('openssl'))
 			{
-				throw new \Exception($this->user->lang('SMARTFEED_NO_MCRYPT_MODULE'));
+				throw new \Exception($this->user->lang('SMARTFEED_NO_OPENSSL_MODULE'));
 			}
 
 			//  Validate the remove my posts parameter, if present
@@ -363,7 +363,7 @@ class feed
 	/**
 	* Smartfeed controller for route /smartfeed/{name}
 	*
-	* @return \phpbb\controller\helper
+	* @return Response object containing rendered page
 	*/
 	public function handle()
 	{
@@ -374,7 +374,7 @@ class feed
 		// General variables
 		$allowed_user_types = array(USER_NORMAL, USER_FOUNDER); // Allowed user types are Normal and Founder. Others (Inactive, Ignore) can only get a public feed.
 		$board_url = generate_board_url() . '/';
-		
+
 		// $allowable_tags used when Safe HTML is wanted for item feed output. Only these tags are allowed for HTML in the feed. Others will be stripped. <br> is not technically Safe HTML but without it paragraphs cannot be discerned so I allowed it.
 		$allowable_tags = '<abbr><accept><accept-charset><accesskey><action><align><alt><axis><border><br><cellpadding><cellspacing><char><charoff><charset><checked><cite><class><clear><cols><colspan><color><compact><coords><datetime><disabled><enctype><for><headers><height><href><hreflang><hspace><id><ismap><label><lang><longdesc><maxlength><media><method><multiple><name><nohref><noshade><nowrap><prompt><readonly><rel><rev><rows><rowspan><rules><scope><selected><shape><size><span><src><start><summary><tabindex><target><title><type><usemap><valign><value><vspace><width>';
 
@@ -925,7 +925,6 @@ class feed
 			'L_SMARTFEED_FEED_DESCRIPTION' 		=> html_entity_decode($this->config['site_desc']),
 			'L_SMARTFEED_FEED_IMAGE_TITLE'		=> html_entity_decode($this->config['sitename']),	// for RSS 1.0 and 2.0
 			'L_SMARTFEED_FEED_TITLE' 			=> html_entity_decode($this->config['sitename']),
-			'L_SMARTFEED_FEED_TYPE_ERROR' 		=> $error_msg,	// This would only work with feed type errors. Most errors are shown in error logic below.
 
 			'S_SMARTFEED_FEED_BUILD_DATE'		=> date('r'),	// for RSS 1.0 and 2.0
 			'S_SMARTFEED_FEED_CHANNEL_ABOUT'	=> generate_board_url(),	// for RSS 1.0
@@ -935,18 +934,15 @@ class feed
 			'S_SMARTFEED_FEED_TYPE' 			=> $this->feed_type,	// Atom 1.0, RSS 1.0, RSS 2.0, used as a switch. Must be 0, 1 or 2. Atom 1.0 is used to show feed type errors if they occur.
 			'S_SMARTFEED_FEED_UPDATED'			=> date('c'),	// for Atom and RSS 2.0
 			'S_SMARTFEED_FEED_VERSION' 			=> constants::SMARTFEED_VERSION,
-			'S_SMARTFEED_IN_SMARTFEED' 			=> false,	// Suppress inclusion of Smartfeed Javascript if not in Smartfeed user interface
-			'S_SMARTFEED_USER_INTERFACE' 		=> false,
 			'S_SMARTFEED_SHOW_WEBMASTER'		=> ($this->config['phpbbservices_smartfeed_webmaster'] <> '') ? true : false,	// RSS 2.0
-			
+
 			'U_SMARTFEED_FEED_ID'				=> generate_board_url(),
-			'U_SMARTFEED_FEED_LINK' 			=> generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/ui',
-			'U_SMARTFEED_FEED_URL' 				=> ($this->feed_type == constants::SMARTFEED_ATOM) ? generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/feed?' . $this->request->server('QUERY_STRING') : generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/feed?' . htmlspecialchars($this->request->server('QUERY_STRING')),
 			'U_SMARTFEED_FEED_IMAGE'			=> ($this->config['phpbbservices_smartfeed_feed_image_path'] <> '') ? generate_board_url() . '/styles/' . trim($this->user->style['style_path']) . '/' . $this->config['phpbbservices_smartfeed_feed_image_path'] : generate_board_url() . '/styles/' . trim($this->user->style['style_path']) . '/theme/images/site_logo.gif', // For RSS 1.0 and 2.0.
-			'U_SMARTFEED_FEED_IMAGE_LINK'		=> generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/ui',	// for RSS 1.0 and RSS 2.0
-			'U_SMARTFEED_FEED_IMAGE_URL' 		=> ($this->feed_type == constants::SMARTFEED_ATOM) ? generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/feed?' . $this->request->server('QUERY_STRING') : generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/feed?' . htmlspecialchars($this->request->server('QUERY_STRING')),
+			'U_SMARTFEED_FEED_IMAGE_LINK'		=> $this->helper->route('phpbbservices_smartfeed_ui_controller', array(), true, false, 0),	// for RSS 1.0 and RSS 2.0
 			'U_SMARTFEED_FEED_GENERATOR' 		=> constants::SMARTFEED_GENERATOR,
+			'U_SMARTFEED_FEED_LINK' 			=> $this->helper->route('phpbbservices_smartfeed_ui_controller', array(), true, false, 0),
 			'U_SMARTFEED_FEED_PAGE_URL'			=> $this->config['phpbbservices_smartfeed_url'],
+
 			'U_SMARTFEED_WEBMASTER'				=> $this->config['phpbbservices_smartfeed_webmaster'],	// RSS 2.0
 			)
 		);
@@ -967,21 +963,21 @@ class feed
 				'L_TITLE'		=> $this->user->lang('SMARTFEED_ERROR'),
 				'S_PUBLISHED'	=> date('c'),
 				'S_UPDATED'		=> date('c'),
-				'U_ID'			=> generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/ui',
-				'U_LINK'		=> generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/ui',
+				'U_ID'			=> $this->helper->route('phpbbservices_smartfeed_ui_controller', array(), true, false, 0),
+				'U_LINK'		=> $this->helper->route('phpbbservices_smartfeed_ui_controller', array(), true, false, 0),
 				
 				// RSS 1.0 block variables follow
 				'L_DESCRIPTION'	=> $error_msg,
 				'S_CREATOR'		=> ($this->config['board_contact_name'] <> '') ? $this->config['board_contact_name'] : $this->config['board_contact'],
 				'S_DATE'		=> date('c'),
-				'U_RESOURCE'	=> generate_board_url() . '/app.' . $this->phpEx .'/smartfeed/ui',
+				'U_RESOURCE'	=> $this->helper->route('phpbbservices_smartfeed_ui_controller', array(), true, false, 0),
 				'U_SOURCE'		=> generate_board_url(),
 				
 				// RSS 2.0 block variables follow
 				'S_AUTHOR'		=> ($this->config['board_contact_name'] <> '') ? $this->config['board_contact_name'] . ' (' . $this->config['board_contact'] . ')' : $this->config['board_contact'],
 				'S_PUBDATE'		=> date('D, d M Y H:i:s O'),	// RFC-822 format required
 				'U_COMMENTS'	=> generate_board_url(),
-				'U_GUID'		=> generate_board_url() . '/app.' . $this->phpEx .'/smartfeed/ui',
+				'U_GUID'		=> $this->helper->route('phpbbservices_smartfeed_ui_controller', array(), true, false, 0),
 			));
 		}
 		
@@ -1094,7 +1090,7 @@ class feed
 						'L_DESCRIPTION'	=> $message,
 						'S_CREATOR'		=> $email . ' (' . $username . ')',
 						'S_DATE'		=> date('c', $row['message_time']),
-						'U_RESOURCE'	=> generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/ui',
+						'U_RESOURCE'	=> $this->helper->route('phpbbservices_smartfeed_ui_controller', array(), true, false, 0),
 						'U_SOURCE'		=> generate_board_url(),
 						
 						// RSS 2.0 block variables follow
@@ -1353,7 +1349,7 @@ class feed
 							'L_DESCRIPTION'	=> $post_text,
 							'S_CREATOR'		=> $email . ' (' . $username . ')',
 							'S_DATE'		=> date('c', $row['post_time']),
-							'U_RESOURCE'	=> generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/ui',
+							'U_RESOURCE'	=> $this->helper->route('phpbbservices_smartfeed_ui_controller', array(), true, false, 0),
 							'U_SOURCE'		=> generate_board_url(),
 							
 							// RSS 2.0 block variables follow
@@ -1456,15 +1452,15 @@ class feed
 					$pm_image_text = $this->user->lang('SMARTFEED_POST_IMAGE_TEXT');
 					$thumbnail_parameter = '&t=1';
 				}
-				$attachment_markup .= sprintf("%s<br /><em>%s</em> (%s %s)<br />%s<img src=\"%s\" alt=\"%s\" title=\"%s\" />%s\n<br />%s", $row['attach_comment'], $row['real_filename'], $file_size, $this->user->lang('KIB'), $anchor_begin, generate_board_url() . "/download/file.$this->phpEx?id=" . $row['attach_id'] . $thumbnail_parameter, $row['attach_comment'], $row['attach_comment'], $anchor_end, $pm_image_text);
+				$attachment_markup .= sprintf("%s<br><em>%s</em> (%s %s)<br>%s<img src=\"%s\" alt=\"%s\" title=\"%s\" />%s\n<br>%s", $row['attach_comment'], $row['real_filename'], $file_size, $this->user->lang('KIB'), $anchor_begin, generate_board_url() . "/download/file.$this->phpEx?id=" . $row['attach_id'] . $thumbnail_parameter, $row['attach_comment'], $row['attach_comment'], $anchor_end, $pm_image_text);
 			}
 			else
 			{
-				$attachment_markup .= ($row['attach_comment'] == '') ? '' : '<em>' . $row['attach_comment'] . '</em><br />';
+				$attachment_markup .= ($row['attach_comment'] == '') ? '' : '<em>' . $row['attach_comment'] . '</em><br>';
 				$attachment_markup .= 
 					sprintf("<img src=\"%s\" title=\"\" alt=\"\" /> ", 
 						generate_board_url() . '/styles/' . $icon_topic_attach_style . '/theme/images/icon_topic_attach.gif') .
-					sprintf("<b><a href=\"%s\">%s</a></b> (%s KiB)<br />",
+					sprintf("<b><a href=\"%s\">%s</a></b> (%s KiB)<br>",
 						generate_board_url() . "/download/file.$this->phpEx?id=" . $row['attach_id'],
 						$row['real_filename'], 
 						$file_size);
@@ -1486,18 +1482,9 @@ class feed
 	
 	private function decrypt($data_input, $key)
 	{   
-	
-		// This function encrypts $data_input with the given $key using the TRIPLEDES encryption algorithm. If mcrypt is not available then private access is not supported.
-		
-		$cipher = mcrypt_module_open(MCRYPT_TRIPLEDES, '', MCRYPT_MODE_ECB, '');
-		
-		mcrypt_generic_init($cipher, $key, constants::SMARTFEED_IV);
-		
-		$decrypted_data = mdecrypt_generic($cipher, $this->base64_decode_urlsafe($data_input));
-		mcrypt_generic_deinit($cipher);
-		
+		// This function encrypts $data_input with the given $key using the TRIPLEDES encryption algorithm. If openssl is not available then private access is not supported.
+		$decrypted_data = openssl_decrypt($this->base64_decode_urlsafe($data_input), 'DES-CBC', $key, 0, constants::SMARTFEED_IV);
 		return $decrypted_data;
-	
 	}
 	
 	private function truncate_words($text, $max_words, $max_words_lang_string, $just_count_words = false)
@@ -1610,7 +1597,7 @@ class feed
 								'L_DESCRIPTION'	=> $content,
 								'S_CREATOR'		=> $feed_item->get_authors(),
 								'S_DATE'		=> $feed_item->get_date('c'),
-								'U_RESOURCE'	=> generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/ui',
+								'U_RESOURCE'	=> $this->helper->route('phpbbservices_smartfeed_ui_controller', array(), true, false, 0),
 								'U_SOURCE'		=> generate_board_url(),
 								
 								// RSS 2.0 block variables follow
@@ -1636,6 +1623,6 @@ class feed
 		
 		return true;
 
-	}	
+	}
 
 }

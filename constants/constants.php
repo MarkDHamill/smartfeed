@@ -65,9 +65,9 @@ class constants {
 	const SMARTFEED_RSS2 ='2'; 							// Was RSS2.0
 	
 	// Miscellaneous
-	const SMARTFEED_GENERATOR = 'Smartfeed Extension for phpBB 3.1';	// Does not need to be language specific, used in feed text because some feed formats require it.
+	const SMARTFEED_GENERATOR = 'Smartfeed extension for phpBB';	// Does not need to be language specific, used in feed text because some feed formats require it.
 	const SMARTFEED_IV = 'asdfghjk';	// Used to help encrypt and decrypt user_smartfeed_key. This does not have to be secret but it should be 8 characters. 
-										// See the mcrypt documentation. If you change this authentication for registered users should fail, so don't!
-	const SMARTFEED_VERSION = '3.0.6'; // Update for each release. Needed to support <generator> tag in Atom 1.0.
+										// See the openssl documentation. If you change this authentication for registered users should fail, so don't!
+	const SMARTFEED_VERSION = '3.0.7'; // Update for each release. Needed to support <generator> tag in Atom 1.0.
 
 }

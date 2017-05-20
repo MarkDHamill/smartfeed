@@ -49,10 +49,11 @@ class ui
 	* @param \phpbb\auth\auth						$auth
 	* @param string									$phpbb_root_path
 	* @param \phpbbservices\smartfeed\core\common	$common
+	* @param string           						$ext_root_path     Path to smartfeed extension root
 	*/
 	
 	public function __construct(\phpbb\config\config $config, \phpbb\controller\helper $helper, \phpbb\template\template $template, \phpbb\user $user,
-		$php_ext, \phpbb\db\driver\factory $db, \phpbb\auth\auth $auth, $phpbb_root_path, \phpbbservices\smartfeed\core\common $common)
+		$php_ext, \phpbb\db\driver\factory $db, \phpbb\auth\auth $auth, $phpbb_root_path, \phpbbservices\smartfeed\core\common $common, $ext_root_path)
 	{
 		$this->config = $config;
 		$this->helper = $helper;
@@ -63,7 +64,8 @@ class ui
 		$this->auth = $auth;
 		$this->phpbb_root_path = $phpbb_root_path;
 		$this->common = $common;
-		
+		$this->ext_root_path = $ext_root_path;
+
 		// Load language variable specifically for this class
 		$this->user->add_lang_ext('phpbbservices/smartfeed', 'ui');
 	}
@@ -90,8 +92,8 @@ class ui
 		$required_forum_ids = (isset($this->config['phpbbservices_smartfeed_include_forums']) && strlen(trim($this->config['phpbbservices_smartfeed_include_forums'])) > 0) ? explode(',', $this->config['phpbbservices_smartfeed_include_forums']) : array();
 		$excluded_forum_ids = (isset($this->config['phpbbservices_smartfeed_exclude_forums']) && strlen(trim($this->config['phpbbservices_smartfeed_exclude_forums'])) > 0) ? explode(',', $this->config['phpbbservices_smartfeed_exclude_forums']) : array();
 
-		// Pass encryption tokens to the user interface for generating URLs, unless of the user is not registered, mcrypt is not supported or OAuth authentication is used
-		$is_guest = !$this->user->data['is_registered'] || !extension_loaded('mcrypt') || $this->config['auth_method'] == 'oauth';
+		// Pass encryption tokens to the user interface for generating URLs, unless of the user is not registered, openssl is not supported or OAuth authentication is used
+		$is_guest = !$this->user->data['is_registered'] || !extension_loaded('openssl') || $this->config['auth_method'] == 'oauth';
 		
 		if (!$is_guest)
 		{
@@ -336,7 +338,7 @@ class ui
 			'L_SMARTFEED_LIMIT_SET_EXPLAIN'		=> ($this->config['phpbbservices_smartfeed_default_fetch_time_limit'] == '0') ? '' : sprintf($this->user->lang('SMARTFEED_LIMIT_SET_EXPLAIN'), round(($this->config['phpbbservices_smartfeed_default_fetch_time_limit']/24), 0)),
 			'L_SMARTFEED_MAX_ITEMS_EXPLAIN_MAX' => ($this->config['phpbbservices_smartfeed_max_items'] == 0) ? $this->user->lang('SMARTFEED_MAX_ITEMS_EXPLAIN_BLANK') : sprintf($this->user->lang('SMARTFEED_MAX_ITEMS_EXPLAIN'), $this->config['phpbbservices_smartfeed_max_items'], $max_items),
 			'L_SMARTFEED_MAX_WORD_SIZE_EXPLAIN' => ($this->config['phpbbservices_smartfeed_max_word_size'] == '0') ? $this->user->lang('SMARTFEED_MAX_WORD_SIZE_EXPLAIN_BLANK') : sprintf($this->user->lang('SMARTFEED_MAX_WORD_SIZE_EXPLAIN'), $this->config['phpbbservices_smartfeed_max_word_size']),
-			'L_SMARTFEED_NOT_LOGGED_IN'			=> !extension_loaded('mcrypt') ? $this->user->lang('SMARTFEED_NO_MCRYPT_SUPPORT') : sprintf($this->user->lang('SMARTFEED_NOT_LOGGED_IN'), $this->phpEx, $this->phpEx),
+			'L_SMARTFEED_NOT_LOGGED_IN'			=> !extension_loaded('openssl') ? $this->user->lang('SMARTFEED_NO_OPENSSL_SUPPORT') : sprintf($this->user->lang('SMARTFEED_NOT_LOGGED_IN'), $this->phpEx, $this->phpEx),
 			'LA_SMARTFEED_SIZE_ERROR'			=> $size_error_msg,
 			'S_SMARTFEED_ALL_BY_DEFAULT'		=> ($this->config['phpbbservices_smartfeed_all_by_default'] == '1') ? 'checked="checked"' : '',
 			'S_SMARTFEED_ATOM_10_VALUE'			=> constants::SMARTFEED_ATOM,
@@ -391,7 +393,7 @@ class ui
 			'S_SMARTFEED_STANDARD_DESC'			=> constants::SMARTFEED_STANDARD_DESC,
 			'S_SMARTFEED_TIME_LIMIT' 			=> constants::SMARTFEED_TIME_LIMIT,
 			'S_SMARTFEED_USER_ID' 				=> constants::SMARTFEED_USER_ID,
-			'U_SMARTFEED_IMAGE_PATH'         	=> $this->phpbb_root_path . '../../ext/phpbbservices/smartfeed/styles/all/theme/images/',
+			'U_SMARTFEED_IMAGE_PATH'         	=> generate_board_url() . $this->ext_root_path . 'styles/all/theme/images/',
 		 	'UA_SMARTFEED_SITE_URL'				=> generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/',
 			'UA_SMARTFEED_USER_ID'				=> $smartfeed_user_id,
 
@@ -411,15 +413,11 @@ class ui
 	private function encrypt($data_input, $key)
 	{   
 	
-		// This function encrypts $data_input with the given $key using the TRIPLEDES encryption algorithm. If mcrypt is not available then private access is not supported.
+		// This function encrypts $data_input with the given $key using the TRIPLEDES encryption algorithm. If openssl is not available then private access is not supported.
 		
-		$cipher = mcrypt_module_open(MCRYPT_TRIPLEDES, '', MCRYPT_MODE_ECB, '');
-		
-		mcrypt_generic_init($cipher, $key, constants::SMARTFEED_IV);
-		$encrypted_string = mcrypt_generic($cipher, $data_input);
+		$encrypted_string = openssl_encrypt($data_input, 'DES-CBC', $key, 0, constants::SMARTFEED_IV);
 		$encrypted_data = $this->base64_encode_urlsafe($encrypted_string);
-		mcrypt_generic_deinit($cipher);
-		
+
 		return $encrypted_data;
 	
 	}

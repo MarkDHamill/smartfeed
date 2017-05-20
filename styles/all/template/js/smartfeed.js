@@ -27,8 +27,7 @@ $(document).ready(function(){
 			return;
 		}
 		if ((size < 0) || ($(this).attr('id') == 'count_limit' && size > adminMaxItems) || (isNaN(size)) || size.indexOf('.') !== -1) {
-			$("#dialog").text(message);
-			$("#dialog").dialog("open");
+			$("#dialog").text(message).dialog("open");
 			$(this).val($(this).prop('defaultValue'));
 			$(this).focus();
 		}
