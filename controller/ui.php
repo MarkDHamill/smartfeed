@@ -73,7 +73,7 @@ class ui
 	/**
 	* Smartfeed controller for route /smartfeed/{name}
 	*
-	* @return \phpbb\controller\helper
+	* @return Response object containing rendered page
 	*/
 	public function handle()
 	{
@@ -92,33 +92,32 @@ class ui
 		$required_forum_ids = (isset($this->config['phpbbservices_smartfeed_include_forums']) && strlen(trim($this->config['phpbbservices_smartfeed_include_forums'])) > 0) ? explode(',', $this->config['phpbbservices_smartfeed_include_forums']) : array();
 		$excluded_forum_ids = (isset($this->config['phpbbservices_smartfeed_exclude_forums']) && strlen(trim($this->config['phpbbservices_smartfeed_exclude_forums'])) > 0) ? explode(',', $this->config['phpbbservices_smartfeed_exclude_forums']) : array();
 
-		// Pass encryption tokens to the user interface for generating URLs, unless of the user is not registered, openssl is not supported or OAuth authentication is used
+		// Pass encryption tokens to the user interface for generating URLs, unless the user is not registered, openssl is not supported or OAuth authentication is used
 		$is_guest = !$this->user->data['is_registered'] || !extension_loaded('openssl') || $this->config['auth_method'] == 'oauth';
 		
 		if (!$is_guest)
 		{
 			// If the user is registered then great, they can authenticate and see private forums
+
 			$smartfeed_user_id = $this->user->data['user_id'];
 			$user_password = $this->user->data['user_password'];
 			if ($this->user->data['user_smartfeed_key'])
 			{
 				$user_smartfeed_key = $this->user->data['user_smartfeed_key'];
-				$encrypted_password = $this->encrypt($user_password, $user_smartfeed_key);
-				$encrypted_password_with_ip = $this->encrypt($user_password . '~' . $this->user->ip, $user_smartfeed_key);
 			}
 			else
 			{
-				// Generate a smartfeed encryption key. This is a one time action. It is used to authenticate the user when they call smartfeed.php.
+				// Generate a Smartfeed encryption key. This is a one time action. It is used to authenticate the user when they call smartfeed.php.
 				$user_smartfeed_key = gen_rand_string(32);
-				$encrypted_password = $this->encrypt($user_password, $user_smartfeed_key);
-				$encrypted_password_with_ip = $this->encrypt($user_password . '~' . $this->user->ip, $user_smartfeed_key);
-				
+
 				// Store the key
 				$sql = 'UPDATE ' . USERS_TABLE . "
 						SET user_smartfeed_key = '" . $this->db->sql_escape($user_smartfeed_key) . "'
 						WHERE user_id = " . (int) $this->user->data['user_id'];
 				$this->db->sql_query($sql);
 			}
+			$encrypted_password = $this->encrypt($user_password, $user_smartfeed_key);
+			$encrypted_password_with_ip = $this->encrypt($user_password . '~' . $this->user->ip, $user_smartfeed_key);
 			$this->template->assign_vars(array('S_SMARTFEED_IS_GUEST' => false, 'S_SMARTFEED_DAY_DEFAULT' => ''));
 		}
 		else
@@ -403,23 +402,23 @@ class ui
 		return $this->helper->render('smartfeed_body.html', $display_name);
 	
 	}
-		
-	private function base64_encode_urlsafe($input)
-	{
-		// Thanks to phpBB forum user klapray for this logic for creating a "urlsafe" versions of base64_encode and _decode.
-		return strtr(base64_encode($input), '+/=', '-_.');
-	}
-		
-	private function encrypt($data_input, $key)
-	{   
-	
-		// This function encrypts $data_input with the given $key using the TRIPLEDES encryption algorithm. If openssl is not available then private access is not supported.
-		
-		$encrypted_string = openssl_encrypt($data_input, 'DES-CBC', $key, 0, constants::SMARTFEED_IV);
-		$encrypted_data = $this->base64_encode_urlsafe($encrypted_string);
 
+	private function encrypt($data_input, $key)
+	{
+
+		// This function encrypts $data_input (the encrypted user_password for the user in the phpbb_users table) using
+		// $key (user_smartfeed_key in the phpbb_users table), the AES-128-CBC algorithm and a randomly generated IV.
+
+		// Generate an initialization vector needed to properly encrypt the password
+		$iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length('AES-128-CBC'));
+
+		// Encrypt the data using the random IV.
+		$encrypted_string = openssl_encrypt($data_input, 'AES-128-CBC', $key, OPENSSL_RAW_DATA, $iv);
+
+		// Thanks to phpBB forum user klapray for this logic for creating a "urlsafe" fix for base64_encode and _decode.
+		$encrypted_data = strtr(base64_encode($iv . $encrypted_string), '+/=', '-_.');
 		return $encrypted_data;
-	
+
 	}
 	
 }

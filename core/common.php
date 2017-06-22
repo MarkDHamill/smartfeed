@@ -18,12 +18,12 @@ class common
 	/**
 	 * Constructor
 	 *
-	 * @param \phpbb\auth\auth			$auth
+	 * @param \phpbb\auth\auth	$auth
 	*/
 		
-	public function __construct(\phpbb\auth\auth	$auth)
+	public function __construct(\phpbb\auth\auth $auth)
 	{
-			$this->auth = 	$auth;
+			$this->auth = $auth;
 	}
 	
 	public function check_all_parents($parent_array, $forum_id)

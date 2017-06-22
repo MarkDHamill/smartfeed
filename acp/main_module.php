@@ -159,7 +159,7 @@ class main_module
 			'L_TITLE_EXPLAIN'	=> $this->user->lang($display_vars['title'] . '_EXPLAIN'),
 
 			'S_ERROR'			=> (sizeof($error)) ? true : false,
-			'ERROR_MSG'			=> implode('<br />', $error),
+			'ERROR_MSG'			=> implode('<br>', $error),
 
 			'U_ACTION'			=> $this->u_action)
 		);

@@ -84,12 +84,11 @@ class feed
 		$this->filter_foes = NULL;
 		$this->first_post_only = NULL;
 		$this->is_registered = false;
+		$this->items_in_feed = 0;
 		$this->lastvisit = NULL;
 		$this->mark_private_messages = NULL;
 		$this->max_items = NULL;
-		$this->max_word_size = NULL;
 		$this->max_words = NULL;
-		$this->min_word_size = NULL;
 		$this->min_words = NULL;
 		$this->remove_my_posts = NULL;
 		$this->show_pms = NULL;
@@ -381,7 +380,7 @@ class feed
 		// Get the user id. The feed may be customized based on a user's privilege. A public user won't be identified as a user in the URL.
 		$this->user_id = $this->request->variable(constants::SMARTFEED_USER_ID, ANONYMOUS);
 		
-		// Get the encrypted password. When decrypted it is still encoded md5 as it should also be in the database
+		// Get the encrypted password. When decrypted it is still encoded as it shows in the database.
 		$this->encrypted_pswd = $this->request->variable(constants::SMARTFEED_ENCRYPTION_KEY, 'NONE', true);
 
 		// Check for incorrect or invalid URL key/value pairs
@@ -404,7 +403,7 @@ class feed
 
 			$user_smartfeed_key = '';
 			$user_password = '';
-			$user_lastvisit ='';
+			$user_lastvisit = '';
 
 			$sql = 'SELECT user_id, user_password, user_smartfeed_key, user_topic_sortby_type, user_topic_sortby_dir, 
 						user_post_sortby_type, user_post_sortby_dir, user_lastvisit, user_type
@@ -425,17 +424,15 @@ class feed
 			}
 			else
 			{
-				
 				// Make sure user_id exists in database and has normal or founder status
 				$row = reset($rowset);
 				
-				// Save the user variables, although only the first is unneeded for guests.
+				// Save the user variables, although these are unneeded for guests.
 				$user_smartfeed_key = $row['user_smartfeed_key'];
 
 				// These other variables are only used by registered users
 				$user_password = $row['user_password'];
 				$user_lastvisit = $row['user_lastvisit'];
-			
 			}
 			
 			$this->db->sql_freeresult($result); // Query be gone!
@@ -454,8 +451,7 @@ class feed
 				{
 
 					// Decrypt password using the user_smartfeed_key column in the phpbb_users table. This should have been created
-					// the first time the user interface was run by this user. Note the encoded password is typically md5. There should not be
-					// a clear text password in the database.
+					// the first time the user interface was run by this user. There should not be a clear text password in the database.
 					$encoded_pswd = $this->decrypt($this->encrypted_pswd, $user_smartfeed_key);
 
 					// If IP Authentication was enabled, the encoded password is to the left of the ~ and the IP to the right of the ~
@@ -514,7 +510,7 @@ class feed
 						}
 					}
 				
-					// Do not generate a feed if the asserted encrypted password does not equal the actual password. Note: the password is an MD5 hash.
+					// Do not generate a feed if the asserted encrypted password does not equal the actual database encrypted password.
 					if (!$error && (trim($encoded_pswd) != trim($user_password)))
 					{
 						$error = true;
@@ -595,7 +591,7 @@ class feed
 			
 				// When selecting bookmarked topics only, we can safely ignore the logic constraining the user to read only 
 				// from certain forums. Instead we will create the SQL to get the bookmarked topics, if any, hijacking the 
-				// $fetched_forums_str variable since it is convenient
+				// $fetched_forums_str variable since it is convenient.
 				
 				$bookmarked_topic_ids = array();
 							
@@ -888,13 +884,13 @@ class feed
 					'ON'	=> 'f.forum_id = ft.forum_id AND ft.user_id = u.user_id'
 				)
 			);
-			
+
 			$sql = $this->db->sql_build_query('SELECT', $sql_array);
-						
+
 			// Now finally, let's fetch the actual posts to be placed in this newsfeed
 			$result = $this->db->sql_query_limit($sql, $this->max_items); // Execute the SQL to retrieve the relevant posts. Note, if $this->max_items is 0 then there is no limit on the rows returned
 			$rowset = $this->db->sql_fetchrowset($result); // Get all the posts as a set
-	
+
 			// Add private messages, if requested
 			if ($this->is_registered && $this->show_pms)
 			{
@@ -917,18 +913,14 @@ class feed
 		
 		}
 
-		$display_name = $this->user->lang('SMARTFEED_FEED');	// As XML is generated, there is no real page name to display so this is sort of moot.
-		
+		$display_name = $this->user->lang('SMARTFEED_FEED');	// As XML is generated to create a feed, there is no real page name to display so this is sort of moot.
+
 		// These template variables apply to the overall feed, not to items in it. A post is an item in the newsfeed.
 		$this->template->assign_vars(array(
-		
 			'L_SMARTFEED_FEED_DESCRIPTION' 		=> html_entity_decode($this->config['site_desc']),
-			'L_SMARTFEED_FEED_IMAGE_TITLE'		=> html_entity_decode($this->config['sitename']),	// for RSS 1.0 and 2.0
 			'L_SMARTFEED_FEED_TITLE' 			=> html_entity_decode($this->config['sitename']),
 
-			'S_SMARTFEED_FEED_BUILD_DATE'		=> date('r'),	// for RSS 1.0 and 2.0
-			'S_SMARTFEED_FEED_CHANNEL_ABOUT'	=> generate_board_url(),	// for RSS 1.0
-			'S_SMARTFEED_FEED_LANGUAGE'			=> ($this->config['phpbbservices_smartfeed_rfc1766_lang'] <> '') ? $this->config['phpbbservices_smartfeed_rfc1766_lang'] : $this->config['default_lang'],	// For RSS 2.0
+			'S_SMARTFEED_FEED_LANGUAGE'			=> ($this->config['phpbbservices_smartfeed_rfc1766_lang'] <> '') ? $this->config['phpbbservices_smartfeed_rfc1766_lang'] : $this->config['default_lang'],	// For RSS 2.0 and ATOM 1.0
 			'S_SMARTFEED_FEED_PUBDATE'			=> date('r'),	// for RSS 2.0
 			'S_SMARTFEED_FEED_TTL' 				=> ($this->config['phpbbservices_smartfeed_ttl'] <> '') ? $this->config['phpbbservices_smartfeed_ttl'] : '60',	// for RSS 2.0
 			'S_SMARTFEED_FEED_TYPE' 			=> $this->feed_type,	// Atom 1.0, RSS 1.0, RSS 2.0, used as a switch. Must be 0, 1 or 2. Atom 1.0 is used to show feed type errors if they occur.
@@ -938,11 +930,9 @@ class feed
 
 			'U_SMARTFEED_FEED_ID'				=> generate_board_url(),
 			'U_SMARTFEED_FEED_IMAGE'			=> ($this->config['phpbbservices_smartfeed_feed_image_path'] <> '') ? generate_board_url() . '/styles/' . trim($this->user->style['style_path']) . '/' . $this->config['phpbbservices_smartfeed_feed_image_path'] : generate_board_url() . '/styles/' . trim($this->user->style['style_path']) . '/theme/images/site_logo.gif', // For RSS 1.0 and 2.0.
-			'U_SMARTFEED_FEED_IMAGE_LINK'		=> $this->helper->route('phpbbservices_smartfeed_ui_controller', array(), true, false, 0),	// for RSS 1.0 and RSS 2.0
 			'U_SMARTFEED_FEED_GENERATOR' 		=> constants::SMARTFEED_GENERATOR,
-			'U_SMARTFEED_FEED_LINK' 			=> $this->helper->route('phpbbservices_smartfeed_ui_controller', array(), true, false, 0),
+			'U_SMARTFEED_FEED_LINK' 			=> $this->helper->route('phpbbservices_smartfeed_ui_controller', array(), true, false, \Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL),
 			'U_SMARTFEED_FEED_PAGE_URL'			=> $this->config['phpbbservices_smartfeed_url'],
-
 			'U_SMARTFEED_WEBMASTER'				=> $this->config['phpbbservices_smartfeed_webmaster'],	// RSS 2.0
 			)
 		);
@@ -953,31 +943,26 @@ class feed
 		{
 			// Since an error has occurred, generate a feed with just one item in it: the error.
 			$this->template->assign_block_vars('items', array(
-			
-				// Atom 1.0 block variables follow
+
+				// Common and Atom 1.0 block variables follow
 				'L_CATEGORY'	=> $this->user->lang('SMARTFEED_ERROR'),
 				'L_CONTENT'		=> $error_msg,
 				'L_EMAIL'		=> $this->config['board_contact'],
 				'L_NAME'		=> ($this->config['board_contact_name'] <> '') ? $this->config['board_contact_name'] : $this->config['board_contact'],
 				'L_SUMMARY'		=> $error_msg,	// Should be a "line" or so, perhaps first 80 characters of the post, perhaps stripped of HTML. Irrelevant for errors.
 				'L_TITLE'		=> $this->user->lang('SMARTFEED_ERROR'),
+				'S_CREATOR'		=> ($this->config['board_contact_name'] <> '') ? $this->config['board_contact_name'] : $this->config['board_contact'],
 				'S_PUBLISHED'	=> date('c'),
 				'S_UPDATED'		=> date('c'),
-				'U_ID'			=> $this->helper->route('phpbbservices_smartfeed_ui_controller', array(), true, false, 0),
-				'U_LINK'		=> $this->helper->route('phpbbservices_smartfeed_ui_controller', array(), true, false, 0),
-				
+				'U_ID'			=> $this->helper->route('phpbbservices_smartfeed_ui_controller', array(), true, false, \Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL),
+
 				// RSS 1.0 block variables follow
-				'L_DESCRIPTION'	=> $error_msg,
-				'S_CREATOR'		=> ($this->config['board_contact_name'] <> '') ? $this->config['board_contact_name'] : $this->config['board_contact'],
-				'S_DATE'		=> date('c'),
-				'U_RESOURCE'	=> $this->helper->route('phpbbservices_smartfeed_ui_controller', array(), true, false, 0),
 				'U_SOURCE'		=> generate_board_url(),
 				
 				// RSS 2.0 block variables follow
-				'S_AUTHOR'		=> ($this->config['board_contact_name'] <> '') ? $this->config['board_contact_name'] . ' (' . $this->config['board_contact'] . ')' : $this->config['board_contact'],
+				'S_COMMENTS' 	=> false,
 				'S_PUBDATE'		=> date('D, d M Y H:i:s O'),	// RFC-822 format required
-				'U_COMMENTS'	=> generate_board_url(),
-				'U_GUID'		=> $this->helper->route('phpbbservices_smartfeed_ui_controller', array(), true, false, 0),
+
 			));
 		}
 		
@@ -1029,6 +1014,7 @@ class feed
 								(($row['enable_magic_url']) ? OPTION_FLAG_LINKS : 0);
 								
 							$message = generate_text_for_display($message, $row['bbcode_uid'], $row['bbcode_bitfield'], $flags);
+							$message = rtrim($message, '</');	// Bug in generate_text_for_display?
 							// Add any attachments to the private message item
 							if ($row['message_attachment'] > 0)
 							{
@@ -1038,6 +1024,7 @@ class feed
 							if ($user_sig != '')
 							{
 								$user_sig = generate_text_for_display($user_sig, $row['user_sig_bbcode_uid'], $row['user_sig_bbcode_bitfield'], $flags);
+								$user_sig = rtrim($user_sig, '</');	// Bug in generate_text_for_display?
 							}
 				
 							$message = ($user_sig != '') ? $message . $this->user->lang('SMARTFEED_POST_SIGNATURE_DELIMITER') . $user_sig : $message;
@@ -1071,77 +1058,78 @@ class feed
 						$message = $this->truncate_words($message, intval($this->max_words), $this->user->lang('SMARTFEED_MAX_WORDS_NOTIFIER'));
 					}
 
-					// Attach the private message to the feed as an item
-					$this->template->assign_block_vars('items', array(
-					
-						// Common and Atom 1.0 block variables follow
-						'L_CATEGORY'	=> $this->user->lang('PRIVATE_MESSAGE'),
-						'L_CONTENT'		=> $message,
-						'L_EMAIL'		=> $email,
-						'L_NAME'		=> $username,
-						'L_SUMMARY'		=> $message,
-						'L_TITLE'		=> html_entity_decode(censor_text($title)),
-						'S_PUBLISHED'	=> date('c', $row['message_time']),
-						'S_UPDATED'		=> ($row['message_edit_time'] > 0) ? date('c', $row['message_edit_time']) : date('c', $row['message_time']),
-						'U_ID'			=> $link,
-						'U_LINK'		=> $link,
-						
-						// RSS 1.0 block variables follow
-						'L_DESCRIPTION'	=> $message,
-						'S_CREATOR'		=> $email . ' (' . $username . ')',
-						'S_DATE'		=> date('c', $row['message_time']),
-						'U_RESOURCE'	=> $this->helper->route('phpbbservices_smartfeed_ui_controller', array(), true, false, 0),
-						'U_SOURCE'		=> generate_board_url(),
-						
-						// RSS 2.0 block variables follow
-						'S_AUTHOR'		=> $email . ' (' . $username . ')',
-						'S_COMMENTS' 	=> true,
-						'S_PUBDATE'		=> ($row['message_edit_time'] > 0) ? date('D, d M Y H:i:s O', $row['message_edit_time']) : date('D, d M Y H:i:s O', $row['message_time']),	// RFC-822 date format required.
-						'U_COMMENTS'	=> $link,
-						'U_GUID'		=> $link,
-						
-					));
+					if (($this->max_items == 0) || ($this->max_items != 0 && $this->items_in_feed < $this->max_items))
+					{
+						$this->items_in_feed++;
 
-					// If we are to get only a notification that there are new private messages, we should go through this loop only once.
-					if ($this->config['phpbbservices_smartfeed_new_post_notifications_only'])
-					{
-						break;
-					}
-					else
-					{
+						// Attach the private message to the feed as an item
+						$this->template->assign_block_vars('items', array(
+
+							// Common and Atom 1.0 block variables follow
+							'L_CATEGORY'  => $this->user->lang('PRIVATE_MESSAGE'),
+							'L_CONTENT'   => $message,
+							'L_EMAIL'     => $email,
+							'L_NAME'      => $username,
+							'L_SUMMARY'   => $message,
+							'L_TITLE'     => html_entity_decode(censor_text($title)),
+							'S_CREATOR'   => $email . ' (' . $username . ')',
+							'S_PUBLISHED' => date('c', $row['message_time']),
+							'S_UPDATED'   => ($row['message_edit_time'] > 0) ? date('c', $row['message_edit_time']) : date('c', $row['message_time']),
+							'U_ID'        => $link,
+
+							// RSS 1.0 block variables follow
+							'U_SOURCE'    => generate_board_url(),
+
+							// RSS 2.0 block variables follow
+							'S_COMMENTS'  => true,
+							'S_PUBDATE'   => ($row['message_edit_time'] > 0) ? date('D, d M Y H:i:s O', $row['message_edit_time']) : date('D, d M Y H:i:s O', $row['message_time']),    // RFC-822 date format required.
+						));
+
+						// If we are to get only a notification that there are new private messages or posts, we should go through this loop only once.
+						if ($this->config['phpbbservices_smartfeed_new_post_notifications_only'])
+						{
+							break;
+						}
+
 						if ($this->mark_private_messages)
 						{
 							// Mark this private message as read
 							$sql_ary = array(
-								'pm_unread'		=> 0,
-								'pm_new'     	=> 0,
-								'folder_id'		=> 0
+								'pm_unread' => 0,
+								'pm_new'    => 0,
+								'folder_id' => 0
 							);
-							
+
 							$sql = 'UPDATE ' . PRIVMSGS_TO_TABLE . '
 								SET ' . $this->db->sql_build_array('UPDATE', $sql_ary) . '
 								WHERE msg_id = ' . (int) $row['msg_id'] . ' 
 									AND user_id = ' . (int) $this->user_id . '
 									AND author_id = ' . (int) $row['author_id'] . ' 
 									AND folder_id = ' . (int) $row['folder_id'];
-										
+
 							$this->db->sql_query($sql);
-							
+
 							// Decrement the user_unread_privmsg and user_new_privmsg count
 							$sql = 'UPDATE ' . USERS_TABLE . ' 
 								SET user_unread_privmsg = user_unread_privmsg - 1,
 									user_new_privmsg = user_new_privmsg - 1
 								WHERE user_id = ' . (int) $this->user_id;
-								
+
 							$this->db->sql_query($sql);
 						}
+
 					}
-					
+					else
+					{
+						break;
+					}
+
 				}
 			}
 			
 			// If requested to put external items at the top of the feed, do it here.
-			if ($this->config['phpbbservices_smartfeed_external_feeds_top'] == 1)
+			if (($this->config['phpbbservices_smartfeed_external_feeds_top'] == 1) &&
+				(($this->max_items == 0) || ($this->max_items != 0 && $this->items_in_feed < $this->max_items)))
 			{
 				$this->publish_external_feeds($ext_feeds);
 			}
@@ -1155,17 +1143,10 @@ class feed
 				foreach ($rowset as $row)
 				{
 
-					if (!(in_array($row['topic_id'], $topics_array)))
-					{
-						array_push($topics_array, $row['topic_id']);
-						$new_topic = true;
-					}
-					else
-					{
-						$new_topic = false;
-					}
-					
-					// Is this topic or forum associated with the post being tracked by this user? If so, exclude the post if the topic track 
+					// Determine if a new topic
+					$new_topic = ($row['topic_time'] > $this->date_limit);
+
+					// Is this topic or forum associated with the post being tracked by this user? If so, exclude the post if the topic track
 					// time or forum track time is before the earliest time allowed for a post.
 					if (((!is_null($row['forum_mark_time']) && ($row['forum_mark_time']) < $this->date_limit)) ||
 						((!is_null($row['topic_mark_time']) && ($row['topic_mark_time']) < $this->date_limit)))
@@ -1176,18 +1157,16 @@ class feed
 					{
 						$include_post = true;
 					}
-					
-					// Allow a post in the feed if no minimum number of words is specified by the user OR if a minimum number 
-					// of words is specified by the user and it equals or exceeds their minimum allowed number of words. Also allow if 
-					// new post notifications is flagged and the topic has not already been visited. Allow it if it meets the 
-					// condition above for being after a forum or topic's marked time for the user.
-					
-					if ((($this->min_words == 0 && !$this->config['phpbbservices_smartfeed_new_post_notifications_only']) ||
-						($this->min_words != 0 && !$this->config['phpbbservices_smartfeed_new_post_notifications_only'] && $this->truncate_words($row['post_text'], intval($this->max_words), $this->user->lang('SMARTFEED_MAX_WORDS_NOTIFIER'), true) >= $this->min_words)) ||
-						($this->config['phpbbservices_smartfeed_new_post_notifications_only'] && $new_topic && $include_post))
+
+					if 	($include_post &&
+							(
+								($this->min_words == 0) ||
+								($this->min_words != 0 && $this->truncate_words($row['post_text'], intval($this->max_words), $this->user->lang('SMARTFEED_MAX_WORDS_NOTIFIER'), true) >= $this->min_words)
+							)
+						)
 					{
 						// This post goes in the newsfeed
-		
+
 						if ($this->config['phpbbservices_smartfeed_new_post_notifications_only'])
 						{
 							$username = $this->user->lang('ADMINISTRATOR');
@@ -1263,7 +1242,14 @@ class feed
 						// To "dress up" the post text with bbCode, images, smilies etc., we need to use generate_text_for_display() function.
 						if ($this->config['phpbbservices_smartfeed_new_post_notifications_only'])
 						{
-							$post_text = $this->user->lang('SMARTFEED_NEW_POST_NOTIFICATIONS_ONLY');
+							if ($new_topic)
+							{
+								$post_text = $this->user->lang('SMARTFEED_NEW_TOPIC_NOTIFICATION');
+							}
+							else
+							{
+								$post_text = $this->user->lang('SMARTFEED_NEW_POST_NOTIFICATION');
+							}
 						}
 						else
 						{
@@ -1282,12 +1268,14 @@ class feed
 								{
 									$post_text .= $this->create_attachment_markup ($row['post_id'], true);
 								}
-												
+
 								$post_text = generate_text_for_display($post_text, $row['bbcode_uid'], $row['bbcode_bitfield'], $flags);
-								
+								$post_text = rtrim($post_text, '</');	// Bug in generate_text_for_display?
+
 								if ($user_sig != '')
 								{
 									$user_sig = generate_text_for_display($user_sig, $row['user_sig_bbcode_uid'], $row['user_sig_bbcode_bitfield'], $flags);
+									$user_sig = rtrim($user_sig, '</');	// Bug in generate_text_for_display?
 								}
 					
 								$post_text = ($user_sig != '') ? $post_text . $this->user->lang('SMARTFEED_POST_SIGNATURE_DELIMITER') . $user_sig : $post_text;
@@ -1330,47 +1318,50 @@ class feed
 						}
 						
 						// Add the item (post) to the feed
-						
-						$this->template->assign_block_vars('items', array(
-						
-							// Common and Atom 1.0 block variables follow
-							'L_CATEGORY'	=> $category,
-							'L_CONTENT'		=> $post_text,
-							'L_EMAIL'		=> $email,
-							'L_NAME'		=> $username,
-							'L_SUMMARY'		=> $post_text,
-							'L_TITLE'		=> html_entity_decode(censor_text($title)),
-							'S_PUBLISHED'	=> date('c', $row['post_time']),
-							'S_UPDATED'		=> ($row['post_edit_time'] > 0) ? date('c', $row['post_edit_time']) : date('c', $row['post_time']),
-							'U_ID'			=> $link,
-							'U_LINK'		=> $link,
-							
-							// RSS 1.0 block variables follow
-							'L_DESCRIPTION'	=> $post_text,
-							'S_CREATOR'		=> $email . ' (' . $username . ')',
-							'S_DATE'		=> date('c', $row['post_time']),
-							'U_RESOURCE'	=> $this->helper->route('phpbbservices_smartfeed_ui_controller', array(), true, false, 0),
-							'U_SOURCE'		=> generate_board_url(),
-							
-							// RSS 2.0 block variables follow
-							'S_AUTHOR'		=> $email . ' (' . $username . ')',
-							'S_COMMENTS' 	=> true,
-							'S_PUBDATE'		=> ($row['post_edit_time'] > 0) ? date('D, d M Y H:i:s O', $row['post_edit_time']) : date('D, d M Y H:i:s O', $row['post_time']),	// RFC-822 data format required
-							'U_COMMENTS'	=> $link,
-							'U_GUID'		=> $link,
-							
-						));
+
+						if (($this->max_items == 0) || ($this->max_items != 0 && $this->items_in_feed < $this->max_items))
+						{
+							$this->items_in_feed++;
+
+							$this->template->assign_block_vars('items', array(
+
+								// Common and Atom 1.0 block variables follow
+								'L_CATEGORY'  => $category,
+								'L_CONTENT'   => $post_text,
+								'L_EMAIL'     => $email,
+								'L_NAME'      => $username,
+								'L_SUMMARY'   => $post_text,
+								'L_TITLE'     => html_entity_decode(censor_text($title)),
+								'S_CREATOR'   => $email . ' (' . $username . ')',
+								'S_PUBLISHED' => date('c', $row['post_time']),
+								'S_UPDATED'   => ($row['post_edit_time'] > 0) ? date('c', $row['post_edit_time']) : date('c', $row['post_time']),
+								'U_ID'        => $link,
+
+								// RSS 1.0 block variables follow
+								'U_SOURCE'    => generate_board_url(),
+
+								// RSS 2.0 block variables follow
+								'S_COMMENTS'  => true,
+								'S_PUBDATE'   => ($row['post_edit_time'] > 0) ? date('D, d M Y H:i:s O', $row['post_edit_time']) : date('D, d M Y H:i:s O', $row['post_time']),    // RFC-822 data format required
+
+							));
+						}
+						else
+						{
+							break;
+						}
 					}
 
 				}
 			}
-			
+
 			// If requested to put external items at the bottom of the feed, do it here.
-			if ($this->config['phpbbservices_smartfeed_external_feeds_top'] == 0)
+			if (($this->config['phpbbservices_smartfeed_external_feeds_top'] == 0) &&
+				(($this->max_items == 0) || ($this->max_items != 0 && $this->items_in_feed < $this->max_items)))
 			{
 				$this->publish_external_feeds($ext_feeds);
 			}
-			
+
 		}
 
 		// Reset the user's last visit date on the forum, if so requested
@@ -1460,31 +1451,39 @@ class feed
 				$attachment_markup .= 
 					sprintf("<img src=\"%s\" title=\"\" alt=\"\" /> ", 
 						generate_board_url() . '/styles/' . $icon_topic_attach_style . '/theme/images/icon_topic_attach.gif') .
-					sprintf("<b><a href=\"%s\">%s</a></b> (%s KiB)<br>",
+					sprintf("<b><a href=\"%s\">%s</a></b> (%s %s)<br>",
 						generate_board_url() . "/download/file.$this->phpEx?id=" . $row['attach_id'],
 						$row['real_filename'], 
-						$file_size);
+						$file_size,
+						$this->user->lang('KIB'));
 			}
 		}
 		$this->db->sql_freeresult($result);
 		
 		$attachment_markup .= '</div>';
-		
+
 		return $attachment_markup;
 	
 	}
 
-	private function base64_decode_urlsafe($input)
-	{
-		// Thanks to phpBB forum user klapray for this logic for creating a "urlsafe" versions of base64_encode and _decode.
-		return base64_decode(strtr($input, '-_.', '+/='));
-	}
-	
 	private function decrypt($data_input, $key)
-	{   
-		// This function encrypts $data_input with the given $key using the TRIPLEDES encryption algorithm. If openssl is not available then private access is not supported.
-		$decrypted_data = openssl_decrypt($this->base64_decode_urlsafe($data_input), 'DES-CBC', $key, 0, constants::SMARTFEED_IV);
+	{
+
+		// This function decrypts $data_input with the given $key using the AES-128-CBC encryption algorithm.
+		// The IV used for decryption is stored in base64 before the encrypted data.
+
+		// Thanks to phpBB forum user klapray for this logic for creating a "urlsafe" fix for base64_encode and _decode.
+		$data_input = base64_decode(strtr($data_input, '-_.', '+/='));
+
+		// Get the IV so it can be decrypted with the $key
+		$iv = substr($data_input, 0, openssl_cipher_iv_length('AES-128-CBC'));
+
+		// Encrypted data starts after the IV portion of the string
+		$encrypted_data = substr($data_input, openssl_cipher_iv_length('AES-128-CBC'));
+		$decrypted_data = openssl_decrypt($encrypted_data, 'AES-128-CBC', $key, OPENSSL_RAW_DATA, $iv);
+
 		return $decrypted_data;
+
 	}
 	
 	private function truncate_words($text, $max_words, $max_words_lang_string, $just_count_words = false)
@@ -1518,9 +1517,7 @@ class feed
 
 	private function publish_external_feeds($feeds)
 	{
-		
-		include($this->phpbb_root_path . 'ext/phpbbservices/smartfeed/vendor/simplepie/simplepie/autoloader.php'); // $this->phpEx is not used because the library hardcodes .php suffix
-				
+
 		// If there are external feeds, publish one at a time
 		foreach($feeds as $feed_url)
 		{
@@ -1544,70 +1541,63 @@ class feed
 
 					foreach ($feed->get_items(0, 0) as $feed_item)
 					{
-						
-						if (
-								(
-									($this->date_limit == 0) || // No date range is set OR		
-									($feed_item->get_date('U') >= $this->date_limit)	// Article is within post date range limit set
-								) &&	
-								(
-									($this->min_word_size == 0) || // There is no minimum number of words to worry about OR
-									($this->truncate_words($feed_item->get_content(), intval($this->max_word_size), true) >= $this->min_word_size) // Article has minimum words
-								)	
-							)
+						if (($this->max_items == 0) || ($this->max_items != 0 && $this->items_in_feed < $this->max_items))
 						{
-							
-							// Add the external item to the feed
-							$title = $feed_item->get_title();
-
-							if ((int) ($this->max_word_size) > 0)
+							$this->items_in_feed++;
+							if 	(
+									($this->date_limit == 0) || // No date range is set OR
+									($feed_item->get_date('U') >= $this->date_limit)	// Article is within post date range limit set
+								)
 							{
-								$content = $this->truncate_words($feed_item->get_content(), intval($this->max_word_size), false);
-							}
-							else
-							{
+								// Add the external item to the feed
+								$title = $feed_item->get_title();
 								$content = $feed_item->get_content();
-							}
-							
-							// Create proper email syntax for feed based on type of feed
-							$authors = $feed_item->get_authors();	// Returns array
-							foreach ($authors as $author)
-							{
-								$author_names[] = $author->get_name();
-								$author_emails[] = $author->get_email();
-							}
-							$email = (sizeof($author_emails) > 0 && $author_emails[0] != '') ? $author_emails[0] : 'no_email@example.com';
-							$rss2_email = (sizeof($author_names) > 0 && $author_names[0] != '') ? $email . ' (' . $author_names[0] . ')' : '';
 
-							$this->template->assign_block_vars('items', array(
-			
-								// Common and Atom 1.0 block variables follow
-								'L_CATEGORY'	=> (!is_null($feed_item->get_category())) ? $feed_item->get_category() : $this->user->lang['SMARTFEED_EXTERNAL_ITEM'],
-								'L_CONTENT'		=> $content,
-								'L_EMAIL'		=> $email,
-								'L_NAME'		=> (sizeof($author_names) > 0) ? $author_names[0] : '',
-								'L_SUMMARY'		=> $content,
-								'L_TITLE'		=> $this->user->lang['SMARTFEED_EXTERNAL_ITEM'] . $this->user->lang['SMARTFEED_DELIMITER'] . html_entity_decode($feed_title) . $this->user->lang['SMARTFEED_DELIMITER'] . html_entity_decode(censor_text($title)),
-								'S_PUBLISHED'	=> $feed_item->get_date('c'),
-								'S_UPDATED'		=> $feed_item->get_date('c'),
-								'U_ID'			=> $feed_item->get_permalink(),
-								'U_LINK'		=> $feed_item->get_permalink(),
-								
-								// RSS 1.0 block variables follow
-								'L_DESCRIPTION'	=> $content,
-								'S_CREATOR'		=> $feed_item->get_authors(),
-								'S_DATE'		=> $feed_item->get_date('c'),
-								'U_RESOURCE'	=> $this->helper->route('phpbbservices_smartfeed_ui_controller', array(), true, false, 0),
-								'U_SOURCE'		=> generate_board_url(),
-								
-								// RSS 2.0 block variables follow
-								'S_AUTHOR'		=> $rss2_email,
-								'S_COMMENTS' 	=> false,
-								'S_PUBDATE'		=> $feed_item->get_date('D, d M Y H:i:s O'),	// RFC-822 data format required
-								'U_GUID'		=> $feed_item->get_permalink(),
-								
-							));
-							
+								// Create proper email syntax for feed based on type of feed
+								$authors = $feed_item->get_authors();    // Should return an array
+								if (isset($authors))
+								{
+									foreach ($authors as $author)
+									{
+										$author_names[] = $author->get_name();
+										$author_emails[] = $author->get_email();
+									}
+								}
+								else
+								{
+									$author_names = array();
+									$author_emails = array();
+								}
+								$email = (sizeof($author_emails) > 0 && $author_emails[0] != '') ? $author_emails[0] : 'no_email@example.com';
+
+								$this->template->assign_block_vars('items', array(
+
+									// Common and Atom 1.0 block variables follow
+									'L_CATEGORY'  => (!is_null($feed_item->get_category())) ? $feed_item->get_category() : $this->user->lang['SMARTFEED_EXTERNAL_ITEM'],
+									'L_CONTENT'   => $content,
+									'L_EMAIL'     => $email,
+									'L_NAME'      => (sizeof($author_names) > 0) ? $author_names[0] : '',
+									'L_SUMMARY'   => $content,
+									'L_TITLE'     => $this->user->lang['SMARTFEED_EXTERNAL_ITEM'] . $this->user->lang['SMARTFEED_DELIMITER'] . html_entity_decode($feed_title) . $this->user->lang['SMARTFEED_DELIMITER'] . html_entity_decode(censor_text($title)),
+									'S_PUBLISHED' => $feed_item->get_date('c'),
+									'S_UPDATED'   => $feed_item->get_date('c'),
+									'U_ID'        => $feed_item->get_permalink(),
+
+									// RSS 1.0 block variables follow
+									'S_CREATOR'   => $feed_item->get_authors(),
+									'U_SOURCE'    => generate_board_url(),
+
+									// RSS 2.0 block variables follow
+									'S_COMMENTS'  => false,
+									'S_PUBDATE'   => $feed_item->get_date('D, d M Y H:i:s O'),    // RFC-822 data format required
+
+								));
+
+							}
+						}
+						else
+						{
+							break 2;	// Hit the limit of items in a feed so break out of all loops
 						}
 					}
 		

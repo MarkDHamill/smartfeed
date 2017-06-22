@@ -1,5 +1,5 @@
 <!-- INCLUDE overall_header.html -->
-<div id="dialog" title="Dialog Title"></div>
+<div id="dialog" title=""></div>
 <h2>{L_SMARTFEED_TITLE}</h2>
 
 <!-- IF S_SMARTFEED_NO_FORUMS -->
@@ -174,6 +174,7 @@
 					<label for="lastvisit2"><input type="radio" name="lastvisit" id="lastvisit2" value="NO" /> {L_NO}</label>
 				</dd>
 			</dl>
+			<!-- IF not S_SMARTFEED_REQUIRED_IP_AUTHENTICATION -->
 			<dl>
 				<dt><label>{L_SMARTFEED_IP_AUTH}{L_COLON}</label><br><span class="gensmall">{L_SMARTFEED_IP_AUTHENTICATION_EXPLAIN}</span></dt>
 				<dd>
@@ -181,6 +182,7 @@
 					<label for="ip_auth2"><input type="radio" name="ip_auth" id="ip_auth2" value="NO" checked="checked" /> {L_NO}</label><br>
 				</dd>
 			</dl>
+			<!-- ENDIF -->
 		<!-- ENDIF -->
 
 		</fieldset>

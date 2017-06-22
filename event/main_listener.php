@@ -77,7 +77,7 @@ class main_listener implements EventSubscriberInterface
 	public function overall_header_head_append()
 	{
 		
-		// Parse atom parameters from the configuration variable because the helper requires an array of parameters
+		// Parse ATOM parameters from the configuration variable because the helper requires an array of parameters
 		if (strstr($this->config['phpbbservices_smartfeed_public_feed_url_suffix_atom'],'&'))
 		{
 			$atom_parameters = explode('&', $this->config['phpbbservices_smartfeed_public_feed_url_suffix_atom']);

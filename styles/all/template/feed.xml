@@ -5,7 +5,7 @@
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
 	xmlns:dc="http://purl.org/dc/elements/1.1/">
-	<channel rdf:about="{S_SMARTFEED_FEED_CHANNEL_ABOUT}">
+	<channel rdf:about="{U_SMARTFEED_FEED_ID}">
 		<title><![CDATA[{L_SMARTFEED_FEED_TITLE}]]></title>
 		<description>{L_SMARTFEED_FEED_DESCRIPTION}</description>
 		<link>{U_SMARTFEED_FEED_LINK}</link>
@@ -14,25 +14,25 @@
 		<items>
 <!-- BEGIN items -->
 			<rdf:Seq>
-				<rdf:li rdf:resource="{items.U_RESOURCE}"/>
+				<rdf:li rdf:resource="{items.U_ID}"/>
 			</rdf:Seq>
 <!-- END items -->
 		</items>
 	</channel>
 	<image rdf:about="{U_SMARTFEED_FEED_IMAGE}">
-		<title><![CDATA[{L_SMARTFEED_FEED_IMAGE_TITLE}]]></title>
-		<link>{U_SMARTFEED_FEED_IMAGE_LINK}</link>
+		<title><![CDATA[{L_SMARTFEED_FEED_TITLE}]]></title>
+		<link>{U_SMARTFEED_FEED_LINK}</link>
 		<url>{U_SMARTFEED_FEED_IMAGE}</url>
 	</image>
 <!-- BEGIN items -->
-	<item rdf:about="{items.U_LINK}">
+	<item rdf:about="{items.U_ID}">
 		<dc:format>text/html</dc:format>
-		<dc:date>{items.S_DATE}</dc:date>
+		<dc:date>{items.S_PUBLISHED}</dc:date>
 		<dc:source>{items.U_SOURCE}</dc:source>
 		<dc:creator><![CDATA[{items.S_CREATOR}]]></dc:creator>
 		<title><![CDATA[{items.L_TITLE}]]></title>
-		<link>{items.U_LINK}</link>
-		<description><![CDATA[{items.L_DESCRIPTION}]]></description>
+		<link>{items.U_ID}</link>
+		<description><![CDATA[{items.L_SUMMARY}]]></description>
 	</item>
 <!-- END items -->
 </rdf:RDF>
@@ -43,7 +43,7 @@
 		<title><![CDATA[{L_SMARTFEED_FEED_TITLE}]]></title>
 		<description><![CDATA[{L_SMARTFEED_FEED_DESCRIPTION}]]></description>
 		<link>{U_SMARTFEED_FEED_ID}</link>
-		<lastBuildDate>{S_SMARTFEED_FEED_BUILD_DATE}</lastBuildDate>
+		<lastBuildDate>{S_SMARTFEED_FEED_PUBDATE}</lastBuildDate>
 		<generator>{U_SMARTFEED_FEED_GENERATOR}</generator>
 		<atom:link href="{U_SMARTFEED_FEED_LINK}" type="application/rss+xml" />
 		<!-- IF S_SMARTFEED_SHOW_WEBMASTER -->
@@ -51,7 +51,7 @@
 		<!-- ENDIF -->
 		<image>
 			<url>{U_SMARTFEED_FEED_IMAGE}</url>
-			<title><![CDATA[{L_SMARTFEED_FEED_IMAGE_TITLE}]]></title>
+			<title><![CDATA[{L_SMARTFEED_FEED_TITLE}]]></title>
 			<link>{U_SMARTFEED_FEED_ID}</link>
 		</image>
 		<language>{S_SMARTFEED_FEED_LANGUAGE}</language>
@@ -60,22 +60,22 @@
 <!-- BEGIN items -->
 		<item>
 			<title><![CDATA[{items.L_TITLE}]]></title>
-			<link>{items.U_LINK}</link>
-			<description><![CDATA[{items.L_DESCRIPTION}]]></description>
-			<author>{items.S_AUTHOR}</author>
+			<link>{items.U_ID}</link>
+			<description><![CDATA[{items.L_SUMMARY}]]></description>
+			<author>{items.S_CREATOR}</author>
 			<category><![CDATA[{items.L_CATEGORY}]]></category>
 			<!-- IF items.S_COMMENTS -->
-			<comments>{items.U_COMMENTS}</comments>
+			<comments>{items.U_ID}</comments>
 			<!-- ENDIF -->
 			<pubDate>{items.S_PUBDATE}</pubDate>
-			<guid isPermaLink="false">{items.U_GUID}</guid>
+			<guid isPermaLink="false">{items.U_ID}</guid>
 		</item>
 <!-- END items -->
 	</channel>
 </rss>
 <!-- ELSE -->
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en-GB">
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="{S_SMARTFEED_FEED_LANGUAGE}">
 	<title><![CDATA[{L_SMARTFEED_FEED_TITLE}]]></title>
 	<subtitle><![CDATA[{L_SMARTFEED_FEED_DESCRIPTION}]]></subtitle>
 	<id>{U_SMARTFEED_FEED_ID}</id>
@@ -85,7 +85,7 @@
 <!-- BEGIN items -->
 	<entry>
 		<title><![CDATA[{items.L_TITLE}]]></title>
-		<link rel="alternate" type="text/html" href="{items.U_LINK}"/>
+		<link rel="alternate" type="text/html" href="{items.U_ID}"/>
 		<published>{items.S_PUBLISHED}</published>
 		<updated>{items.S_UPDATED}</updated>
 		<id>{items.U_ID}</id>

@@ -23,6 +23,11 @@ class release_3_0_4 extends \phpbb\db\migration\migration
 
 	public function update_data()
 	{
+
+		global $phpbb_container;
+
+		$language = $phpbb_container->get('language');
+
 		return array(
 		
 			// Remove old Smartfeed mod configuration variables, if they were carried over from a 3.0.x to 3.1.x conversion.
@@ -74,7 +79,7 @@ class release_3_0_4 extends \phpbb\db\migration\migration
 			array('config.add',	array('phpbbservices_smartfeed_public_feed_url_suffix_atom', '')),
 			array('config.add',	array('phpbbservices_smartfeed_public_feed_url_suffix_rss', 'y=2')),
 			array('config.add',	array('phpbbservices_smartfeed_require_ip_authentication', '0')),
-			array('config.add',	array('phpbbservices_smartfeed_rfc1766_lang', 'en-GB')),
+			array('config.add',	array('phpbbservices_smartfeed_rfc1766_lang', $language->lang('USER_LANG'))),
 			array('config.add',	array('phpbbservices_smartfeed_show_username_in_first_topic_post', '1')),
 			array('config.add',	array('phpbbservices_smartfeed_show_username_in_replies', '1')),
 			array('config.add',	array('phpbbservices_smartfeed_suppress_forum_names', '0')),

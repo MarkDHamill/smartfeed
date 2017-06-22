@@ -19,7 +19,9 @@ var ok = "{LA_OK}";
 var sizeError = "{LA_SMARTFEED_SIZE_ERROR_MIN}";
 var sizeErrorRange = "{LA_SMARTFEED_SIZE_ERROR}";
 <!-- IF not S_SMARTFEED_IS_GUEST -->
+<!-- IF not S_SMARTFEED_REQUIRED_IP_AUTHENTICATION -->
 var smartfeedKey = '{S_SMARTFEED_PWD}';
+<!-- ENDIF -->
 var smartfeedKeyWithIP = '{S_SMARTFEED_PWD_WITH_IP}';
 <!-- ENDIF -->
 var thereAreRequiredForums = {S_SMARTFEED_REQUIRED_FORUMS};
@@ -152,8 +154,8 @@ function create_URL() {
 
 	// Add the max number of posts
 	append = (url.indexOf('?') === -1) ? '?' : '&';
-	if ($("max_items").val() > 0) {
-		url = url + append + "{S_SMARTFEED_MAX_ITEMS_L}=" + $("max_items").val();
+	if ($("#max_items").val() > 0) {
+		url = url + append + "{S_SMARTFEED_MAX_ITEMS_L}=" + $("#max_items").val();
 	}
 
 	// Add the sort order
