@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Smartfeed
-* @copyright (c) 2017 Mark D. Hamill (mark@phpbbservices.com)
+* @copyright (c) 2018 Mark D. Hamill (mark@phpbbservices.com)
 * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
 *
 */
@@ -36,7 +36,7 @@ $lang = array_merge($lang, array(
 	'ACP_SMARTFEED_EXCLUDE_FORUMS'								=> 'Always exclude these forums',
 	'ACP_SMARTFEED_EXCLUDE_FORUMS_EXPLAIN'						=> 'Enter the forum_ids for forums that must never appear in any newsfeed. Separate the forum_ids with commas. If left blank, no forums have to be excluded. To determine the forum_ids, when browsing a forum observe the &ldquo;f&rdquo; parameter on the URL field. This is the forum_id. Example: http://www.example.com/phpBB3/viewforum.php?f=1. Do not use forum_ids that correspond to categories. Categories cannot be selected with phpBB Smartfeed. Note that by default Smartfeed prohibits anyone from reading forums for which they do not have read privileges.',
 	'ACP_SMARTFEED_EXTERNAL_FEEDS'								=> 'External feeds',
-	'ACP_SMARTFEED_EXTERNAL_FEEDS_EXPLAIN'						=> 'Enter the URIs of external feeds that you want to appear in the newsfeed, putting each URL on a separate line. External feeds appear in the order they are entered. Note: filtering rules that apply to posts also apply to items in external feeds, except these items do not count against the maximum number of posts in the feed. In particular, if the publish date of the article does not fall within the date range of the feed (like seven days) these articles will not appear. No more than 255 characters can physically be stored in this field.',
+	'ACP_SMARTFEED_EXTERNAL_FEEDS_EXPLAIN'						=> 'Enter the URIs of external feeds that you want to appear in the newsfeed, putting each URL on a separate line. External feeds appear in the order they are entered. Note: where applicable, filtering rules that apply to posts also apply to items in external feeds. In particular, if the publish date of the article does not fall within the date range of the feed (like seven days) these articles will not appear. No more than 255 characters can physically be stored in this field.',
 	'ACP_SMARTFEED_EXTERNAL_FEEDS_TOP'							=> 'External feed items at top of feed',
 	'ACP_SMARTFEED_EXTERNAL_FEEDS_TOP_EXPLAIN'					=> 'If you select No, external feed items will be at the bottom of the feed. Private messages, if any, will always appear first in the feed.',
 	'ACP_SMARTFEED_FEED_IMAGE_PATH'								=> 'Feed image path and file',
@@ -47,7 +47,7 @@ $lang = array_merge($lang, array(
 	'ACP_SMARTFEED_MAX_ITEMS'									=> 'Maximum items allowed in any feed',
 	'ACP_SMARTFEED_MAX_ITEMS_EXPLAIN'							=> 'This is used to set some upper bound on the number of items permitted in a newsfeed. If 0, there is no limit. For heavily trafficked boards you may find you have to set a limit to keep the board from getting bogged down. Make sure this is a whole number.',
 	'ACP_SMARTFEED_MAX_WORD_SIZE'								=> 'Maximum words to display in a post',
-	'ACP_SMARTFEED_MAX_WORD_SIZE_EXPLAIN'						=> 'No post in any feed can exceed this number of words. Enter 0 to allow an unrestrained word size for any post. The user always has the option to limit the number of words in a post to less than the board limit. Notice: To ensure consistent rendering, if a post must be truncated, the markup will be removed from the post. <i>Note:</i> items in external feeds are unaffected.',
+	'ACP_SMARTFEED_MAX_WORD_SIZE_EXPLAIN'						=> 'No post in any feed can exceed this number of words. Enter 0 to allow an unrestrained word size for any post. The user always has the option to limit the number of words in a post to less than the board limit. Notice: To ensure consistent rendering, if a post must be truncated, the markup will be removed from the post. <em>Note:</em> items in external feeds are unaffected.',
 	'ACP_SMARTFEED_MINUTES'										=> 'min',
 	'ACP_SMARTFEED_NEW_POST_NOTIFICATIONS_ONLY'					=> 'Show new post and private message notifications only in the feed',
 	'ACP_SMARTFEED_NEW_POST_NOTIFICATIONS_ONLY_EXPLAIN'			=> 'If your content is highly sensitive you might want to enable this feature. If enabled, the feed will not show the content of any posts or private messages, but will present a message for each topic for which there are new posts and a notification if there are new private messages. The user would have to login to the board to view the new posts or private messages. Note that this is a global setting, so it will affect all categories, forums and users as well as private messages. Author names and post subjects are hidden but the topic name is shown.',

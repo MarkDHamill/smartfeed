@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Smartfeed
-* @copyright (c) 2017 Mark D. Hamill (mark@phpbbservices.com)
+* @copyright (c) 2018 Mark D. Hamill (mark@phpbbservices.com)
 * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
 *
 */
@@ -33,7 +33,6 @@ $lang = array_merge($lang, array(
 	'SMARTFEED_FEED_TYPE_ERROR'							=> 'Smartfeed does not accept the feed type parameter value of y=%s. Acceptable values are 0 (Atom), 1 (RSS 1.0) and 2 (RSS 2.0).',
 	'SMARTFEED_FILTER_CRITERIA'							=> 'Post filters',
 	'SMARTFEED_FILTER_FOES'								=> 'Remove posts from my foes',
-	'SMARTFEED_FIRST_POST_ONLY_ERROR'					=> 'The first post only (fp) parameter value is invalid. If present it should only have a value of 0 or 1. Please rerun Smartfeed on the forum to generate a correct feed URL.',
 	'SMARTFEED_FORMAT_AND_ACCESS'						=> 'Format &amp; access control',
 	'SMARTFEED_FORUM_SELECTION'							=> 'Forum selection',
 	'SMARTFEED_GENERATE_BUTTON'							=> 'Generate the URL',
@@ -70,9 +69,10 @@ $lang = array_merge($lang, array(
 	'SMARTFEED_NO_FORUMS_SELECTED'						=> 'You have not selected any forums, so no URL can be generated. Please select at least one forum.',
 	'SMARTFEED_NO_LIMIT'								=> 'None',
 	'SMARTFEED_NO_OPENSSL_SUPPORT'						=> '<strong>Note: this site can provide feeds for public forums only</strong>',
-	'SMARTFEED_NOT_LOGGED_IN'							=> '<strong>Because you are not logged in, OAuth authentication is used or your member status does not allow it, you can only subscribe to the list of public forums shown below. Please <a href="./../../ucp.%s?mode=login" class="postlink">log in</a> or <a href="./../../ucp.%s?mode=register" class="postlink">register</a> if you want to also subscribe to nonpublic forums or to access features for registered members only.</strong>',
+	'SMARTFEED_NOT_LOGGED_IN'							=> '<strong>Because you are not logged in, OAuth authentication is used or your member status does not allow it, you can only subscribe to the list of public forums shown below. Please <a href="' . append_sid('./../../ucp.%s?mode=login') . '" class="postlink">log in</a> or <a href="' . append_sid('./../../ucp.%s?mode=register') . '" class="postlink">register</a> if you want to also subscribe to nonpublic forums or to access features for registered members only.</strong>',
 	'SMARTFEED_POSTS_TYPE_ANY'							=> 'All posts',
-	'SMARTFEED_POSTS_TYPE_FIRST'						=> 'First posts of topics only',
+	'SMARTFEED_POSTS_TYPE_FIRST'						=> 'First post of topics only',
+	'SMARTFEED_POSTS_TYPE_LAST'							=> 'Last post of topics only',
 	'SMARTFEED_POWERED_BY'								=> 'phpbbservices.com',
 	'SMARTFEED_PRIVATE_MESSAGES_IN_FEED'				=> 'Add my unread private messages',
 	'SMARTFEED_REMOVE_YOURS'							=> 'Remove my posts',
@@ -98,10 +98,16 @@ $lang = array_merge($lang, array(
 	'SMARTFEED_STYLE_HTML_EXPLAIN'						=> 'HTML will provide formatting, BBCode and signatures (if allowed). Posts will look similar to how they appear in the forum. HTML feeds may not validate.',
 	'SMARTFEED_STYLE_HTML_SAFE'							=> '<a href="http://validator.w3.org/feed/docs/warning/SecurityRiskAttr.html" class="postlink" onclick="window.open(this.href);return false;">Safe HTML</a>',
 	'SMARTFEED_STYLE_HTML_SAFE_EXPLAIN'					=> 'Safe HTML will strip tags considered unsafe for newsreaders, according to the W3C.',
+	'SMARTFEED_SUPPRESS_FORUM_NAMES'					=> 'Suppress forum names',
+	'SMARTFEED_SUPPRESS_FORUM_NAMES_EXPLAIN'			=> 'Keeps the forum name appearing in the item title for all members, which results in a more succinct item title.',
+	'SMARTFEED_SUPPRESS_USERNAMES'						=> 'Suppress usernames',
+	'SMARTFEED_SUPPRESS_USERNAMES_EXPLAIN'				=> 'The feed will not show the poster&apos;s name in the item&apos;s title. This is useful is rendering nicer looking feeds.',
 	'SMARTFEED_TEST'									=> 'Test',
 	'SMARTFEED_TEST_BUTTON'								=> 'Test the feed',
 	'SMARTFEED_TEST_BUTTON_EXPLAIN'						=> 'Run the URL in a new page of your browser. The newsfeed may look better in a newsreader.',
 	'SMARTFEED_TITLE'									=> 'Smartfeed',
+	'SMARTFEED_TOPIC_TITLES'							=> 'Topic titles only',
+	'SMARTFEED_TOPIC_TITLES_EXPLAIN'					=> 'The feed will show the topic title rather than the post subject. This avoids a lot of "Re:" from appearing in the item&apos;s title.',
 	'SMARTFEED_URL'										=> 'Generate &amp; test',
 	'SMARTFEED_USE_BOOKMARKS'							=> 'Bookmarked topics only',
 	'SMARTFEED_VALID_ATOM_1'							=> 'Smartfeed generates validated ATOM 1.0 feeds, as tested by the W3C Markup Validation Service (https://validator.w3.org).',

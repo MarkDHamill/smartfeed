@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Smartfeed
-* @copyright (c) 2017 Mark D. Hamill (mark@phpbbservices.com)
+* @copyright (c) 2018 Mark D. Hamill (mark@phpbbservices.com)
 * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
 *
 */
@@ -359,6 +359,7 @@ class ui
 			'S_SMARTFEED_LAST_QUARTER_VALUE'	=> constants::SMARTFEED_LAST_QUARTER_VALUE,
 			'S_SMARTFEED_LAST_MONTH_VALUE'		=> constants::SMARTFEED_LAST_MONTH_VALUE,
 			'S_SMARTFEED_LAST_TWO_WEEKS_VALUE'	=> constants::SMARTFEED_LAST_TWO_WEEKS_VALUE,
+			'S_SMARTFEED_LAST_POST' 			=> constants::SMARTFEED_LAST_POST,
 			'S_SMARTFEED_LAST_WEEK_VALUE'		=> constants::SMARTFEED_LAST_WEEK_VALUE,
 			'S_SMARTFEED_LAST_DAY_VALUE'		=> constants::SMARTFEED_LAST_DAY_VALUE,
 			'S_SMARTFEED_LAST_12_HOURS_VALUE'	=> constants::SMARTFEED_LAST_12_HOURS_VALUE,
@@ -390,8 +391,13 @@ class ui
 			'S_SMARTFEED_SORT_BY' 				=> constants::SMARTFEED_SORT_BY,
 			'S_SMARTFEED_STANDARD'				=> constants::SMARTFEED_STANDARD,
 			'S_SMARTFEED_STANDARD_DESC'			=> constants::SMARTFEED_STANDARD_DESC,
+			'S_SMARTFEED_SUPPRESS_FORUM_NAMES'		=> $this->config['phpbbservices_smartfeed_suppress_forum_names'],
+			'S_SMARTFEED_SUPPRESS_FORUM_NAMES_C'	=> constants::SMARTFEED_SUPPRESS_FORUM_NAMES,
+			'S_SMARTFEED_SUPPRESS_USERNAMES'	=> !$this->config['phpbbservices_smartfeed_show_username_in_replies'],
 			'S_SMARTFEED_TIME_LIMIT' 			=> constants::SMARTFEED_TIME_LIMIT,
+			'S_SMARTFEED_TOPIC_TITLES' 			=> constants::SMARTFEED_TOPIC_TITLES,
 			'S_SMARTFEED_USER_ID' 				=> constants::SMARTFEED_USER_ID,
+			'S_SMARTFEED_USERNAMES' 			=> constants::SMARTFEED_USERNAMES,
 			'U_SMARTFEED_IMAGE_PATH'         	=> generate_board_url() . $this->ext_root_path . 'styles/all/theme/images/',
 		 	'UA_SMARTFEED_SITE_URL'				=> generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/',
 			'UA_SMARTFEED_USER_ID'				=> $smartfeed_user_id,

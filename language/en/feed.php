@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Smartfeed
-* @copyright (c) 2017 Mark D. Hamill (mark@phpbbservices.com)
+* @copyright (c) 2018 Mark D. Hamill (mark@phpbbservices.com)
 * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
 *
 */
@@ -30,10 +30,12 @@ $lang = array_merge($lang, array(
 	'SMARTFEED_ERROR'									=> 'Smartfeed error',
 	'SMARTFEED_FEED'									=> 'Smartfeed newsfeed',
 	'SMARTFEED_FILTER_FOES_ERROR'						=> 'The filter foes (ff) parameter value is invalid. If present it should only have a value of 1. Please rerun Smartfeed on the forum to generate a correct feed URL.',
+	'SMARTFEED_FIRST_POST_ONLY_ERROR'					=> 'The first post only (fp) parameter value is invalid. If present it should only have a value of 1. Please rerun Smartfeed on the forum to generate a correct feed URL.',
 	'SMARTFEED_GLOBAL_ANNOUNCEMENT'						=> 'GLOBAL ANNOUNCEMENT',
 	'SMARTFEED_IP_AUTH_ERROR'							=> 'The Internet Protocol (IP) address of the client making the Smartfeed request is not authorized to access the feed because it did not pass the proper credential. Please rerun Smartfeed on the forum to generate a correct feed URL.', 
 	'SMARTFEED_IP_RANGE_ERROR'							=> 'Your IP of %s is invalid.',
-	'SMARTFEED_LASTVISIT_ERROR'							=> 'The last visit (l) parameter value specified is invalid. If present it must have a value of 1 only. Please rerun Smartfeed on the forum to generate a correct feed URL.',
+	'SMARTFEED_LASTVISIT_ERROR'							=> 'The last visit (l) parameter value specified is invalid. If present it must have a value of 1. Please rerun Smartfeed on the forum to generate a correct feed URL.',
+	'SMARTFEED_LAST_POST_ONLY_ERROR'					=> 'The last post only (lp) parameter value is invalid. If present it should only have a value of 1. Please rerun Smartfeed on the forum to generate a correct feed URL.',
 	'SMARTFEED_LIMIT_FORMAT_ERROR'						=> 'The time limit (t) parameter is not an allowed value. Please rerun Smartfeed on the forum to generate a correct feed URL.',
 	'SMARTFEED_MAX_ITEMS_ERROR'							=> 'If specified, the maximum items (x) parameter value must be a whole number greater than 0. Please rerun Smartfeed on the forum to generate a correct feed URL.',
 	'SMARTFEED_MAX_WORD_SIZE_ERROR'						=> 'The maximum words in a post (w) parameter value is invalid. If used it must be a whole number. Please rerun Smartfeed on the forum to generate a correct feed URL.',
@@ -54,7 +56,10 @@ $lang = array_merge($lang, array(
 	'SMARTFEED_REMOVE_MINE_ERROR'						=> 'The remove my posts (r) parameter value is invalid. If present it should only have a value of 1. Please rerun Smartfeed on the forum to generate a correct feed URL.',
 	'SMARTFEED_REPLY'									=> 'Reply',
 	'SMARTFEED_REPLY_BY'								=> 'Reply by',
+	'SMARTFEED_SHOW_TOPIC_TITLES_ERROR'					=> 'The show topic titles (tt) parameter value specified is invalid. If present it must have a value of 1. Please rerun Smartfeed on the forum to generate a correct feed URL.',
 	'SMARTFEED_SORT_BY_ERROR'							=> 'Smartfeed cannot accept the sort by (s) parameter value. Please rerun Smartfeed on the forum to generate a correct feed URL.',
 	'SMARTFEED_STYLE_ERROR'								=> 'The style parameter is not one of the allowed values, or is absent. Please rerun Smartfeed on the forum to generate a correct feed URL.',
+	'SMARTFEED_SUPPRESS_FORUM_NAMES_ERROR'				=> 'The suppress forum names (fn) parameter value specified is invalid. If present it must have a value of 1. Please rerun Smartfeed on the forum to generate a correct feed URL.',
+	'SMARTFEED_SUPPRESS_USERNAMES_ERROR'				=> 'The suppress usernames (un) parameter value specified is invalid. If present it must have a value of 1. Please rerun Smartfeed on the forum to generate a correct feed URL.',
 	'SMARTFEED_USER_ID_DOES_NOT_EXIST'					=> 'User ID identified by the &ldquo;u&rdquo; parameter does not exist or is not allowed to access a feed. Please rerun Smartfeed on the forum to generate a correct feed URL.',
 ));

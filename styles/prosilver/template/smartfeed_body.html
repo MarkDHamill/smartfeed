@@ -1,143 +1,165 @@
-<!-- INCLUDE overall_header.html -->
+{% INCLUDE 'overall_header.html' %}
 <div id="dialog" title=""></div>
-<h2>{L_SMARTFEED_TITLE}</h2>
+<h2>{{ lang('SMARTFEED_TITLE') }}</h2>
 
-<!-- IF S_SMARTFEED_NO_FORUMS -->
-<p style="text-align:center"><span class="gen">{L_SMARTFEED_NO_FORUMS_AVAILABLE}<br><br></span></p>
-<!-- ELSE -->
+{% if S_SMARTFEED_NO_FORUMS %}
+<p style="text-align:center"><span class="gen">{{ lang('SMARTFEED_NO_FORUMS_AVAILABLE') }}<br><br></span></p>
+{% else %}
 
-<!-- IF S_SMARTFEED_IS_GUEST -->
-<p>{L_SMARTFEED_NOT_LOGGED_IN}</p>
-<!-- ENDIF -->
+{% if S_SMARTFEED_IS_GUEST %}
+<p>{{ lang('SMARTFEED_NOT_LOGGED_IN') }}</p>
+{% endif %}
 
-<p>{L_SMARTFEED_EXPLANATION}</p>
+<p>{{ lang('SMARTFEED_EXPLANATION') }}</p>
 <form id="phpbbservices_smartfeed" action="#">
 	<div class="panel">
 		<div class="inner">
 
-		<h3>{L_SMARTFEED_FORUM_SELECTION}</h3>
+			<h3>{{ lang('SMARTFEED_FORUM_SELECTION') }}</h3>
 
-		<fieldset>
-			<dl>
-				<dt><label for="all_forums">{L_SMARTFEED_SELECT_FORUMS}{L_COLON}</label><br><span class="gensmall">{L_SMARTFEED_SELECT_FORUMS_EXPLAIN}</span></dt>
-				<dd>
-					<input type="checkbox" name="all_forums" id="all_forums" {S_SMARTFEED_ALL_BY_DEFAULT} /> <label for="all_forums"><b>{L_SMARTFEED_ALL_FORUMS}</b></label><br><br>
-					<div id="div_0">
-					<!-- BEGIN forums -->
-						<!-- IF not forums.S_SMARTFEED_PRINT and forums.S_SMARTFEED_DIV_OPEN -->
-						<div id="{forums.CAT_ID}" style="position:relative; left:20px;">
-						<!-- ENDIF -->
-						<!-- IF forums.S_SMARTFEED_PRINT -->
-							<!-- IF forums.S_SMARTFEED_IS_FORUM -->
-							<input type="checkbox" name="{forums.FORUM_NAME}" id="{forums.FORUM_NAME}" {forums.FORUM_CHECKED} {forums.FORUM_DISABLED} /><label for="{forums.FORUM_NAME}">{forums.FORUM_PREFIX}{forums.FORUM_LABEL}{forums.FORUM_SUFFIX}</label><br>
-							<!-- ELSE -->
-							<i>{forums.FORUM_LABEL}</i><br>
-							<!-- ENDIF -->
-						<!-- ENDIF -->
-						<!-- IF not forums.S_SMARTFEED_PRINT and not forums.S_SMARTFEED_DIV_OPEN -->
+			<fieldset>
+				<dl>
+					<dt><label for="all_forums">{{ lang('SMARTFEED_SELECT_FORUMS') }}{{ lang('COLON') }}</label><br><span class="gensmall">{{ lang('SMARTFEED_SELECT_FORUMS_EXPLAIN') }}</span></dt>
+					<dd>
+						<input type="checkbox" name="all_forums" id="all_forums" {{ S_SMARTFEED_ALL_BY_DEFAULT }} /> <label for="all_forums"><b>{{ lang('SMARTFEED_ALL_FORUMS') }}</b></label><br><br>
+						<div id="div_0">
+							{% for forums in loops.forums %}
+							{% if not forums.S_SMARTFEED_PRINT and forums.S_SMARTFEED_DIV_OPEN %}
+							<div id="{{ forums.CAT_ID }}" style="position:relative; left:20px;">
+								{% endif %}
+								{% if forums.S_SMARTFEED_PRINT %}
+								{% if forums.S_SMARTFEED_IS_FORUM %}
+								<input type="checkbox" name="{{ forums.FORUM_NAME }}" id="{{ forums.FORUM_NAME }}" {{ forums.FORUM_CHECKED }} {{ forums.FORUM_DISABLED }} /><label for="{{ forums.FORUM_NAME }}">{{ forums.FORUM_PREFIX }}{{ forums.FORUM_LABEL }}{{ forums.FORUM_SUFFIX }}</label><br>
+								{% else %}
+								<i>{{ forums.FORUM_LABEL }}</i><br>
+								{% endif %}
+								{% endif %}
+								{% if not forums.S_SMARTFEED_PRINT and not forums.S_SMARTFEED_DIV_OPEN %}
+							</div>
+							{% endif %}
+							{% endfor %}
 						</div>
-						<!-- ENDIF -->
-					<!-- END forums -->
-					</div>
-				</dd>
-			</dl>
-		</fieldset>
+					</dd>
+				</dl>
+			</fieldset>
 
-		<h3>{L_SMARTFEED_FILTER_CRITERIA}</h3>
+			<h3>{{ lang('SMARTFEED_FILTER_CRITERIA') }}</h3>
 
-		<fieldset>
-			<dl>
-				<dt><label>{L_SMARTFEED_FIRST_POST_ONLY}{L_COLON}</label></dt>
-				<dd>
-					<input type="radio" name="firstpostonly" id="firstpostonly2" value="NO" checked="checked" /><label for="firstpostonly2">{L_SMARTFEED_POSTS_TYPE_ANY}</label>
-					<input type="radio" name="firstpostonly" id="firstpostonly1" value="YES" /><label for="firstpostonly1">{L_SMARTFEED_POSTS_TYPE_FIRST}</label>
-					<!-- IF not S_SMARTFEED_IS_GUEST -->
-					<input type="radio" name="firstpostonly" id="bookmarks" value="BM" /><label for="bookmarks">{L_SMARTFEED_USE_BOOKMARKS}</label>
-					<!-- ENDIF -->
-				</dd>
-			</dl>
-			<dl>
-				<dt><label for="post_limit">{L_SMARTFEED_LIMIT}{L_COLON}</label><br><span class="gensmall">{L_SMARTFEED_LIMIT_EXPLAIN} {L_SMARTFEED_LIMIT_SET_EXPLAIN}</span></dt>
-				<dd>
-					<select name="post_limit" id="post_limit" >
-						<!-- IF not S_SMARTFEED_IS_GUEST -->
-						<option value="{S_SMARTFEED_SINCE_LAST_VISIT_VALUE}">{L_SMARTFEED_SINCE_LAST_VISIT_TEXT}</option>
-						<!-- ENDIF -->
-						<option value="{S_SMARTFEED_NO_LIMIT_VALUE}">{L_SMARTFEED_NO_LIMIT}</option>
-						<option value="{S_SMARTFEED_LAST_QUARTER_VALUE}">{L_SMARTFEED_LAST_QUARTER}</option>
-						<option value="{S_SMARTFEED_LAST_MONTH_VALUE}">{L_SMARTFEED_LAST_MONTH}</option>
-						<option value="{S_SMARTFEED_LAST_TWO_WEEKS_VALUE}">{L_SMARTFEED_LAST_TWO_WEEKS}</option>
-						<option value="{S_SMARTFEED_LAST_WEEK_VALUE}">{L_SMARTFEED_LAST_WEEK}</option>
-						<option value="{S_SMARTFEED_LAST_DAY_VALUE}" {S_SMARTFEED_DAY_DEFAULT}>{L_SMARTFEED_LAST_DAY}</option>
-						<option value="{S_SMARTFEED_LAST_12_HOURS_VALUE}">{L_SMARTFEED_LAST_12_HOURS}</option>
-						<option value="{S_SMARTFEED_LAST_6_HOURS_VALUE}">{L_SMARTFEED_LAST_6_HOURS}</option>
-						<option value="{S_SMARTFEED_LAST_3_HOURS_VALUE}">{L_SMARTFEED_LAST_3_HOURS}</option>
-						<option value="{S_SMARTFEED_LAST_1_HOURS_VALUE}">{L_SMARTFEED_LAST_1_HOURS}</option>
-						<option value="{S_SMARTFEED_LAST_30_MINUTES_VALUE}">{L_SMARTFEED_LAST_30_MINUTES}</option>
-						<option value="{S_SMARTFEED_LAST_15_MINUTES_VALUE}">{L_SMARTFEED_LAST_15_MINUTES}</option>
-					</select>
-				</dd>
-			</dl>
-			<dl>
-				<dt><label for="max_items">{L_SMARTFEED_MAX_ITEMS}{L_COLON}</label><br><span class="gensmall">{L_SMARTFEED_MAX_ITEMS_EXPLAIN_MAX}</span></dt>
-					<dd><input type="text" class="inputbox autowidth" size="3" maxlength="3" name="max_items" id="max_items" value="{S_SMARTFEED_MAX_ITEMS}" />
-				</dd>
-			</dl>
-			<dl>
-				<dt><label for="min_words">{L_SMARTFEED_MIN_WORDS}{L_COLON}</label><br><span class="gensmall">{L_SMARTFEED_MIN_WORDS_EXPLAIN}</span></dt>
+			<fieldset>
+				<dl>
+					<dt><label>{{ lang('SMARTFEED_FIRST_POST_ONLY') }}{{ lang('COLON') }}</label></dt>
+					<dd>
+						<select name="post_types" id="post_types" >
+							<option value="ANY">{{ lang('SMARTFEED_POSTS_TYPE_ANY') }}</option>
+							<option value="FIRST">{{ lang('SMARTFEED_POSTS_TYPE_FIRST') }}</option>
+							<option value="LAST">{{ lang('SMARTFEED_POSTS_TYPE_LAST') }}</option>
+							{% if not S_SMARTFEED_IS_GUEST %}
+							<option value="BM" />{{ lang('SMARTFEED_USE_BOOKMARKS') }}</option>
+							{% endif %}
+						</select>
+					</dd>
+				</dl>
+				<dl>
+					<dt><label for="post_limit">{{ lang('SMARTFEED_LIMIT') }}{{ lang('COLON') }}</label><br><span class="gensmall">{{ lang('SMARTFEED_LIMIT_EXPLAIN') }} {{ lang('SMARTFEED_LIMIT_SET_EXPLAIN') }}</span></dt>
+					<dd>
+						<select name="post_limit" id="post_limit" >
+							{% if not S_SMARTFEED_IS_GUEST %}
+							<option value="{{ S_SMARTFEED_SINCE_LAST_VISIT_VALUE }}">{{ lang('SMARTFEED_SINCE_LAST_VISIT_TEXT') }}</option>
+							{% endif %}
+							<option value="{{ S_SMARTFEED_NO_LIMIT_VALUE }}">{{ lang('SMARTFEED_NO_LIMIT') }}</option>
+							<option value="{{ S_SMARTFEED_LAST_QUARTER_VALUE }}">{{ lang('SMARTFEED_LAST_QUARTER') }}</option>
+							<option value="{{ S_SMARTFEED_LAST_MONTH_VALUE }}">{{ lang('SMARTFEED_LAST_MONTH') }}</option>
+							<option value="{{ S_SMARTFEED_LAST_TWO_WEEKS_VALUE }}">{{ lang('SMARTFEED_LAST_TWO_WEEKS') }}</option>
+							<option value="{{ S_SMARTFEED_LAST_WEEK_VALUE }}">{{ lang('SMARTFEED_LAST_WEEK') }}</option>
+							<option value="{{ S_SMARTFEED_LAST_DAY_VALUE }}" {{ S_SMARTFEED_DAY_DEFAULT }}>{{ lang('SMARTFEED_LAST_DAY') }}</option>
+							<option value="{{ S_SMARTFEED_LAST_12_HOURS_VALUE }}">{{ lang('SMARTFEED_LAST_12_HOURS') }}</option>
+							<option value="{{ S_SMARTFEED_LAST_6_HOURS_VALUE }}">{{ lang('SMARTFEED_LAST_6_HOURS') }}</option>
+							<option value="{{ S_SMARTFEED_LAST_3_HOURS_VALUE }}">{{ lang('SMARTFEED_LAST_3_HOURS') }}</option>
+							<option value="{{ S_SMARTFEED_LAST_1_HOURS_VALUE }}">{{ lang('SMARTFEED_LAST_1_HOURS') }}</option>
+							<option value="{{ S_SMARTFEED_LAST_30_MINUTES_VALUE }}">{{ lang('SMARTFEED_LAST_30_MINUTES') }}</option>
+							<option value="{{ S_SMARTFEED_LAST_15_MINUTES_VALUE }}">{{ lang('SMARTFEED_LAST_15_MINUTES') }}</option>
+						</select>
+					</dd>
+				</dl>
+				<dl>
+					<dt><label for="max_items">{{ lang('SMARTFEED_MAX_ITEMS') }}{{ lang('COLON') }}</label><br><span class="gensmall">{{ lang('SMARTFEED_MAX_ITEMS_EXPLAIN_MAX') }}</span></dt>
+					<dd><input type="text" class="inputbox autowidth" size="3" maxlength="3" name="max_items" id="max_items" value="{{ S_SMARTFEED_MAX_ITEMS }}" />
+					</dd>
+				</dl>
+				<dl>
+					<dt><label for="min_words">{{ lang('SMARTFEED_MIN_WORDS') }}{{ lang('COLON') }}</label><br><span class="gensmall">{{ lang('SMARTFEED_MIN_WORDS_EXPLAIN') }}</span></dt>
 					<dd><input type="text" class="inputbox autowidth" size="4" maxlength="4" name="min_words" id="min_words" value="0" />
-				</dd>
-			</dl>
-			<!-- IF not S_SMARTFEED_IS_GUEST -->
-			<dl>
-				<dt><label>{L_SMARTFEED_REMOVE_YOURS}{L_COLON}</label></dt>
-				<dd>
-					<label for="remove_yours1"><input type="radio" name="remove_yours" id="remove_yours1" value="YES" /> {L_YES}</label>
-					<label for="remove_yours2"><input type="radio" name="remove_yours" id="remove_yours2" value="NO" checked="checked" /> {L_NO}</label>
-				</dd>
-			</dl>
-			<dl>
-				<dt><label>{L_SMARTFEED_FILTER_FOES}{L_COLON}</label></dt>
-				<dd>
-					<label for="filter_foes1"><input type="radio" name="filter_foes" id="filter_foes1" value="YES" /> {L_YES}</label>
-					<label for="filter_foes2"><input type="radio" name="filter_foes" id="filter_foes2" value="NO" checked="checked" /> {L_NO}</label>
-				</dd>
-			</dl>
-			<!-- ENDIF -->
-		</fieldset>
+					</dd>
+				</dl>
+				{% if not S_SMARTFEED_IS_GUEST %}
+				<dl>
+					<dt><label>{{ lang('SMARTFEED_REMOVE_YOURS') }}{{ lang('COLON') }}</label></dt>
+					<dd>
+						<label for="remove_yours1"><input type="radio" name="remove_yours" id="remove_yours1" value="YES" /> {{ lang('YES') }}</label>
+						<label for="remove_yours2"><input type="radio" name="remove_yours" id="remove_yours2" value="NO" checked="checked" /> {{ lang('NO') }}</label>
+					</dd>
+				</dl>
+				<dl>
+					<dt><label>{{ lang('SMARTFEED_FILTER_FOES') }}{{ lang('COLON') }}</label></dt>
+					<dd>
+						<label for="filter_foes1"><input type="radio" name="filter_foes" id="filter_foes1" value="YES" /> {{ lang('YES') }}</label>
+						<label for="filter_foes2"><input type="radio" name="filter_foes" id="filter_foes2" value="NO" checked="checked" /> {{ lang('NO') }}</label>
+					</dd>
+				</dl>
+				{% endif %}
+			</fieldset>
 
-		<h3>{L_SMARTFEED_ADDITIONAL_CRITERIA}</h3>
+			<h3>{{ lang('SMARTFEED_ADDITIONAL_CRITERIA') }}</h3>
 
-		<fieldset>
-			<dl>
-				<dt><label for="sort_by">{L_SMARTFEED_SORT_BY}{L_COLON}</label><br><span class="gensmall">{L_SMARTFEED_SORT_BY_EXPLAIN}</span></dt>
-				<dd>
-					<select name="sort_by" id="sort_by" >
-					<!-- IF not S_SMARTFEED_IS_GUEST -->
-						<option value="{S_SMARTFEED_BOARD}">{L_SMARTFEED_SORT_USER_ORDER}</option>
-					<!-- ENDIF -->
-						<option value="{S_SMARTFEED_STANDARD}">{L_SMARTFEED_SORT_FORUM_TOPIC}</option>
-						<option value="{S_SMARTFEED_STANDARD_DESC}">{L_SMARTFEED_SORT_FORUM_TOPIC_DESC}</option>
-						<option value="{S_SMARTFEED_POSTDATE_ASCENDING}">{L_SMARTFEED_SORT_POST_DATE}</option>
-						<option value="{S_SMARTFEED_POSTDATE_DESCENDING}">{L_SMARTFEED_SORT_POST_DATE_DESC}</option>
-					</select>
-				</dd>
-			</dl>
-			<!-- IF not S_SMARTFEED_IS_GUEST -->
-			<dl>
-				<dt><label>{L_SMARTFEED_PRIVATE_MESSAGES_IN_FEED}{L_COLON}</label></dt>
-				<dd>
-					<label for="pms1"><input type="radio" name="pms" id="pms1" value="YES" /> {L_YES}</label>
-					<label for="pms2"><input type="radio" name="pms" id="pms2" value="NO" checked="checked" /> {L_NO}</label> &nbsp;<input type="checkbox" name="mark_read" id="mark_read" /> <label for="mark_read">{L_SMARTFEED_MARK_READ}</label>
-				</dd>
-			</dl>
-			<!-- ENDIF -->
-			<dl>
-				<dt><label for="max_word_size">{L_SMARTFEED_MAX_WORD_SIZE}{L_COLON}</label><br><span class="gensmall">{L_SMARTFEED_MAX_WORD_SIZE_EXPLAIN}</span></dt>
-					<dd><input type="text" class="inputbox autowidth" size="4" maxlength="4" name="max_word_size" id="max_word_size" value="{S_SMARTFEED_MAX_WORD_SIZE}" />
-				</dd>
-			</dl>
-		</fieldset>
+			<fieldset>
+				<dl>
+					<dt><label for="sort_by">{{ lang('SMARTFEED_SORT_BY') }}{{ lang('COLON') }}</label><br><span class="gensmall">{{ lang('SMARTFEED_SORT_BY_EXPLAIN') }}</span></dt>
+					<dd>
+						<select name="sort_by" id="sort_by" >
+							{% if not S_SMARTFEED_IS_GUEST %}
+							<option value="{{ S_SMARTFEED_BOARD }}">{{ lang('SMARTFEED_SORT_USER_ORDER') }}</option>
+							{% endif %}
+							<option value="{{ S_SMARTFEED_STANDARD }}">{{ lang('SMARTFEED_SORT_FORUM_TOPIC') }}</option>
+							<option value="{{ S_SMARTFEED_STANDARD_DESC }}">{{ lang('SMARTFEED_SORT_FORUM_TOPIC_DESC') }}</option>
+							<option value="{{ S_SMARTFEED_POSTDATE_ASCENDING }}">{{ lang('SMARTFEED_SORT_POST_DATE') }}</option>
+							<option value="{{ S_SMARTFEED_POSTDATE_DESCENDING }}">{{ lang('SMARTFEED_SORT_POST_DATE_DESC') }}</option>
+						</select>
+					</dd>
+				</dl>
+				{% if not S_SMARTFEED_IS_GUEST %}
+				<dl>
+					<dt><label>{{ lang('SMARTFEED_PRIVATE_MESSAGES_IN_FEED') }}{{ lang('COLON') }}</label></dt>
+					<dd>
+						<label for="pms1"><input type="radio" name="pms" id="pms1" value="YES" /> {{ lang('YES') }}</label>
+						<label for="pms2"><input type="radio" name="pms" id="pms2" value="NO" checked="checked" /> {{ lang('NO') }}</label> &nbsp;<input type="checkbox" name="mark_read" id="mark_read" /> <label for="mark_read">{{ lang('SMARTFEED_MARK_READ') }}</label>
+					</dd>
+				</dl>
+				{% endif %}
+				<dl>
+					<dt><label for="max_word_size">{{ lang('SMARTFEED_MAX_WORD_SIZE') }}{{ lang('COLON') }}</label><br><span class="gensmall">{{ lang('SMARTFEED_MAX_WORD_SIZE_EXPLAIN') }}</span></dt>
+					<dd><input type="text" class="inputbox autowidth" size="4" maxlength="4" name="max_word_size" id="max_word_size" value="{{ S_SMARTFEED_MAX_WORD_SIZE }}" />
+					</dd>
+				</dl>
+				{% if not S_SMARTFEED_SUPPRESS_FORUM_NAMES %}
+				<dl>
+					<dt><label for="max_word_size">{{ lang('SMARTFEED_SUPPRESS_FORUM_NAMES') }}{{ lang('COLON') }}</label><br><span class="gensmall">{{ lang('SMARTFEED_SUPPRESS_FORUM_NAMES_EXPLAIN') }}</span></dt>
+					<dd><input type="checkbox" name="suppress_forum_names" id="suppress_forum_names" />
+					</dd>
+				</dl>
+				{% endif %}
+				<dl>
+					<dt><label for="max_word_size">{{ lang('SMARTFEED_TOPIC_TITLES') }}{{ lang('COLON') }}</label><br><span class="gensmall">{{ lang('SMARTFEED_TOPIC_TITLES_EXPLAIN') }}</span></dt>
+					<dd><input type="checkbox" name="topic_titles" id="topic_titles" />
+					</dd>
+				</dl>
+				{% if not S_SMARTFEED_SUPPRESS_USERNAMES %}
+				<dl>
+					<dt><label for="max_word_size">{{ lang('SMARTFEED_SUPPRESS_USERNAMES') }}{{ lang('COLON') }}</label><br><span class="gensmall">{{ lang('SMARTFEED_SUPPRESS_USERNAMES_EXPLAIN') }}</span></dt>
+					<dd><input type="checkbox" name="usernames" id="usernames" />
+					</dd>
+				</dl>
+				{% endif %}
+			</fieldset>
 
 		</div>
 	</div>
@@ -145,47 +167,47 @@
 	<div class="panel bg2">
 		<div class="inner">
 
-		<h3>{L_SMARTFEED_FORMAT_AND_ACCESS}</h3>
+			<h3>{{ lang('SMARTFEED_FORMAT_AND_ACCESS') }}</h3>
 
-		<fieldset>
-			<dl>
-				<dt><label>{L_SMARTFEED_FEED_TYPE}{L_COLON}</label></dt>
-				<dd>
-					<label for="feed_type3"><input type="radio" name="feed_type" id="feed_type3" value="{S_SMARTFEED_ATOM_10_VALUE}" checked="checked" /> <img src="{U_SMARTFEED_IMAGE_PATH}newsfeed_atom10.gif" alt="{L_SMARTFEED_ATOM_10}" title="{L_SMARTFEED_ATOM_10}" style="vertical-align:-3px" /></label>
-					<label for="feed_type1"><input type="radio" name="feed_type" id="feed_type1" value="{S_SMARTFEED_RSS_20_VALUE}" /> <img src="{U_SMARTFEED_IMAGE_PATH}newsfeed_rss20.gif" alt="{L_SMARTFEED_RSS_20}" title="{L_SMARTFEED_RSS_20}" style="vertical-align:-3px" /></label>
-					<label for="feed_type2"><input type="radio" name="feed_type" id="feed_type2" value="{S_SMARTFEED_RSS_10_VALUE}" /> <img src="{U_SMARTFEED_IMAGE_PATH}newsfeed_rss10.gif" alt="{L_SMARTFEED_RSS_10}" title="{L_SMARTFEED_RSS_10}" style="vertical-align:-3px" /></label>
-				</dd>
-			</dl>
-			<dl>
-				<dt><label>{L_SMARTFEED_FEED_STYLING}{L_COLON}</label><br><span class="gensmall">{L_SMARTFEED_FEED_STYLING_EXPLAIN}</span></dt>
-				<dd>
-					<label for="style1" title="{L_SMARTFEED_STYLE_COMPACT_EXPLAIN}"><input type="radio" name="style" id="style1" value="{S_SMARTFEED_COMPACT_VALUE}" checked="checked" /> {L_SMARTFEED_STYLE_COMPACT}</label><br>
-					<label for="style2" title="{L_SMARTFEED_STYLE_BASIC_EXPLAIN}"><input type="radio" name="style" id="style2" style="margin-top: 3px;" value="{S_SMARTFEED_BASIC_VALUE}" /> {L_SMARTFEED_STYLE_BASIC}</label><br>
-					<label for="style3" title="{L_SMARTFEED_STYLE_HTML_SAFE_EXPLAIN}"><input type="radio" name="style" id="style3" style="margin-top: 3px;" value="{S_SMARTFEED_HTMLSAFE_VALUE}" /> {L_SMARTFEED_STYLE_HTML_SAFE}</label><br>
-					<label for="style4" title="{L_SMARTFEED_STYLE_HTML_EXPLAIN}"><input type="radio" name="style" id="style4" style="margin-top: 3px;" value="{S_SMARTFEED_HTML_VALUE}" checked="checked" /> {L_SMARTFEED_STYLE_HTML}</label>
-				</dd>
-			</dl>
+			<fieldset>
+				<dl>
+					<dt><label>{{ lang('SMARTFEED_FEED_TYPE') }}{{ lang('COLON') }}</label></dt>
+					<dd>
+						<label for="feed_type3"><input type="radio" name="feed_type" id="feed_type3" value="{{ S_SMARTFEED_ATOM_10_VALUE }}" checked="checked" /> <img src="{{ U_SMARTFEED_IMAGE_PATH }}newsfeed_atom10.gif" alt="{{ lang('SMARTFEED_ATOM_10') }}" title="{{ lang('SMARTFEED_ATOM_10') }}" style="vertical-align:-3px" /></label>
+						<label for="feed_type1"><input type="radio" name="feed_type" id="feed_type1" value="{{ S_SMARTFEED_RSS_20_VALUE }}" /> <img src="{{ U_SMARTFEED_IMAGE_PATH }}newsfeed_rss20.gif" alt="{{ lang('SMARTFEED_RSS_20') }}" title="{{ lang('SMARTFEED_RSS_20') }}" style="vertical-align:-3px" /></label>
+						<label for="feed_type2"><input type="radio" name="feed_type" id="feed_type2" value="{{ S_SMARTFEED_RSS_10_VALUE }}" /> <img src="{{ U_SMARTFEED_IMAGE_PATH }}newsfeed_rss10.gif" alt="{{ lang('SMARTFEED_RSS_10') }}" title="{{ lang('SMARTFEED_RSS_10') }}" style="vertical-align:-3px" /></label>
+					</dd>
+				</dl>
+				<dl>
+					<dt><label>{{ lang('SMARTFEED_FEED_STYLING') }}{{ lang('COLON') }}</label><br><span class="gensmall">{{ lang('SMARTFEED_FEED_STYLING_EXPLAIN') }}</span></dt>
+					<dd>
+						<label for="style1" title="{{ lang('SMARTFEED_STYLE_COMPACT_EXPLAIN') }}"><input type="radio" name="style" id="style1" value="{{ S_SMARTFEED_COMPACT_VALUE }}" checked="checked" /> {{ lang('SMARTFEED_STYLE_COMPACT') }}</label><br>
+						<label for="style2" title="{{ lang('SMARTFEED_STYLE_BASIC_EXPLAIN') }}"><input type="radio" name="style" id="style2" style="margin-top: 3px;" value="{{ S_SMARTFEED_BASIC_VALUE }}" /> {{ lang('SMARTFEED_STYLE_BASIC') }}</label><br>
+						<label for="style3" title="{{ lang('SMARTFEED_STYLE_HTML_SAFE_EXPLAIN') }}"><input type="radio" name="style" id="style3" style="margin-top: 3px;" value="{{ S_SMARTFEED_HTMLSAFE_VALUE }}" /> {{ lang('SMARTFEED_STYLE_HTML_SAFE') }}</label><br>
+						<label for="style4" title="{{ lang('SMARTFEED_STYLE_HTML_EXPLAIN') }}"><input type="radio" name="style" id="style4" style="margin-top: 3px;" value="{{ S_SMARTFEED_HTML_VALUE }}" checked="checked" /> {{ lang('SMARTFEED_STYLE_HTML') }}</label>
+					</dd>
+				</dl>
 
-			<!-- IF not S_SMARTFEED_IS_GUEST -->
-			<dl>
-				<dt><label>{L_SMARTFEED_LASTVISIT_RESET}{L_COLON}</label></dt>
-				<dd>
-					<label for="lastvisit1"><input type="radio" name="lastvisit" id="lastvisit1" value="YES" checked="checked" /> {L_YES}</label>
-					<label for="lastvisit2"><input type="radio" name="lastvisit" id="lastvisit2" value="NO" /> {L_NO}</label>
-				</dd>
-			</dl>
-			<!-- IF not S_SMARTFEED_REQUIRED_IP_AUTHENTICATION -->
-			<dl>
-				<dt><label>{L_SMARTFEED_IP_AUTH}{L_COLON}</label><br><span class="gensmall">{L_SMARTFEED_IP_AUTHENTICATION_EXPLAIN}</span></dt>
-				<dd>
-					<label for="ip_auth1"><input type="radio" name="ip_auth" id="ip_auth1" value="YES" /> {L_YES}</label>
-					<label for="ip_auth2"><input type="radio" name="ip_auth" id="ip_auth2" value="NO" checked="checked" /> {L_NO}</label><br>
-				</dd>
-			</dl>
-			<!-- ENDIF -->
-		<!-- ENDIF -->
+				{% if not S_SMARTFEED_IS_GUEST %}
+				<dl>
+					<dt><label>{{ lang('SMARTFEED_LASTVISIT_RESET') }}{{ lang('COLON') }}</label></dt>
+					<dd>
+						<label for="lastvisit1"><input type="radio" name="lastvisit" id="lastvisit1" value="YES" checked="checked" /> {{ lang('YES') }}</label>
+						<label for="lastvisit2"><input type="radio" name="lastvisit" id="lastvisit2" value="NO" /> {{ lang('NO') }}</label>
+					</dd>
+				</dl>
+				{% if not S_SMARTFEED_REQUIRED_IP_AUTHENTICATION %}
+				<dl>
+					<dt><label>{{ lang('SMARTFEED_IP_AUTH') }}{{ lang('COLON') }}</label><br><span class="gensmall">{{ lang('SMARTFEED_IP_AUTHENTICATION_EXPLAIN') }}</span></dt>
+					<dd>
+						<label for="ip_auth1"><input type="radio" name="ip_auth" id="ip_auth1" value="YES" /> {{ lang('YES') }}</label>
+						<label for="ip_auth2"><input type="radio" name="ip_auth" id="ip_auth2" value="NO" checked="checked" /> {{ lang('NO') }}</label><br>
+					</dd>
+				</dl>
+				{% endif %}
+				{% endif %}
 
-		</fieldset>
+			</fieldset>
 
 		</div>
 	</div>
@@ -193,28 +215,28 @@
 	<div class="panel bg3">
 		<div class="inner">
 
-		<h3>{L_SMARTFEED_URL}</h3>
+			<h3>{{ lang('SMARTFEED_URL') }}</h3>
 
-		<fieldset>
-			<dl>
-				<dt><label for="url">{L_SMARTFEED_GENERATE_BUTTON}{L_COLON}</label><br><span class="gensmall">{L_SMARTFEED_GENERATE_BUTTON_EXPLAIN}</span></dt>
-				<dd>
-					<input type="button" value="{L_SMARTFEED_GENERATE_URL_TEXT}" id="generate" class="button1" onClick="create_URL();" /><br>
-					<input type="text" class="inputbox" name="url" id="url" style="margin-top: 3px;" maxlength="3000" onFocus="this.select();" />
-				</dd>
-			</dl>
-			<dl>
-				<dt><label>{L_SMARTFEED_TEST_BUTTON}{L_COLON}</label><br><span class="gensmall">{L_SMARTFEED_TEST_BUTTON_EXPLAIN}</span></dt>
-				<dd>
-					<input type="button" name="runit" id="runit" value="{L_SMARTFEED_TEST}" class="button1" onClick="test_feed();"/><br>
-				</dd>
-			</dl>
-			<div style="text-align: center;">
-				<img src="{U_SMARTFEED_IMAGE_PATH}valid-atom.png" alt="{L_SMARTFEED_VALID_ATOM_1}" title="{L_SMARTFEED_VALID_ATOM_1}" />
-				<img src="{U_SMARTFEED_IMAGE_PATH}valid-rss-rogers.png" alt="{L_SMARTFEED_VALID_RSS_2}" title="{L_SMARTFEED_VALID_RSS_2}" />
-				<img src="{U_SMARTFEED_IMAGE_PATH}valid-rss.png" alt="{L_SMARTFEED_VALID_RSS_1}" title="{L_SMARTFEED_VALID_RSS_1}" />
-			</div>
-		</fieldset>
+			<fieldset>
+				<dl>
+					<dt><label for="url">{{ lang('SMARTFEED_GENERATE_BUTTON') }}{{ lang('COLON') }}</label><br><span class="gensmall">{{ lang('SMARTFEED_GENERATE_BUTTON_EXPLAIN') }}</span></dt>
+					<dd>
+						<input type="button" value="{{ lang('SMARTFEED_GENERATE_URL_TEXT') }}" id="generate" class="button1" onClick="create_URL();" /><br>
+						<input type="text" class="inputbox" name="url" id="url" style="margin-top: 3px;" maxlength="3000" onFocus="this.select();" />
+					</dd>
+				</dl>
+				<dl>
+					<dt><label>{{ lang('SMARTFEED_TEST_BUTTON') }}{{ lang('COLON') }}</label><br><span class="gensmall">{{ lang('SMARTFEED_TEST_BUTTON_EXPLAIN') }}</span></dt>
+					<dd>
+						<input type="button" name="runit" id="runit" value="{{ lang('SMARTFEED_TEST') }}" class="button1" onClick="test_feed();"/><br>
+					</dd>
+				</dl>
+				<div style="text-align: center;">
+					<img src="{{ U_SMARTFEED_IMAGE_PATH }}valid-atom.png" alt="{{ lang('SMARTFEED_VALID_ATOM_1') }}" title="{{ lang('SMARTFEED_VALID_ATOM_1') }}" />
+					<img src="{{ U_SMARTFEED_IMAGE_PATH }}valid-rss-rogers.png" alt="{{ lang('SMARTFEED_VALID_RSS_2') }}" title="{{ lang('SMARTFEED_VALID_RSS_2') }}" />
+					<img src="{{ U_SMARTFEED_IMAGE_PATH }}valid-rss.png" alt="{{ lang('SMARTFEED_VALID_RSS_1') }}" title="{{ lang('SMARTFEED_VALID_RSS_1') }}" />
+				</div>
+			</fieldset>
 
 		</div>
 	</div>
@@ -222,7 +244,7 @@
 </form>
 
 <div class="copyright">
-	{L_POWERED_BY}
+	{{ lang('POWERED_BY') }}
 </div>
-<!-- ENDIF -->
-<!-- INCLUDE overall_footer.html -->
+{% endif %}
+{% INCLUDE 'overall_footer.html' %}

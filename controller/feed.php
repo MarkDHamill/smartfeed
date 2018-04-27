@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Smartfeed
-* @copyright (c) 2017 Mark D. Hamill (mark@phpbbservices.com)
+* @copyright (c) 2018 Mark D. Hamill (mark@phpbbservices.com)
 * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
 *
 */
@@ -86,13 +86,17 @@ class feed
 		$this->is_registered = false;
 		$this->items_in_feed = 0;
 		$this->lastvisit = NULL;
+		$this->last_post_only = NULL;
 		$this->mark_private_messages = NULL;
 		$this->max_items = NULL;
 		$this->max_words = NULL;
 		$this->min_words = NULL;
 		$this->remove_my_posts = NULL;
+		$this->show_topic_titles = NULL;
 		$this->show_pms = NULL;
 		$this->sort_by = NULL;
+		$this->suppress_forum_names = NULL;
+		$this->suppress_usernames = NULL;
 		$this->time_limit = NULL;
 		$this->true_false_array = array(0, 1);
 		$this->user_id = ANONYMOUS;	// Assume guest
@@ -184,13 +188,13 @@ class feed
 		{
 			throw new \Exception($this->user->lang('SMARTFEED_SORT_BY_ERROR'));
 		}
-		
+
 		// Validate the firstpostonly parameter
 		$this->first_post_only = $this->request->variable(constants::SMARTFEED_FIRST_POST, 'NONE');
-		
+
 		if ($this->first_post_only == 'NONE')
 		{
-			$this->first_post_only = false;	// Default is not to show only the first post
+			$this->first_post_only = false;	// Default is not to show only the first post or last post
 		}
 		else if (!(is_numeric($this->first_post_only)) || !in_array((float) $this->first_post_only, $this->true_false_array))
 		{
@@ -199,6 +203,22 @@ class feed
 		else
 		{
 			$this->first_post_only = (int) $this->first_post_only;
+		}
+
+		// Validate the lastpostonly parameter
+		$this->last_post_only = $this->request->variable(constants::SMARTFEED_LAST_POST, 'NONE');
+
+		if ($this->last_post_only == 'NONE')
+		{
+			$this->last_post_only = false;	// Default is not to show only the first post or last post
+		}
+		else if (!(is_numeric($this->last_post_only)) || !in_array((float) $this->last_post_only, $this->true_false_array))
+		{
+			throw new \Exception($this->user->lang('SMARTFEED_LAST_POST_ONLY_ERROR'));
+		}
+		else
+		{
+			$this->last_post_only = (int) $this->last_post_only;
 		}
 
 		// Check for max items parameter. It is not required, but if present should be a positive number only. The value must
@@ -343,10 +363,10 @@ class feed
 			{
 				throw new \Exception($this->user->lang('SMARTFEED_FILTER_FOES_ERROR'));
 			}
-			
+
 			// Validate the last visit parameter.
 			$this->lastvisit = $this->request->variable(constants::SMARTFEED_SINCE_LAST_VISIT, 'NONE');
-			
+
 			if ($this->lastvisit == 'NONE')
 			{
 				$this->lastvisit = 0;	// Default is to not to filter out posts before last visit
@@ -355,7 +375,43 @@ class feed
 			{
 				throw new \Exception($this->user->lang('SMARTFEED_LASTVISIT_ERROR'));
 			}
-			
+
+			// Validate the suppress forum names parameter.
+			$this->suppress_forum_names = $this->request->variable(constants::SMARTFEED_SUPPRESS_FORUM_NAMES, 'NONE');
+
+			if ($this->suppress_forum_names == 'NONE')
+			{
+				$this->suppress_forum_names = 0;	// Default is to not to filter out posts before last visit
+			}
+			else if (!in_array($this->suppress_forum_names, $this->true_false_array) || !(is_numeric($this->suppress_forum_names)))
+			{
+				throw new \Exception($this->user->lang('SMARTFEED_SUPPRESS_FORUM_NAMES_ERROR'));
+			}
+
+			// Validate the suppress topic titles only parameter.
+			$this->show_topic_titles = $this->request->variable(constants::SMARTFEED_TOPIC_TITLES, 'NONE');
+
+			if ($this->show_topic_titles == 'NONE')
+			{
+				$this->show_topic_titles = 0;	// Default is to not to filter out posts before last visit
+			}
+			else if (!in_array($this->show_topic_titles, $this->true_false_array) || !(is_numeric($this->show_topic_titles)))
+			{
+				throw new \Exception($this->user->lang('SMARTFEED_SHOW_TOPIC_TITLES_ERROR'));
+			}
+
+			// Validate the suppress usernames parameter.
+			$this->suppress_usernames = $this->request->variable(constants::SMARTFEED_USERNAMES, 'NONE');
+
+			if ($this->suppress_usernames == 'NONE')
+			{
+				$this->suppress_usernames = 0;	// Default is to not to filter out posts before last visit
+			}
+			else if (!in_array($this->suppress_usernames, $this->true_false_array) || !(is_numeric($this->suppress_usernames)))
+			{
+				throw new \Exception($this->user->lang('SMARTFEED_SUPPRESS_USERNAMES_ERROR'));
+			}
+
 		}
 	}
 	
@@ -813,13 +869,19 @@ class feed
 			$new_topics_sql = '';
 			$topics_posts_join_sql = 't.topic_id = p.topic_id';
 			
-			// Create the first_post_only SQL stubs
+			// Create the first post only SQL stubs
 			if ($this->first_post_only)
 			{
 				$new_topics_sql = " AND t.topic_time > $this->date_limit ";
 				$topics_posts_join_sql = ' t.topic_first_post_id = p.post_id AND t.forum_id = f.forum_id';
 			}
-			
+
+			// Create the last post only SQL stubs
+			if ($this->last_post_only)
+			{
+				$topics_posts_join_sql = ' t.topic_last_post_id = p.post_id AND t.forum_id = f.forum_id';
+			}
+
 			// Create SQL to remove your posts from the feed
 			$remove_my_posts_sql = '';
 			if ($this->is_registered && ($this->remove_my_posts == 1))
@@ -869,7 +931,8 @@ class feed
 							$new_topics_sql
 							$remove_my_posts_sql
 							$filter_foes_sql
-							AND p.post_visibility = 1",
+							AND p.post_visibility = 1 
+							AND topic_status != " . ITEM_MOVED,
 			
 				'ORDER_BY'	=> $order_by_sql
 			);
@@ -1179,43 +1242,48 @@ class feed
 						// Create the title for the item (post)
 						if ($this->config['phpbbservices_smartfeed_new_post_notifications_only'])
 						{
-							if ($this->config['phpbbservices_smartfeed_suppress_forum_names'])
+							if ($this->config['phpbbservices_smartfeed_suppress_forum_names'] || $this->suppress_forum_names)
 							{
-								$title = $row['topic_title'];
+								$title = htmlspecialchars($row['topic_title']);
 							}
 							else
 							{
-								$forum_name = ($row['forum_name'] == NULL) ? $this->user->lang('SMARTFEED_GLOBAL_ANNOUNCEMENT') : $row['forum_name'];
-								$title = $forum_name . $this->user->lang('SMARTFEED_DELIMITER') . $row['topic_title'];
+								$forum_name = ($row['forum_name'] == NULL) ? $this->user->lang('SMARTFEED_GLOBAL_ANNOUNCEMENT') : htmlspecialchars($row['forum_name']);
+								$title = $forum_name . $this->user->lang('SMARTFEED_DELIMITER') . htmlspecialchars($row['topic_title']);
 							}
 						}
 						else
 						{
-							$forum_name = ($row['forum_name'] == NULL) ? $this->user->lang('SMARTFEED_GLOBAL_ANNOUNCEMENT') : $row['forum_name'];
-							if ($row['post_subject'] != '')
+							$forum_name = ($row['forum_name'] == NULL) ? $this->user->lang('SMARTFEED_GLOBAL_ANNOUNCEMENT') : htmlspecialchars($row['forum_name']);
+							$title = ($this->show_topic_titles) ? $row['topic_title'] : $row['post_subject'];
+							if ($title != '')
 							{
-								$title = ($this->config['phpbbservices_smartfeed_suppress_forum_names']) ? $row['post_subject'] : $forum_name . $this->user->lang('SMARTFEED_DELIMITER') . $row['post_subject'];
+								$title = ($this->config['phpbbservices_smartfeed_suppress_forum_names'] || $this->suppress_forum_names) ? htmlspecialchars($title) : $forum_name . $this->user->lang('SMARTFEED_DELIMITER') . htmlspecialchars($title);
 							}
 							else
 							{
-								$title = ($this->config['phpbbservices_smartfeed_suppress_forum_names']) ? 'Re: ' . $row['topic_title'] : $forum_name . $this->user->lang('SMARTFEED_DELIMITER') . 'Re: ' . $row['topic_title'];
-							}
-							$title = html_entity_decode($title);		
-		
-							if ($row['topic_first_post_id'] != $row['post_id'])
-							{
-								if ($this->config['phpbbservices_smartfeed_show_username_in_replies'])
+								if (!$this->show_topic_titles)
 								{
-									$title .= ($row['username'] == '') ? $this->user->lang('SMARTFEED_DELIMITER') . $this->user->lang('SMARTFEED_REPLY_BY') . ' ' . $this->user->lang('GUEST') . ' ' . $username : $this->user->lang('SMARTFEED_DELIMITER') . $this->user->lang('SMARTFEED_REPLY_BY') . ' ' . $username;
+									$title = ($this->config['phpbbservices_smartfeed_suppress_forum_names'] || $this->suppress_forum_names) ? 'Re: ' . htmlspecialchars($title) : $forum_name . $this->user->lang('SMARTFEED_DELIMITER') . 'Re: ' . htmlspecialchars($title);
+
 								}
 								else
 								{
-									$title .= $this->user->lang('SMARTFEED_DELIMITER') . $this->user->lang('SMARTFEED_REPLY');
+									$title = ($this->config['phpbbservices_smartfeed_suppress_forum_names'] || $this->suppress_forum_names) ? htmlspecialchars($title) : $forum_name . $this->user->lang('SMARTFEED_DELIMITER') . htmlspecialchars($title);
+								}
+							}
+							$title = html_entity_decode($title);
+		
+							if ($row['topic_first_post_id'] != $row['post_id'])
+							{
+								if ($this->config['phpbbservices_smartfeed_show_username_in_replies'] && !$this->suppress_usernames)
+								{
+									$title .= ($row['username'] == '') ? $this->user->lang('SMARTFEED_DELIMITER') . $this->user->lang('SMARTFEED_REPLY_BY') . ' ' . $this->user->lang('GUEST') . ' ' . $username : $this->user->lang('SMARTFEED_DELIMITER') . $this->user->lang('SMARTFEED_REPLY_BY') . ' ' . $username;
 								}
 							}
 							else
 							{
-								if ($this->config['phpbbservices_smartfeed_show_username_in_first_topic_post'])
+								if ($this->config['phpbbservices_smartfeed_show_username_in_first_topic_post'] && !$this->suppress_usernames)
 								{
 									$title .= $this->user->lang('SMARTFEED_DELIMITER') . $this->user->lang('AUTHOR') . ' ' . $username;
 								}
@@ -1394,7 +1462,7 @@ class feed
 		// Get all attachments
 		$sql = 'SELECT *
 			FROM ' . ATTACHMENTS_TABLE . '
-			WHERE post_msg_id = ' . $item_id . ' AND in_message = ';
+			WHERE post_msg_id = ' . (int) $item_id . ' AND in_message = ';
 		$sql .= ($is_post) ? '0' : '1';
 		$sql .= ' ORDER BY attach_id';
 
@@ -1554,21 +1622,20 @@ class feed
 								$content = $feed_item->get_content();
 
 								// Create proper email syntax for feed based on type of feed
+								$author_names = array();
+								$author_emails = array('no_email@example.com');
 								$authors = $feed_item->get_authors();    // Should return an array
 								if (isset($authors))
 								{
+									$i = 0;
 									foreach ($authors as $author)
 									{
-										$author_names[] = $author->get_name();
-										$author_emails[] = $author->get_email();
+										$author_names[$i] = $author->get_name();
+										$author_emails[$i] = $author->get_email();
+										$i++;
 									}
 								}
-								else
-								{
-									$author_names = array();
-									$author_emails = array();
-								}
-								$email = (sizeof($author_emails) > 0 && $author_emails[0] != '') ? $author_emails[0] : 'no_email@example.com';
+								$email = $author_emails[0];
 
 								$this->template->assign_block_vars('items', array(
 
