@@ -1066,18 +1066,19 @@ class feed
 							$email = ($row['user_allow_viewemail']) ? $row['user_email'] : 'no_email@example.com';
 						}
 
-						$message = censor_text($row['message_text']);	// No naughty words
-						
+						$flags = (($row['enable_bbcode']) ? OPTION_FLAG_BBCODE : 0) +
+							(($row['enable_smilies']) ? OPTION_FLAG_SMILIES : 0) +
+							(($row['enable_magic_url']) ? OPTION_FLAG_LINKS : 0);
+
+						$message = generate_text_for_display($row['message_text'], $row['bbcode_uid'], $row['bbcode_bitfield'], $flags);
+						$message = rtrim($message, '</');	// Bug in generate_text_for_display?
+						$message = censor_text($message);	// No naughty words
+
 						$user_sig = ( $row['enable_sig'] && ($row['user_sig'] != '') && $this->config['allow_sig'] && ($this->config['phpbbservices_smartfeed_privacy_mode'] == '0') ) ? censor_text($row['user_sig']) : '';
 						
 						if (($this->feed_style == constants::SMARTFEED_HTML) || ($this->feed_style == constants::SMARTFEED_HTMLSAFE))
 						{
-							$flags = (($row['enable_bbcode']) ? OPTION_FLAG_BBCODE : 0) +
-								(($row['enable_smilies']) ? OPTION_FLAG_SMILIES : 0) + 
-								(($row['enable_magic_url']) ? OPTION_FLAG_LINKS : 0);
-								
-							$message = generate_text_for_display($message, $row['bbcode_uid'], $row['bbcode_bitfield'], $flags);
-							$message = rtrim($message, '</');	// Bug in generate_text_for_display?
+
 							// Add any attachments to the private message item
 							if ($row['message_attachment'] > 0)
 							{
@@ -1321,24 +1322,24 @@ class feed
 						}
 						else
 						{
-							$post_text = censor_text($row['post_text']);
+							$flags = (($row['enable_bbcode']) ? OPTION_FLAG_BBCODE : 0) +
+								(($row['enable_smilies']) ? OPTION_FLAG_SMILIES : 0) +
+								(($row['enable_magic_url']) ? OPTION_FLAG_LINKS : 0);
+
+							$post_text = generate_text_for_display($row['post_text'], $row['bbcode_uid'], $row['bbcode_bitfield'], $flags);
+							$post_text = rtrim($post_text, '</');	// Bug in generate_text_for_display?
+							$post_text = censor_text($post_text);
 							
 							$user_sig = ( $row['enable_sig'] && $row['user_sig'] != '' && $this->config['allow_sig'] && (!($this->config['phpbbservices_smartfeed_privacy_mode']) || $this->is_registered) ) ? censor_text($row['user_sig']) : '';
 							
 							if (($this->feed_style == constants::SMARTFEED_HTML) || ($this->feed_style == constants::SMARTFEED_HTMLSAFE))
 							{
-								$flags = (($row['enable_bbcode']) ? OPTION_FLAG_BBCODE : 0) +
-									(($row['enable_smilies']) ? OPTION_FLAG_SMILIES : 0) + 
-									(($row['enable_magic_url']) ? OPTION_FLAG_LINKS : 0);
-									
+
 								// If there is an image, show it. If there is a file, link to the attachment
 								if ($row['post_attachment'] > 0)
 								{
 									$post_text .= $this->create_attachment_markup ($row['post_id'], true);
 								}
-
-								$post_text = generate_text_for_display($post_text, $row['bbcode_uid'], $row['bbcode_bitfield'], $flags);
-								$post_text = rtrim($post_text, '</');	// Bug in generate_text_for_display?
 
 								if ($user_sig != '')
 								{
