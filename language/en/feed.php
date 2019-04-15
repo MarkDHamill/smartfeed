@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Smartfeed
-* @copyright (c) 2018 Mark D. Hamill (mark@phpbbservices.com)
+* @copyright (c) 2019 Mark D. Hamill (mark@phpbbservices.com)
 * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
 *
 */
@@ -41,6 +41,7 @@ $lang = array_merge($lang, array(
 	'SMARTFEED_MAX_WORD_SIZE_ERROR'						=> 'The maximum words in a post (w) parameter value is invalid. If used it must be a whole number. Please rerun Smartfeed on the forum to generate a correct feed URL.',
 	'SMARTFEED_MAX_WORDS_NOTIFIER'						=> ' ...',
 	'SMARTFEED_MIN_WORD_SIZE_ERROR'						=> 'The minimum word size (i) parameter value is invalid. It should must be a whole number. Please rerun Smartfeed on the forum to generate a correct feed URL.',
+	'SMARTFEED_NEW_PMS_NOTIFICATIONS_ONLY'				=> 'You have new private messages. Please login to the forum to read them.',
 	'SMARTFEED_NEW_PMS_NOTIFICATIONS_SHORT'				=> 'You have new private messages',
 	'SMARTFEED_NEW_POST_NOTIFICATION'					=> 'There are new posts in this topic. Please login to the forum to read them.',
 	'SMARTFEED_NEW_TOPIC_NOTIFICATION'					=> 'This is a new topic. Please login to the forum to read it.',

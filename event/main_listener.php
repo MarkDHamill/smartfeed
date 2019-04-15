@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Smartfeed
-* @copyright (c) 2018 Mark D. Hamill (mark@phpbbservices.com)
+* @copyright (c) 2019 Mark D. Hamill (mark@phpbbservices.com)
 * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
 *
 */
@@ -14,31 +14,23 @@ namespace phpbbservices\smartfeed\event;
 */
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-use phpbbservices\smartfeed\constants\constants;
-
 /**
 * Event listener
 */
 class main_listener implements EventSubscriberInterface
 {
-	/* @var \phpbb\config\config */
-	protected $config;
-	
-	/* @var \phpbb\controller\helper */
-	protected $helper;
+	private $config;
+	private $helper;
+	private $phpEx;
+	private $template;
 
-	/* @var \phpbb\template\template */
-	protected $template;
-
-	protected $phpEx;
-	
 	/**
 	* Constructor
 	*
 	* @param \phpbb\config\config		$config
 	* @param \phpbb\controller\helper	$helper		Controller helper object
-	* @param \phpbb\template\template	$template	Template object
 	* @param string						$php_ext
+	* @param \phpbb\template\template	$template	Template object
 	*/
 	public function __construct(\phpbb\config\config $config, \phpbb\controller\helper $helper, \phpbb\template\template $template, $php_ext)
 	{

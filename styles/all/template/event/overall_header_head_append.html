@@ -2,7 +2,6 @@
 <link rel="alternate" type="application/atom+xml" title="ATOM" href="{{ U_SMARTFEED_URL_ATOM }}" />
 <link rel="alternate" type="application/rss+xml" title="RSS" href="{{ U_SMARTFEED_URL_RSS }}" />
 {% endif %}
-{% INCLUDECSS '@phpbbservices_smartfeed/custom.css' %}
 {% if S_SMARTFEED_IN_SMARTFEED %}
 {% INCLUDECSS '@phpbbservices_smartfeed/smartfeed.css' %}
 {% INCLUDEJS '@phpbbservices_smartfeed/js/jquery-ui-1.12.1.min.js' %}
@@ -16,8 +15,6 @@
 	var ignoredForums = "{{ lang('SMARTFEED_IGNORED_FORUMS')|escape('js') }}";
 	var ignoredForumsArray = ignoredForums.split(',');
 	var ok = "{{ lang('OK')|escape('js') }}";
-	var sizeError = "{{ lang('SMARTFEED_SIZE_ERROR_MIN')|escape('js') }}";
-	var sizeErrorRange = "{{ lang('SMARTFEED_SIZE_ERROR')|escape('js') }}";
 	{% if not S_SMARTFEED_IS_GUEST %}
 	{% if not S_SMARTFEED_REQUIRED_IP_AUTHENTICATION %}
 	var smartfeedKey = '{{ S_SMARTFEED_PWD }}';
@@ -42,8 +39,8 @@
 		$("[id*=elt_]").each(function() {
 			if ($(this).is(':checked')) {
 				numChecked++;
-				itemId = $(this).attr('id');
-				underscoreLoc = itemId.indexOf('_', 5); // Look for underscore past the "elt_", or first 4 characters
+				var itemId = $(this).attr('id');
+				var underscoreLoc = itemId.indexOf('_', 5); // Look for underscore past the "elt_", or first 4 characters
 				forumString = forumString + "&{{ S_SMARTFEED_FORUMS }}=" + itemId.substring(4, underscoreLoc);
 			}
 		});
@@ -61,7 +58,7 @@
 
 		// If no forums were checked there is no point in generating a URL.
 		// Instead, give a Javascript warning and generate nothing.
-		createMyURL = false;
+		var createMyURL = false;
 
 		{% if not S_SMARTFEED_IS_GUEST %}
 		if ((numChecked === 0) && (!$("#all_forums").is(':checked')) && (!$("#bookmarks").is(':checked')) && (!$("#pms1").is(':checked'))) {
@@ -74,12 +71,12 @@
 			}
 
 			// Initialise the URL
-			url = "{{ UA_SMARTFEED_SITE_URL }}feed";
+			var url = "{{ UA_SMARTFEED_SITE_URL }}feed";
 
 			// If user logged in, add the specific variables
 			if (loggedIn) {
 				// Add user ID
-				append = (url.indexOf('?') === -1) ? '?' : '&';
+				var append = (url.indexOf('?') === -1) ? '?' : '&';
 				url = url + append + "{{ S_SMARTFEED_USER_ID }}={{ UA_SMARTFEED_USER_ID }}";
 
 				// Add password + if needed address IP
@@ -240,13 +237,17 @@
 
 		}
 
-		function test_feed() {
-			// Executed when the Test button is pressed. It opens the created URL in a new window/tab for testing
+		function view_feed() {
+			// Executed when the View Feed button is pressed. It shows the RSS/Atom source code a new window/tab for testing
 			var url = document.getElementById("url");
 			if (url.value.length > 0) {
-				window.open(url.value);
+				$.ajax({ url: url.value,
+					success: function(data) {
+						$("#viewer").text(data);
+						$("#viewer-block").toggle();
+					}
+				});
 			}
-			return;
 		}
 
 </script>

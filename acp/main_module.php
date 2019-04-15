@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Smartfeed
-* @copyright (c) 2018 Mark D. Hamill (mark@phpbbservices.com)
+* @copyright (c) 2019 Mark D. Hamill (mark@phpbbservices.com)
 * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
 *
 */
@@ -17,8 +17,6 @@ class main_module
 	private $request;
 	private $template;
 	private $user;
-
-	var $u_action;
 
 	function __construct()
 	{
@@ -89,7 +87,7 @@ class main_module
 						'phpbbservices_smartfeed_external_feeds_top'		=> array('lang' => 'ACP_SMARTFEED_EXTERNAL_FEEDS_TOP',					'validate' => 'bool',	'type' => 'radio:yes_no', 'explain' => true),
 						'phpbbservices_smartfeed_rfc1766_lang'				=> array('lang' => 'ACP_SMARTFEED_RFC1766_LANG',						'validate' => 'string',	'type' => 'text:8:8', 'explain' => true),
 						'phpbbservices_smartfeed_feed_image_path'			=> array('lang' => 'ACP_SMARTFEED_FEED_IMAGE_PATH',						'validate' => 'string',	'type' => 'text:40:255', 'explain' => true),
-						'phpbbservices_smartfeed_webmaster'					=> array('lang' => 'ACP_SMARTFEED_WEBMASTER',							'validate' => 'string',	'type' => 'text:40:255', 'explain' => true),
+						'phpbbservices_smartfeed_webmaster'					=> array('lang' => 'ACP_SMARTFEED_WEBMASTER',							'validate' => 'string',	'type' => 'email:40:255', 'explain' => true),
 						'legend2'											=> 'GENERAL_OPTIONS',
 						'phpbbservices_smartfeed_all_by_default'			=> array('lang' => 'ACP_SMARTFEED_ALL_BY_DEFAULT',						'validate' => 'bool',	'type' => 'radio:yes_no', 'explain' => true),
 						'phpbbservices_smartfeed_suppress_forum_names'		=> array('lang' => 'ACP_SMARTFEED_SUPPRESS_FORUM_NAMES',				'validate' => 'bool',	'type' => 'radio:yes_no', 'explain' => true),
@@ -107,7 +105,7 @@ class main_module
 
 		$new_config = $this->config;
 		$cfg_array = $this->request->variable('config', array('' => ''), true);
-		if (sizeof($cfg_array) == 0)
+		if (count($cfg_array) == 0)
 		{
 			$cfg_array = $new_config;
 		}
@@ -122,7 +120,7 @@ class main_module
 		}
 		
 		// Do not write values if there is an error
-		if (sizeof($error))
+		if (count($error))
 		{
 			$submit = false;
 		}
@@ -158,7 +156,7 @@ class main_module
 			'L_TITLE'			=> $this->user->lang($display_vars['title']),
 			'L_TITLE_EXPLAIN'	=> $this->user->lang($display_vars['title'] . '_EXPLAIN'),
 
-			'S_ERROR'			=> (sizeof($error)) ? true : false,
+			'S_ERROR'			=> (count($error)) ? true : false,
 			'ERROR_MSG'			=> implode('<br>', $error),
 
 			'U_ACTION'			=> $this->u_action)
