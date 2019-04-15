@@ -1,0 +1,15 @@
+input[type="number"]
+{
+	text-align: right;
+}
+.autowidth {
+	width: 5em !important;
+}
+#viewer-block {
+	background-color: white;
+	margin: 5px 0 5px 0;
+	padding: 10px;
+	display: none;
+	max-height: 250px;
+	overflow: scroll;
+}

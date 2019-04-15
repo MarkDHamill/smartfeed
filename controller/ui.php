@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Smartfeed
-* @copyright (c) 2018 Mark D. Hamill (mark@phpbbservices.com)
+* @copyright (c) 2019 Mark D. Hamill (mark@phpbbservices.com)
 * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
 *
 */
@@ -13,43 +13,31 @@ use phpbbservices\smartfeed\constants\constants;
 
 class ui
 {
-	/* @var \phpbb\config\config */
-	protected $config;
 
-	/* @var \phpbb\controller\helper */
-	protected $helper;
-
-	/* @var \phpbb\template\template */
-	protected $template;
-
-	/* @var \phpbb\user */
-	protected $user;
-	
-	protected $phpEx;
-
-	/* @var \phpbb\db\driver\factory  */
-	protected $db;
-
-	/* @var \phpbb\auth\auth */
-	protected $auth;
-
-	protected $phpbb_root_path; // Only used in functions.
-	
-	protected $common;
+	private $auth;
+	private $common;
+	private $config;
+	private $db;
+	private $ext_root_path;
+	private $helper;
+	private $phpbb_root_path; // Only used in functions.
+	private $phpEx;
+	private $template;
+	private $user;
 
 	/**
 	* Constructor
 	*
+	* @param \phpbb\auth\auth						$auth
+	* @param \phpbbservices\smartfeed\core\common	$common
 	* @param \phpbb\config\config					$config
+	* @param \phpbb\db\driver\factory				$db
+	* @param string           						$ext_root_path     Path to smartfeed extension root
 	* @param \phpbb\controller\helper				$helper
+	* @param string									$phpbb_root_path
+	* @param string									$php_ext
 	* @param \phpbb\template\template				$template
 	* @param \phpbb\user							$user
-	* @param string									$php_ext
-	* @param \phpbb\db\driver\factory				$db
-	* @param \phpbb\auth\auth						$auth
-	* @param string									$phpbb_root_path
-	* @param \phpbbservices\smartfeed\core\common	$common
-	* @param string           						$ext_root_path     Path to smartfeed extension root
 	*/
 	
 	public function __construct(\phpbb\config\config $config, \phpbb\controller\helper $helper, \phpbb\template\template $template, \phpbb\user $user,
@@ -337,7 +325,7 @@ class ui
 			'L_SMARTFEED_LIMIT_SET_EXPLAIN'		=> ($this->config['phpbbservices_smartfeed_default_fetch_time_limit'] == '0') ? '' : sprintf($this->user->lang('SMARTFEED_LIMIT_SET_EXPLAIN'), round(($this->config['phpbbservices_smartfeed_default_fetch_time_limit']/24), 0)),
 			'L_SMARTFEED_MAX_ITEMS_EXPLAIN_MAX' => ($this->config['phpbbservices_smartfeed_max_items'] == 0) ? $this->user->lang('SMARTFEED_MAX_ITEMS_EXPLAIN_BLANK') : sprintf($this->user->lang('SMARTFEED_MAX_ITEMS_EXPLAIN'), $this->config['phpbbservices_smartfeed_max_items'], $max_items),
 			'L_SMARTFEED_MAX_WORD_SIZE_EXPLAIN' => ($this->config['phpbbservices_smartfeed_max_word_size'] == '0') ? $this->user->lang('SMARTFEED_MAX_WORD_SIZE_EXPLAIN_BLANK') : sprintf($this->user->lang('SMARTFEED_MAX_WORD_SIZE_EXPLAIN'), $this->config['phpbbservices_smartfeed_max_word_size']),
-			'L_SMARTFEED_NOT_LOGGED_IN'			=> !extension_loaded('openssl') ? $this->user->lang('SMARTFEED_NO_OPENSSL_SUPPORT') : sprintf($this->user->lang('SMARTFEED_NOT_LOGGED_IN'), $this->phpEx, $this->phpEx),
+			'L_SMARTFEED_NOT_LOGGED_IN'			=> !extension_loaded('openssl') ? $this->user->lang('SMARTFEED_NO_OPENSSL_SUPPORT') : sprintf($this->user->lang('SMARTFEED_NOT_LOGGED_IN'), append_sid('./../../ucp.' . $this->phpEx . '?mode=login'), append_sid('./../../ucp.' . $this->phpEx . '?mode=register')),
 			'LA_SMARTFEED_SIZE_ERROR'			=> $size_error_msg,
 			'S_SMARTFEED_ALL_BY_DEFAULT'		=> ($this->config['phpbbservices_smartfeed_all_by_default'] == '1') ? 'checked="checked"' : '',
 			'S_SMARTFEED_ATOM_10_VALUE'			=> constants::SMARTFEED_ATOM,
@@ -370,8 +358,10 @@ class ui
 			'S_SMARTFEED_LAST_15_MINUTES_VALUE'	=> constants::SMARTFEED_LAST_15_MINUTES_VALUE,
 			'S_SMARTFEED_MARK_PRIVATE_MESSAGES' => constants::SMARTFEED_MARK_PRIVATE_MESSAGES,
 			'S_SMARTFEED_MAX_ITEMS'				=> $this->config['phpbbservices_smartfeed_max_items'], // was count_limit, now max_items
+			'S_SMARTFEED_MAX_ITEMS_REAL'		=> ($this->config['phpbbservices_smartfeed_max_items'] == 0) ? 10000 : $this->config['phpbbservices_smartfeed_max_items'], // was count_limit, now max_items
 			'S_SMARTFEED_MAX_ITEMS_L' 			=> constants::SMARTFEED_MAX_ITEMS,
 			'S_SMARTFEED_MAX_WORD_SIZE'			=> $this->config['phpbbservices_smartfeed_max_word_size'], // max_word_size
+			'S_SMARTFEED_MAX_WORD_SIZE_REAL'	=> ($this->config['phpbbservices_smartfeed_max_word_size'] == 0) ? 10000 : $this->config['phpbbservices_smartfeed_max_word_size'], // max_word_size
 			'S_SMARTFEED_MAX_WORDS' 			=> constants::SMARTFEED_MAX_WORDS,
 			'S_SMARTFEED_MIN_WORDS' 			=> constants::SMARTFEED_MIN_WORDS,
 			'S_SMARTFEED_NO_FORUMS'				=> $no_forums,

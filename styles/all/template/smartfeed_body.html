@@ -50,11 +50,11 @@
 					<dt><label>{{ lang('SMARTFEED_FIRST_POST_ONLY') }}{{ lang('COLON') }}</label></dt>
 					<dd>
 						<select name="post_types" id="post_types" >
-							<option value="ANY">{{ lang('SMARTFEED_POSTS_TYPE_ANY') }}</option>
-							<option value="FIRST">{{ lang('SMARTFEED_POSTS_TYPE_FIRST') }}</option>
-							<option value="LAST">{{ lang('SMARTFEED_POSTS_TYPE_LAST') }}</option>
+							<option value="ANY" id="all">{{ lang('SMARTFEED_POSTS_TYPE_ANY') }}</option>
+							<option value="FIRST" id="firstpostonly1">{{ lang('SMARTFEED_POSTS_TYPE_FIRST') }}</option>
+							<option value="LAST" id="firstpostonly2">{{ lang('SMARTFEED_POSTS_TYPE_LAST') }}</option>
 							{% if not S_SMARTFEED_IS_GUEST %}
-							<option value="BM" />{{ lang('SMARTFEED_USE_BOOKMARKS') }}</option>
+							<option value="BM" id="bookmarks">{{ lang('SMARTFEED_USE_BOOKMARKS') }}</option>
 							{% endif %}
 						</select>
 					</dd>
@@ -83,12 +83,12 @@
 				</dl>
 				<dl>
 					<dt><label for="max_items">{{ lang('SMARTFEED_MAX_ITEMS') }}{{ lang('COLON') }}</label><br><span class="gensmall">{{ lang('SMARTFEED_MAX_ITEMS_EXPLAIN_MAX') }}</span></dt>
-					<dd><input type="text" class="inputbox autowidth" size="3" maxlength="3" name="max_items" id="max_items" value="{{ S_SMARTFEED_MAX_ITEMS }}" />
+					<dd><input type="number" class="inputbox autowidth" name="max_items" id="max_items" min="0" max="{{ S_SMARTFEED_MAX_ITEMS_REAL }}" value="{{ S_SMARTFEED_MAX_ITEMS }}" />
 					</dd>
 				</dl>
 				<dl>
 					<dt><label for="min_words">{{ lang('SMARTFEED_MIN_WORDS') }}{{ lang('COLON') }}</label><br><span class="gensmall">{{ lang('SMARTFEED_MIN_WORDS_EXPLAIN') }}</span></dt>
-					<dd><input type="text" class="inputbox autowidth" size="4" maxlength="4" name="min_words" id="min_words" value="0" />
+					<dd><input type="number" class="inputbox autowidth" name="min_words" id="min_words" min="0" value="0" />
 					</dd>
 				</dl>
 				{% if not S_SMARTFEED_IS_GUEST %}
@@ -137,7 +137,7 @@
 				{% endif %}
 				<dl>
 					<dt><label for="max_word_size">{{ lang('SMARTFEED_MAX_WORD_SIZE') }}{{ lang('COLON') }}</label><br><span class="gensmall">{{ lang('SMARTFEED_MAX_WORD_SIZE_EXPLAIN') }}</span></dt>
-					<dd><input type="text" class="inputbox autowidth" size="4" maxlength="4" name="max_word_size" id="max_word_size" value="{{ S_SMARTFEED_MAX_WORD_SIZE }}" />
+					<dd><input type="number" class="inputbox autowidth" name="max_word_size" id="max_word_size" min="0" max="{{ S_SMARTFEED_MAX_WORD_SIZE_REAL }}" value="{{ S_SMARTFEED_MAX_WORD_SIZE }}" />
 					</dd>
 				</dl>
 				{% if not S_SMARTFEED_SUPPRESS_FORUM_NAMES %}
@@ -226,11 +226,15 @@
 					</dd>
 				</dl>
 				<dl>
-					<dt><label>{{ lang('SMARTFEED_TEST_BUTTON') }}{{ lang('COLON') }}</label><br><span class="gensmall">{{ lang('SMARTFEED_TEST_BUTTON_EXPLAIN') }}</span></dt>
+					<dt><label>{{ lang('SMARTFEED_VIEW_FEED_BUTTON') }}{{ lang('COLON') }}</label><br><span class="gensmall">{{ lang('SMARTFEED_VIEW_FEED_BUTTON_EXPLAIN') }}</span></dt>
 					<dd>
-						<input type="button" name="runit" id="runit" value="{{ lang('SMARTFEED_TEST') }}" class="button1" onClick="test_feed();"/><br>
+						<input type="button" name="runit" id="runit" value="{{ lang('SMARTFEED_VIEW_FEED') }}" class="button1" onClick="view_feed();"/><br>
 					</dd>
 				</dl>
+				<div id="viewer-block">
+					<code id="viewer" style="white-space: pre-wrap;">
+					</code>
+				</div>
 				<div style="text-align: center;">
 					<img src="{{ U_SMARTFEED_IMAGE_PATH }}valid-atom.png" alt="{{ lang('SMARTFEED_VALID_ATOM_1') }}" title="{{ lang('SMARTFEED_VALID_ATOM_1') }}" />
 					<img src="{{ U_SMARTFEED_IMAGE_PATH }}valid-rss-rogers.png" alt="{{ lang('SMARTFEED_VALID_RSS_2') }}" title="{{ lang('SMARTFEED_VALID_RSS_2') }}" />

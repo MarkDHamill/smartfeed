@@ -1,41 +1,10 @@
 $(document).ready(function(){
+	"use strict";
 
-	// Error handling popup settings
-	$("#dialog").dialog({
-		title: dialogError,
-		autoOpen: false,
-		modal: true,
-		minHeight: 0,
-		draggable: false,
-		resizeable: false,
-		closeOnEscape: true,
-		buttons: [
-			{
-				text: ok,
-				click: function() {
-					$(this).dialog("close");
-				}
-			}
-		]
-	});
-
-	// Clear the generated URL field when an input or select field changes.
+	// Clear the generated URL field and the code view window when an input or select field changes.
 	$("input, select").change(function(){
 		$("#url").val('');
-	});
-
-	// Ensure certain numeric fields must be a whole number or blank
-	$("#max_items, #min_words, #max_word_size").blur(function() {
-		var size = $(this).val();
-		var message = ($(this).attr('id') == 'count_limit') ? sizeErrorRange : sizeError;
-		if ((size === '') || (size === 0)){
-			return;
-		}
-		if ((size < 0) || ($(this).attr('id') == 'count_limit' && size > adminMaxItems) || (isNaN(size)) || size.indexOf('.') !== -1) {
-			$("#dialog").text(message).dialog("open");
-			$(this).val($(this).prop('defaultValue'));
-			$(this).focus();
-		}
+		$("#viewer-block").hide();
 	});
 
 	// If the all forums checkbox is checked, all individual forums should be checked, and visa versa. Ignore excluded
@@ -74,7 +43,7 @@ $(document).ready(function(){
 
 	// If bookmarked topics only is selected, disable the forum controls, otherwise enable them. All forums checkbox also needs
 	// to be enabled or disabled.
-	$("#bookmarks, #firstpostonly1, #firstpostonly2").click(function() {
+		$("#bookmarks, #firstpostonly1, #firstpostonly2, #all").click(function() {
 		var disabled = $("#bookmarks").is(':checked');
 		$("[id*=elt_]").each(function() {
 			if (!ignore_forum($(this).attr('id'))) {

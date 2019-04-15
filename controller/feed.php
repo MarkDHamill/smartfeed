@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Smartfeed
-* @copyright (c) 2018 Mark D. Hamill (mark@phpbbservices.com)
+* @copyright (c) 2019 Mark D. Hamill (mark@phpbbservices.com)
 * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
 *
 */
@@ -13,47 +13,32 @@ use phpbbservices\smartfeed\constants\constants;
 
 class feed
 {
-	/* @var \phpbb\config\config */
-	protected $config;
-
-	/* @var \phpbb\controller\helper */
-	protected $helper;
-
-	/* @var \phpbb\template\template */
-	protected $template;
-
-	/* @var \phpbb\user */
-	protected $user;
-	
-	protected $phpEx;
-
-	/* @var \phpbb\db\driver\factory  */
-	protected $db;
-
-	/* @var \phpbb\auth\auth */
-	protected $auth;
-
-	protected $phpbb_root_path; // Only used in functions.
-
-	/* @var \phpbb\request\request */
-	protected $request;
-
-	protected $common;
+	private $auth;
+	private $common;
+	private $config;
+	private $db;
+	private $helper;
+	private $template;
+	private $phpbb_log;
+	private $phpbb_root_path; // Only used in functions.
+	private $phpEx;
+	private $request;
+	private $user;
 
 	/**
 	* Constructor
 	*
+	* @param \phpbb\auth\auth						$auth
+	* @param \phpbbservices\smartfeed\core\common	$common
 	* @param \phpbb\config\config					$config
+	* @param \phpbb\db\driver\factory				$db
 	* @param \phpbb\controller\helper				$helper
+	* @param \phpbb\log\log							$phpbb_log
+	* @param string									$phpbb_root_path
+	* @param string									$php_ext
+	* @param \phpbb\request\request 				$request
 	* @param \phpbb\template\template				$template
 	* @param \phpbb\user							$user
-	* @param string									$php_ext
-	* @param \phpbb\db\driver\factory				$db
-	* @param \phpbb\auth\auth						$auth
-	* @param string									$phpbb_root_path
-	* @param \phpbb\request\request 				$request
-	* @param \phpbb\log\log							$phpbb_log
-	* @param \phpbbservices\smartfeed\core\common	$common
 	*/
 	
 	public function __construct(\phpbb\config\config $config, \phpbb\controller\helper $helper, \phpbb\template\template $template, \phpbb\user $user,
@@ -71,7 +56,6 @@ class feed
 		$this->auth = $auth;
 		$this->phpbb_root_path = $phpbb_root_path;
 		$this->request = $request;
-		$this->query_string = $this->user->page['query_string'];	// The entire query string will be needed later to parse out the forums wanted.
 		$this->phpbb_log = $phpbb_log;
 		$this->common = $common;
 
@@ -91,6 +75,7 @@ class feed
 		$this->max_items = NULL;
 		$this->max_words = NULL;
 		$this->min_words = NULL;
+		$this->query_string = $this->user->page['query_string'];	// The entire query string will be needed later to parse out the forums wanted.
 		$this->remove_my_posts = NULL;
 		$this->show_topic_titles = NULL;
 		$this->show_pms = NULL;
@@ -1201,8 +1186,6 @@ class feed
 			// Loop through the rowset, each row is an item in the feed.
 			if (isset($rowset))
 			{
-
-				$topics_array = array();
 
 				foreach ($rowset as $row)
 				{
