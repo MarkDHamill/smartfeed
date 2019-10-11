@@ -53,9 +53,6 @@ class ui
 		$this->phpbb_root_path = $phpbb_root_path;
 		$this->common = $common;
 		$this->ext_root_path = $ext_root_path;
-
-		// Load language variable specifically for this class
-		$this->user->add_lang_ext('phpbbservices/smartfeed', 'ui');
 	}
 
 	/**
@@ -75,7 +72,10 @@ class ui
 			$msg_text = ($this->user->data['user_type'] == USER_FOUNDER) ? $this->user->lang('SMARTFEED_APACHE_AUTHENTICATION_WARNING_ADMIN') : $this->user->lang('SMARTFEED_APACHE_AUTHENTICATION_WARNING_REG');
 			trigger_error($msg_text, E_USER_NOTICE);
 		}
-		
+
+		// Load language variable specifically for this class
+		$this->user->add_lang_ext('phpbbservices/smartfeed', 'ui');
+
 		// Create a list of required and excluded forum_ids
 		$required_forum_ids = (isset($this->config['phpbbservices_smartfeed_include_forums']) && strlen(trim($this->config['phpbbservices_smartfeed_include_forums'])) > 0) ? explode(',', $this->config['phpbbservices_smartfeed_include_forums']) : array();
 		$excluded_forum_ids = (isset($this->config['phpbbservices_smartfeed_exclude_forums']) && strlen(trim($this->config['phpbbservices_smartfeed_exclude_forums'])) > 0) ? explode(',', $this->config['phpbbservices_smartfeed_exclude_forums']) : array();
@@ -112,8 +112,8 @@ class ui
 		{
 			// Public (anonymous) users do not need to authenticate so no encrypted passwords are needed
 			$smartfeed_user_id = ANONYMOUS;
-			$encrypted_password = 'NONE';
-			$encrypted_password_with_ip = 'NONE';
+			$encrypted_password = constants::SMARTFEED_NONE;
+			$encrypted_password_with_ip = constants::SMARTFEED_NONE;
 			$this->template->assign_vars(array('S_SMARTFEED_IS_GUEST' => true, 'S_SMARTFEED_DAY_DEFAULT' => 'selected="selected"'));
 		}
 
@@ -325,7 +325,7 @@ class ui
 			'L_SMARTFEED_LIMIT_SET_EXPLAIN'		=> ($this->config['phpbbservices_smartfeed_default_fetch_time_limit'] == '0') ? '' : sprintf($this->user->lang('SMARTFEED_LIMIT_SET_EXPLAIN'), round(($this->config['phpbbservices_smartfeed_default_fetch_time_limit']/24), 0)),
 			'L_SMARTFEED_MAX_ITEMS_EXPLAIN_MAX' => ($this->config['phpbbservices_smartfeed_max_items'] == 0) ? $this->user->lang('SMARTFEED_MAX_ITEMS_EXPLAIN_BLANK') : sprintf($this->user->lang('SMARTFEED_MAX_ITEMS_EXPLAIN'), $this->config['phpbbservices_smartfeed_max_items'], $max_items),
 			'L_SMARTFEED_MAX_WORD_SIZE_EXPLAIN' => ($this->config['phpbbservices_smartfeed_max_word_size'] == '0') ? $this->user->lang('SMARTFEED_MAX_WORD_SIZE_EXPLAIN_BLANK') : sprintf($this->user->lang('SMARTFEED_MAX_WORD_SIZE_EXPLAIN'), $this->config['phpbbservices_smartfeed_max_word_size']),
-			'L_SMARTFEED_NOT_LOGGED_IN'			=> !extension_loaded('openssl') ? $this->user->lang('SMARTFEED_NO_OPENSSL_SUPPORT') : sprintf($this->user->lang('SMARTFEED_NOT_LOGGED_IN'), append_sid('./../../ucp.' . $this->phpEx . '?mode=login'), append_sid('./../../ucp.' . $this->phpEx . '?mode=register')),
+			'L_SMARTFEED_NOT_LOGGED_IN'			=> !extension_loaded('openssl') ? $this->user->lang('SMARTFEED_NO_OPENSSL_SUPPORT') : sprintf($this->user->lang('SMARTFEED_NOT_LOGGED_IN'), append_sid($this->phpbb_root_path . 'ucp.' . $this->phpEx . '?mode=login'), append_sid($this->phpbb_root_path . 'ucp.' . $this->phpEx . '?mode=register')),
 			'LA_SMARTFEED_SIZE_ERROR'			=> $size_error_msg,
 			'S_SMARTFEED_ALL_BY_DEFAULT'		=> ($this->config['phpbbservices_smartfeed_all_by_default'] == '1') ? 'checked="checked"' : '',
 			'S_SMARTFEED_ATOM_10_VALUE'			=> constants::SMARTFEED_ATOM,
@@ -389,7 +389,7 @@ class ui
 			'S_SMARTFEED_USER_ID' 				=> constants::SMARTFEED_USER_ID,
 			'S_SMARTFEED_USERNAMES' 			=> constants::SMARTFEED_USERNAMES,
 			'U_SMARTFEED_IMAGE_PATH'         	=> generate_board_url() . $this->ext_root_path . 'styles/all/theme/images/',
-		 	'UA_SMARTFEED_SITE_URL'				=> generate_board_url() . '/app.' . $this->phpEx . '/smartfeed/',
+			'UA_SMARTFEED_SITE_URL'				=> $this->helper->route('phpbbservices_smartfeed_feed_controller', array(), true, false, \Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL),
 			'UA_SMARTFEED_USER_ID'				=> $smartfeed_user_id,
 
 			)

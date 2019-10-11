@@ -4,7 +4,11 @@
 {% endif %}
 {% if S_SMARTFEED_IN_SMARTFEED %}
 {% INCLUDECSS '@phpbbservices_smartfeed/smartfeed.css' %}
+{% if not definition.INCLUDED_JQUERYUI1121JS %}
 {% INCLUDEJS '@phpbbservices_smartfeed/js/jquery-ui-1.12.1.min.js' %}
+{% DEFINE INCLUDED_JQUERYUI1121JS = true %}
+{% endif %}
+
 <script>
 
 	// global variables
@@ -71,7 +75,7 @@
 			}
 
 			// Initialise the URL
-			var url = "{{ UA_SMARTFEED_SITE_URL }}feed";
+			var url = "{{ UA_SMARTFEED_SITE_URL }}";
 
 			// If user logged in, add the specific variables
 			if (loggedIn) {

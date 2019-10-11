@@ -21,7 +21,6 @@ class main_listener implements EventSubscriberInterface
 {
 	private $config;
 	private $helper;
-	private $phpEx;
 	private $template;
 
 	/**
@@ -29,15 +28,13 @@ class main_listener implements EventSubscriberInterface
 	*
 	* @param \phpbb\config\config		$config
 	* @param \phpbb\controller\helper	$helper		Controller helper object
-	* @param string						$php_ext
 	* @param \phpbb\template\template	$template	Template object
 	*/
-	public function __construct(\phpbb\config\config $config, \phpbb\controller\helper $helper, \phpbb\template\template $template, $php_ext)
+	public function __construct(\phpbb\config\config $config, \phpbb\controller\helper $helper, \phpbb\template\template $template)
 	{
 		$this->config = $config;
 		$this->helper = $helper;
 		$this->template = $template;
-		$this->phpEx = $php_ext;
 	}
 
 	static public function getSubscribedEvents()
@@ -68,51 +65,11 @@ class main_listener implements EventSubscriberInterface
 	
 	public function overall_header_head_append()
 	{
-		
-		// Parse ATOM parameters from the configuration variable because the helper requires an array of parameters
-		if (strstr($this->config['phpbbservices_smartfeed_public_feed_url_suffix_atom'],'&'))
-		{
-			$atom_parameters = explode('&', $this->config['phpbbservices_smartfeed_public_feed_url_suffix_atom']);
-		}
-		else
-		{
-			$atom_parameters[] = $this->config['phpbbservices_smartfeed_public_feed_url_suffix_atom'];
-		}
-		
-		$atom_array = array();
-		foreach ($atom_parameters as $atom_parameter)
-		{
-			$pos = strpos($atom_parameter, '=');
-			if ($pos)
-			{
-				$atom_array[substr($atom_parameter, 0, $pos)] = substr($atom_parameter, $pos + 1);
-			}
-		}
-		
-		// Parse rss parameters from the configuration variable because the helper requires an array of parameters
-		if (strstr($this->config['phpbbservices_smartfeed_public_feed_url_suffix_rss'],'&'))
-		{
-			$rss_parameters = explode('&', $this->config['phpbbservices_smartfeed_public_feed_url_suffix_rss']);
-		}
-		else
-		{
-			$rss_parameters[] = $this->config['phpbbservices_smartfeed_public_feed_url_suffix_rss'];
-		}
-		
-		$rss_array = array();
-		foreach ($rss_parameters as $rss_parameter)
-		{
-			$pos = strpos($rss_parameter, '=');
-			if ($pos)
-			{
-				$rss_array[substr($rss_parameter, 0, $pos)] = substr($rss_parameter, $pos + 1);
-			}
-		}
-		
+
 		$this->template->assign_vars(array(
-			'S_AUTO_ADVERTISE_PUBLIC_FEED'	=> !empty($this->config['phpbbservices_smartfeed_auto_advertise_public_feed']) ? $this->config['phpbbservices_smartfeed_auto_advertise_public_feed'] : false,
-			'U_SMARTFEED_URL_ATOM'				=> $this->helper->route('phpbbservices_smartfeed_feed_controller', $atom_array),
-			'U_SMARTFEED_URL_RSS'				=> $this->helper->route('phpbbservices_smartfeed_feed_controller', $rss_array),
+			'S_AUTO_ADVERTISE_PUBLIC_FEED'		=> $this->config['phpbbservices_smartfeed_auto_advertise_public_feed'],
+			'U_SMARTFEED_URL_ATOM'				=> $this->helper->route('phpbbservices_smartfeed_feed_controller'),
+			'U_SMARTFEED_URL_RSS'				=> $this->helper->route('phpbbservices_smartfeed_feed_controller', array('y'=>2)),
 		));
 	}
    	

@@ -21,9 +21,26 @@ class ext extends \phpbb\extension\base
 
 		$config = $this->container->get('config');
 
-		// phpBB 3.2 is supported. phpBB 3.1 is not supported in this version. Also check to make sure the installed version
-		// of PHP supports the minimum requirements of SimplePie documented at: http://simplepie.org/wiki/setup/requirements
-		return (phpbb_version_compare($config['version'], '3.2.0', '>=') && phpbb_version_compare($config['version'], '3.3', '<') && extension_loaded('xml') && extension_loaded('pcre'));
+		if (
+			phpbb_version_compare($config['version'], '3.2.0', '>=') &&
+			phpbb_version_compare($config['version'], '3.3', '<') &&
+			extension_loaded('xml') &&
+			extension_loaded('pcre') &&
+			extension_loaded('openssl')
+		)
+		{
+			// Conditions met to install extension
+			return true;
+		}
+		else
+		{
+			$language = $this->container->get('language');
+			$language->add_lang(array('common'), 'phpbbservices/smartfeed');
+			$message_type = E_USER_WARNING;
+			$message = $language->lang('SMARTFEED_INSTALL_REQUIREMENTS');
+			trigger_error($message, $message_type);
+			return false;
+		};
 
 	}
 
