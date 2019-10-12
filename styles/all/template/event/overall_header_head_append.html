@@ -21,9 +21,9 @@
 	var ok = "{{ lang('OK')|escape('js') }}";
 	{% if not S_SMARTFEED_IS_GUEST %}
 	{% if not S_SMARTFEED_REQUIRED_IP_AUTHENTICATION %}
-	var smartfeedKey = '{{ S_SMARTFEED_PWD }}';
+	var smartfeedKey = '{{ S_SMARTFEED_PWD|escape('js') }}';
 	{% endif %}
-	var smartfeedKeyWithIP = '{{ S_SMARTFEED_PWD_WITH_IP }}';
+	var smartfeedKeyWithIP = '{{ S_SMARTFEED_PWD_WITH_IP|escape('js') }}';
 	{% endif %}
 	var thereAreRequiredForums = {{ S_SMARTFEED_REQUIRED_FORUMS }};
 	{% INCLUDEJS '@phpbbservices_smartfeed/js/smartfeed.js' %}

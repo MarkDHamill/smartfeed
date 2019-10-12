@@ -971,14 +971,14 @@ class feed
 					{
 						$username = $this->user->lang('ADMINISTRATOR');
 						$title = $this->user->lang('SMARTFEED_NEW_PMS_NOTIFICATIONS_SHORT');
-						$link = $this->htmlspecialchars($board_url . 'ucp.' . $this->phpEx . '?i=pm&folder=inbox');
+						$link = htmlspecialchars($board_url . 'ucp.' . $this->phpEx . '?i=pm&folder=inbox');
 						$message = $this->user->lang('SMARTFEED_NEW_PMS_NOTIFICATIONS_ONLY');
 					}
 					else
 					{
 						$username = $row['username']; // Don't need to worry about Anonymous users for private messages, they cannot send them
 						$title = $this->user->lang('PRIVATE_MESSAGE') . $this->user->lang('SMARTFEED_DELIMITER') . $row['message_subject'] . $this->user->lang('SMARTFEED_DELIMITER') . $this->user->lang('FROM') . ' ' . $username;
-						$link = $this->htmlspecialchars($board_url . 'ucp.' . $this->phpEx . '?i=pm&mode=view&f=0&p=' . $row['msg_id']);
+						$link = htmlspecialchars($board_url . 'ucp.' . $this->phpEx . '?i=pm&mode=view&f=0&p=' . $row['msg_id']);
 
 						// Set an email address associated with the poster of the private message. In most cases it should not be seen.
 						if ($this->config['phpbbservices_smartfeed_privacy_mode'])
@@ -1169,32 +1169,32 @@ class feed
 						{
 							if ($this->config['phpbbservices_smartfeed_suppress_forum_names'] || $this->suppress_forum_names)
 							{
-								$title = $this->htmlspecialchars($row['topic_title']);
+								$title = htmlspecialchars($row['topic_title']);
 							}
 							else
 							{
-								$forum_name = ($row['forum_name'] == NULL) ? $this->user->lang('SMARTFEED_GLOBAL_ANNOUNCEMENT') : $this->htmlspecialchars($row['forum_name']);
-								$title = $forum_name . $this->user->lang('SMARTFEED_DELIMITER') . $this->htmlspecialchars($row['topic_title']);
+								$forum_name = ($row['forum_name'] == NULL) ? $this->user->lang('SMARTFEED_GLOBAL_ANNOUNCEMENT') : htmlspecialchars($row['forum_name']);
+								$title = $forum_name . $this->user->lang('SMARTFEED_DELIMITER') . htmlspecialchars($row['topic_title']);
 							}
 						}
 						else
 						{
-							$forum_name = ($row['forum_name'] == NULL) ? $this->user->lang('SMARTFEED_GLOBAL_ANNOUNCEMENT') : $this->htmlspecialchars($row['forum_name']);
+							$forum_name = ($row['forum_name'] == NULL) ? $this->user->lang('SMARTFEED_GLOBAL_ANNOUNCEMENT') : htmlspecialchars($row['forum_name']);
 							$title = ($this->show_topic_titles) ? $row['topic_title'] : $row['post_subject'];
 							if ($title !== '')
 							{
-								$title = ($this->config['phpbbservices_smartfeed_suppress_forum_names'] || $this->suppress_forum_names) ? $this->htmlspecialchars($title) : $forum_name . $this->user->lang('SMARTFEED_DELIMITER') . $this->htmlspecialchars($title);
+								$title = ($this->config['phpbbservices_smartfeed_suppress_forum_names'] || $this->suppress_forum_names) ? htmlspecialchars($title) : $forum_name . $this->user->lang('SMARTFEED_DELIMITER') . htmlspecialchars($title);
 							}
 							else
 							{
 								if (!$this->show_topic_titles)
 								{
-									$title = ($this->config['phpbbservices_smartfeed_suppress_forum_names'] || $this->suppress_forum_names) ? 'Re: ' . $this->htmlspecialchars($title) : $forum_name . $this->user->lang('SMARTFEED_DELIMITER') . 'Re: ' . $this->htmlspecialchars($title);
+									$title = ($this->config['phpbbservices_smartfeed_suppress_forum_names'] || $this->suppress_forum_names) ? 'Re: ' . htmlspecialchars($title) : $forum_name . $this->user->lang('SMARTFEED_DELIMITER') . 'Re: ' . htmlspecialchars($title);
 
 								}
 								else
 								{
-									$title = ($this->config['phpbbservices_smartfeed_suppress_forum_names'] || $this->suppress_forum_names) ? $this->htmlspecialchars($title) : $forum_name . $this->user->lang('SMARTFEED_DELIMITER') . $this->htmlspecialchars($title);
+									$title = ($this->config['phpbbservices_smartfeed_suppress_forum_names'] || $this->suppress_forum_names) ? htmlspecialchars($title) : $forum_name . $this->user->lang('SMARTFEED_DELIMITER') . htmlspecialchars($title);
 								}
 							}
 							$title = html_entity_decode($title);
@@ -1217,7 +1217,7 @@ class feed
 						
 						$title = html_entity_decode(censor_text($title));
 						
-						$link = $this->htmlspecialchars($board_url . 'viewtopic.' . $this->phpEx . '?f=' . $row['forum_id'] . '&t=' . $row['topic_id'] . '&p=' . $row['post_id']  . '#p' . $row['post_id']);
+						$link = htmlspecialchars($board_url . 'viewtopic.' . $this->phpEx . '?f=' . $row['forum_id'] . '&t=' . $row['topic_id'] . '&p=' . $row['post_id']  . '#p' . $row['post_id']);
 						$category = html_entity_decode($row['forum_name']);
 
 						// Set an email address associated with the poster. In most cases it should not be seen.
@@ -1605,14 +1605,6 @@ class feed
 		
 		return true;
 
-	}
-
-	/**
-	 * A wrapper for htmlspecialchars($value, ENT_COMPAT, 'UTF-8')
-	 */
-	private function utf8_htmlspecialchars($value)
-	{
-		return htmlspecialchars($value, ENT_COMPAT, 'UTF-8');
 	}
 
 }
