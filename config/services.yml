@@ -12,6 +12,7 @@ services:
             - '%core.root_path%'
             - '@phpbbservices.smartfeed.common'
             - '/ext/phpbbservices/smartfeed/'
+            - '@language'
     phpbbservices.smartfeed.controller.feed:
         class: phpbbservices\smartfeed\controller\feed
         arguments:
@@ -26,6 +27,7 @@ services:
             - '@request'
             - '@log'
             - '@phpbbservices.smartfeed.common'
+            - '@language'
     phpbbservices.smartfeed.common:
         class: phpbbservices\smartfeed\core\common
         arguments:

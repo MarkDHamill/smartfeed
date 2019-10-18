@@ -48,6 +48,8 @@ class main_listener implements EventSubscriberInterface
 
 	public function load_language_on_setup($event)
 	{
+		// This language file is needed pretty much everywhere, since among other things it places
+		// content in the <head> section for most pages.
 		$lang_set_ext = $event['lang_set_ext'];
 		$lang_set_ext[] = array(
 			'ext_name' => 'phpbbservices/smartfeed',

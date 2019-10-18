@@ -18,6 +18,7 @@ class feed
 	private $config;
 	private $db;
 	private $helper;
+	private $language;
 	private $template;
 	private $phpbb_log;
 	private $phpbb_root_path; // Only used in functions.
@@ -33,6 +34,7 @@ class feed
 	* @param \phpbb\config\config					$config
 	* @param \phpbb\db\driver\factory				$db
 	* @param \phpbb\controller\helper				$helper
+	* @param \phpbb\language\language 				$language
 	* @param \phpbb\log\log							$phpbb_log
 	* @param string									$phpbb_root_path
 	* @param string									$php_ext
@@ -43,7 +45,7 @@ class feed
 	
 	public function __construct(\phpbb\config\config $config, \phpbb\controller\helper $helper, \phpbb\template\template $template, \phpbb\user $user,
 		$php_ext, \phpbb\db\driver\factory $db, \phpbb\auth\auth $auth, $phpbb_root_path, \phpbb\request\request $request, \phpbb\log\log $phpbb_log, 
-		\phpbbservices\smartfeed\core\common $common)
+		\phpbbservices\smartfeed\core\common $common, \phpbb\language\language $language)
 	{
 		
 		// External classes and variables injected into the class
@@ -58,6 +60,7 @@ class feed
 		$this->request = $request;
 		$this->phpbb_log = $phpbb_log;
 		$this->common = $common;
+		$this->language = $language;
 
 		// Other useful class variables
 		$this->bookmarks_only = NULL;
@@ -96,7 +99,7 @@ class feed
 		// If board is disabled, disable feeds as well.
 		if ($this->config['board_disable'])
 		{
-			$this->errors[] = $this->user->lang('SMARTFEED_BOARD_DISABLED');
+			$this->errors[] = $this->language->lang('SMARTFEED_BOARD_DISABLED');
 			return;
 		}
 	
@@ -104,7 +107,7 @@ class feed
 		$this->feed_type = $this->request->variable(constants::SMARTFEED_FEED_TYPE, constants::SMARTFEED_ATOM);
 		if (!($this->feed_type == constants::SMARTFEED_ATOM || $this->feed_type == constants::SMARTFEED_RSS1 || $this->feed_type == constants::SMARTFEED_RSS2))
 		{
-			$this->errors[] = sprintf($this->user->lang('SMARTFEED_FEED_TYPE_ERROR', $this->feed_type));
+			$this->errors[] = sprintf($this->language->lang('SMARTFEED_FEED_TYPE_ERROR', $this->feed_type));
 		}
 
 		// Determine if this is a public request. If so only posts in public forums will be shown in the feed.
@@ -113,7 +116,7 @@ class feed
 			// Feed privileges are dependent upon the auth_method. This code makes this program consistent with the user interface.
 			if (($this->config['auth_method'] == 'apache') && ($this->config['phpbbservices_smartfeed_apache_htaccess_enabled'] == 0))
 			{
-				$this->errors[] = $this->user->lang('SMARTFEED_APACHE_AUTHENTICATION_WARNING_REG');
+				$this->errors[] = $this->language->lang('SMARTFEED_APACHE_AUTHENTICATION_WARNING_REG');
 			}
 			$this->is_registered = true;
 		}
@@ -122,11 +125,11 @@ class feed
 			// Logically if only the u or the e parameter is present, the URL is inconsisent, so generate an error.
 			if ($this->user_id == ANONYMOUS)
 			{
-				$this->errors[] = $this->user->lang('SMARTFEED_NO_U_ARGUMENT');
+				$this->errors[] = $this->language->lang('SMARTFEED_NO_U_ARGUMENT');
 			}
 			if ($this->encrypted_pswd == constants::SMARTFEED_NONE)
 			{
-				$this->errors[] = $this->user->lang('SMARTFEED_NO_E_ARGUMENT');
+				$this->errors[] = $this->language->lang('SMARTFEED_NO_E_ARGUMENT');
 			}
 		}
 
@@ -135,30 +138,30 @@ class feed
 		$this->time_limit = $this->request->variable(constants::SMARTFEED_TIME_LIMIT, $this->config['phpbbservices_smartfeed_default_fetch_time_limit']);
 		if (!is_numeric($this->time_limit))
 		{
-			$this->errors[] = $this->user->lang('SMARTFEED_LIMIT_FORMAT_ERROR');
+			$this->errors[] = $this->language->lang('SMARTFEED_LIMIT_FORMAT_ERROR');
 		}
 
 		if ($this->is_registered && ((int) $this->time_limit < (int) constants::SMARTFEED_SINCE_LAST_VISIT_VALUE) || ((int) $this->time_limit > (int) constants::SMARTFEED_LAST_15_MINUTES_VALUE) )
 		{
-			$this->errors[] = $this->user->lang('SMARTFEED_LIMIT_FORMAT_ERROR');
+			$this->errors[] = $this->language->lang('SMARTFEED_LIMIT_FORMAT_ERROR');
 		}
 		if (!$this->is_registered && ((int) $this->time_limit < (int) constants::SMARTFEED_NO_LIMIT_VALUE) || ((int) $this->time_limit > (int) constants::SMARTFEED_LAST_15_MINUTES_VALUE) )
 		{
-			$this->errors[] = $this->user->lang('SMARTFEED_LIMIT_FORMAT_ERROR');
+			$this->errors[] = $this->language->lang('SMARTFEED_LIMIT_FORMAT_ERROR');
 		}
 		
 		// Validate the sort by parameter. If not present or an incorrect value, use the board default sort.
 		$this->sort_by = $this->request->variable(constants::SMARTFEED_SORT_BY, constants::SMARTFEED_STANDARD);
 		if ( (int) $this->sort_by < constants::SMARTFEED_BOARD || (int) $this->sort_by > constants::SMARTFEED_POSTDATE_DESC)
 		{
-			$this->errors[] = $this->user->lang('SMARTFEED_SORT_BY_ERROR');
+			$this->errors[] = $this->language->lang('SMARTFEED_SORT_BY_ERROR');
 		}
 
 		// Validate the firstpostonly parameter. If not present or an incorrect value, disable it.
 		$this->first_post_only = $this->request->variable(constants::SMARTFEED_FIRST_POST, 0);
 		if (!in_array((float) $this->first_post_only, $this->true_false_array))
 		{
-			$this->errors[] = $this->user->lang('SMARTFEED_FIRST_POST_ONLY_ERROR');
+			$this->errors[] = $this->language->lang('SMARTFEED_FIRST_POST_ONLY_ERROR');
 		}
 		$this->first_post_only = (int) $this->first_post_only;
 
@@ -166,7 +169,7 @@ class feed
 		$this->last_post_only = $this->request->variable(constants::SMARTFEED_LAST_POST, 0);
 		if (!in_array((float) $this->last_post_only, $this->true_false_array))
 		{
-			$this->errors[] = $this->user->lang('SMARTFEED_LAST_POST_ONLY_ERROR');
+			$this->errors[] = $this->language->lang('SMARTFEED_LAST_POST_ONLY_ERROR');
 		}
 		$this->last_post_only = (int) $this->last_post_only;
 
@@ -177,7 +180,7 @@ class feed
 		$this->max_items = $this->request->variable(constants::SMARTFEED_MAX_ITEMS, 0);
 		if ((int) $this->max_items < 0)
 		{
-			$this->errors[] = $this->user->lang('SMARTFEED_MAX_ITEMS_ERROR');
+			$this->errors[] = $this->language->lang('SMARTFEED_MAX_ITEMS_ERROR');
 		}
 		
 		$this->max_items = (int) $this->max_items;
@@ -194,7 +197,7 @@ class feed
 		$this->max_words = $this->request->variable(constants::SMARTFEED_MAX_WORDS, 0);
 		if ((int) $this->max_words < 0)
 		{
-			$this->errors[] = $this->user->lang('SMARTFEED_MAX_WORD_SIZE_ERROR');
+			$this->errors[] = $this->language->lang('SMARTFEED_MAX_WORD_SIZE_ERROR');
 		}
 		
 		$this->max_words = (int) $this->max_words;
@@ -211,14 +214,14 @@ class feed
 		$this->min_words = $this->request->variable(constants::SMARTFEED_MIN_WORDS, 0);
 		if ((int) $this->min_words < 0)
 		{
-			$this->errors[] = $this->user->lang('SMARTFEED_MIN_WORD_SIZE_ERROR');
+			$this->errors[] = $this->language->lang('SMARTFEED_MIN_WORD_SIZE_ERROR');
 		}
 
 		// Validate the feed style parameter.
 		$this->feed_style = $this->request->variable(constants::SMARTFEED_FEED_STYLE, constants::SMARTFEED_HTML);
 		if (!($this->feed_style == constants::SMARTFEED_COMPACT || $this->feed_style == constants::SMARTFEED_BASIC || $this->feed_style == constants::SMARTFEED_HTMLSAFE || $this->feed_style == constants::SMARTFEED_HTML))
 		{
-			$this->errors[] = sprintf($this->user->lang('SMARTFEED_STYLE_ERROR'), $this->feed_style);
+			$this->errors[] = sprintf($this->language->lang('SMARTFEED_STYLE_ERROR'), $this->feed_style);
 		}
 
 		// Special error checking logic is needed for registered users only
@@ -228,70 +231,70 @@ class feed
 			// If openssl is not compiled with PHP, a user cannot get a feed with posts from non-public forums, so tell the user what to do.
 			if (!extension_loaded('openssl'))
 			{
-				$this->errors[] = $this->user->lang('SMARTFEED_NO_OPENSSL_MODULE');
+				$this->errors[] = $this->language->lang('SMARTFEED_NO_OPENSSL_MODULE');
 			}
 
 			//  Validate the remove my posts parameter, if present
 			$this->remove_my_posts = $this->request->variable(constants::SMARTFEED_REMOVE_MINE, 0);
 			if (!in_array($this->remove_my_posts, $this->true_false_array))
 			{
-				$this->errors[] = $this->user->lang('SMARTFEED_REMOVE_MINE_ERROR');
+				$this->errors[] = $this->language->lang('SMARTFEED_REMOVE_MINE_ERROR');
 			}
 
 			// Validate the private messages switch
 			$this->show_pms = $this->request->variable(constants::SMARTFEED_PRIVATE_MESSAGE, 0);
 			if (!in_array($this->show_pms, $this->true_false_array))
 			{
-				$this->errors[] = $this->user->lang('SMARTFEED_BAD_PMS_VALUE');
+				$this->errors[] = $this->language->lang('SMARTFEED_BAD_PMS_VALUE');
 			}
 
 			// Validate the mark read private messages switch
 			$this->mark_private_messages = $this->request->variable(constants::SMARTFEED_MARK_PRIVATE_MESSAGES, 0);
 			if (!in_array($this->mark_private_messages, $this->true_false_array))
 			{
-				$this->errors[] = $this->user->lang('SMARTFEED_BAD_MARK_PRIVATE_MESSAGES_READ_ERROR');
+				$this->errors[] = $this->language->lang('SMARTFEED_BAD_MARK_PRIVATE_MESSAGES_READ_ERROR');
 			}
 			
 			// Validate the bookmark topics only switch
 			$this->bookmarks_only = $this->request->variable(constants::SMARTFEED_BOOKMARKS, 0);
 			if (!in_array($this->bookmarks_only, $this->true_false_array))
 			{
-				$this->errors[] = $this->user->lang('SMARTFEED_BAD_BOOKMARKS_VALUE');
+				$this->errors[] = $this->language->lang('SMARTFEED_BAD_BOOKMARKS_VALUE');
 			}
 			
 			// Validate the filter foes switch
 			$this->filter_foes = $this->request->variable(constants::SMARTFEED_FILTER_FOES, 0);
 			if (!in_array($this->filter_foes, $this->true_false_array))
 			{
-				$this->errors[] = $this->user->lang('SMARTFEED_FILTER_FOES_ERROR');
+				$this->errors[] = $this->language->lang('SMARTFEED_FILTER_FOES_ERROR');
 			}
 
 			// Validate the last visit parameter.
 			$this->lastvisit = $this->request->variable(constants::SMARTFEED_SINCE_LAST_VISIT, 0);
 			if (!in_array($this->lastvisit, $this->true_false_array))
 			{
-				$this->errors[] = $this->user->lang('SMARTFEED_LASTVISIT_ERROR');
+				$this->errors[] = $this->language->lang('SMARTFEED_LASTVISIT_ERROR');
 			}
 
 			// Validate the suppress forum names parameter.
 			$this->suppress_forum_names = $this->request->variable(constants::SMARTFEED_SUPPRESS_FORUM_NAMES, 0);
 			if (!in_array($this->suppress_forum_names, $this->true_false_array))
 			{
-				$this->errors[] = $this->user->lang('SMARTFEED_SUPPRESS_FORUM_NAMES_ERROR');
+				$this->errors[] = $this->language->lang('SMARTFEED_SUPPRESS_FORUM_NAMES_ERROR');
 			}
 
 			// Validate the suppress topic titles only parameter.
 			$this->show_topic_titles = $this->request->variable(constants::SMARTFEED_TOPIC_TITLES, 0);
 			if (!in_array($this->show_topic_titles, $this->true_false_array))
 			{
-				$this->errors[] = $this->user->lang('SMARTFEED_SHOW_TOPIC_TITLES_ERROR');
+				$this->errors[] = $this->language->lang('SMARTFEED_SHOW_TOPIC_TITLES_ERROR');
 			}
 
 			// Validate the suppress usernames parameter.
 			$this->suppress_usernames = $this->request->variable(constants::SMARTFEED_USERNAMES, 0);
 			if (!in_array($this->suppress_usernames, $this->true_false_array))
 			{
-				$this->errors[] = $this->user->lang('SMARTFEED_SUPPRESS_USERNAMES_ERROR');
+				$this->errors[] = $this->language->lang('SMARTFEED_SUPPRESS_USERNAMES_ERROR');
 			}
 
 			if (count($this->errors) > 0)
@@ -313,7 +316,7 @@ class feed
 		$error = false;
 
 		// Load language variable specifically for this class
-		$this->user->add_lang_ext('phpbbservices/smartfeed', 'feed');
+		$this->language->add_lang(array('feed'), 'phpbbservices/smartfeed');
 
 		// General variables
 		$allowed_user_types = array(USER_NORMAL, USER_FOUNDER); // Allowed user types are Normal and Founder. Others (Inactive, Ignore) can only get a public feed.
@@ -372,7 +375,7 @@ class feed
 			if (count($rowset) == 0)
 			{
 				$error = true;
-				$this->errors[] = $this->user->lang('SMARTFEED_USER_ID_DOES_NOT_EXIST');
+				$this->errors[] = $this->language->lang('SMARTFEED_USER_ID_DOES_NOT_EXIST');
 			}
 			else
 			{
@@ -397,7 +400,7 @@ class feed
 					// If the $user_smartfeed_key is an empty string, the password cannot be decrypted. It's hard to imagine how this could happen 
 					// unless the feed was called before the user interface was run.
 					$error = true;
-					$this->errors[] = sprintf($this->user->lang('SMARTFEED_BAD_PASSWORD_ERROR'), $this->encrypted_pswd, $this->user_id);
+					$this->errors[] = sprintf($this->language->lang('SMARTFEED_BAD_PASSWORD_ERROR'), $this->encrypted_pswd, $this->user_id);
 				}
 				else
 				{
@@ -411,62 +414,67 @@ class feed
 					if (($tilde == 0) && ($this->config['phpbbservices_smartfeed_require_ip_authentication'] == '1'))
 					{
 						$error = true;
-						$this->errors[] = $this->user->lang('SMARTFEED_IP_AUTH_ERROR');
+						$this->errors[] = $this->language->lang('SMARTFEED_IP_AUTH_ERROR');
 					}
 					else if ($tilde > 0)
 					{
 						// Since a tilde is present, authenticate the client IP by comparing it with the IP embedded in the "e" parameter
 						$authorized_ip = substr($encoded_pswd, $tilde + 1);
 						$encoded_pswd = substr($encoded_pswd, 0, $tilde);
-						$client_ip_parts = explode('.', $this->user->ip);	// Client's current IP, based on what the web server recorded.
+						$client_ip_parts = explode('.', $this->user->ip);    // Client's current IP, based on what the web server recorded.
+						if (!filter_var($this->user->ip, FILTER_VALIDATE_IP))
+						{
+							// Something is really odd if the number of address ranges in the client is not 4 or 8!
+							$error = true;
+							$this->errors[] = sprintf($this->language->lang('SMARTFEED_IP_RANGE_ERROR'), $this->user->ip);
+						}
+					}
+
+					if (!$error)
+					{
 						$source_ip_parts = explode('.', $authorized_ip);	// IP range authorized for this user
 
 						// Show error message if requested from incorrect range of IP addresses
 						switch (count($client_ip_parts))
 						{
-							
+
 							case 4:	 // IPV4
+							default;
 								if (!(
-										($client_ip_parts[0] == $source_ip_parts[0]) && 
-										($client_ip_parts[1] == $source_ip_parts[1]) &&
-										(($client_ip_parts[2] == $source_ip_parts[2]) || ($source_ip_parts[2] == '*'))
-									))
+									($client_ip_parts[0] == $source_ip_parts[0]) &&
+									($client_ip_parts[1] == $source_ip_parts[1]) &&
+									(($client_ip_parts[2] == $source_ip_parts[2]) || ($source_ip_parts[2] == '*'))
+								))
 								{
 									$error = true;
-									$this->errors[] = $this->user->lang('SMARTFEED_IP_AUTH_ERROR');
+									$this->errors[] = $this->language->lang('SMARTFEED_IP_AUTH_ERROR');
 								}
 							break;
-							
+
 							case 8:	 // IPV6
 								if (!(
-										($client_ip_parts[0] == $source_ip_parts[0]) && 
-										($client_ip_parts[1] == $source_ip_parts[1]) &&
-										($client_ip_parts[2] == $source_ip_parts[2]) &&
-										($client_ip_parts[3] == $source_ip_parts[3]) &&
-										($client_ip_parts[4] == $source_ip_parts[4]) &&
-										($client_ip_parts[5] == $source_ip_parts[5]) &&
-										($client_ip_parts[6] == $source_ip_parts[6]) || ($source_ip_parts[6] == '*')
-									))
+									($client_ip_parts[0] == $source_ip_parts[0]) &&
+									($client_ip_parts[1] == $source_ip_parts[1]) &&
+									($client_ip_parts[2] == $source_ip_parts[2]) &&
+									($client_ip_parts[3] == $source_ip_parts[3]) &&
+									($client_ip_parts[4] == $source_ip_parts[4]) &&
+									($client_ip_parts[5] == $source_ip_parts[5]) &&
+									($client_ip_parts[6] == $source_ip_parts[6]) || ($source_ip_parts[6] == '*')
+								))
 								{
 									$error = true;
-									$this->errors[] = $this->user->lang('SMARTFEED_IP_AUTH_ERROR');
+									$this->errors[] = $this->language->lang('SMARTFEED_IP_AUTH_ERROR');
 								}
 							break;
-							
-							default:
-								// Something is really odd if the number of address ranges in the client is not 4 or 8!
-								$error = true;
-								$this->errors[] = sprintf($this->user->lang('SMARTFEED_IP_RANGE_ERROR'), $this->user->ip);
-							break;
-							
+
 						}
 					}
-				
+
 					// Do not generate a feed if the asserted encrypted password does not equal the actual database encrypted password.
 					if (!$error && (trim($encoded_pswd) !== trim($user_password)))
 					{
 						$error = true;
-						$this->errors[] = sprintf($this->user->lang('SMARTFEED_BAD_PASSWORD_ERROR'), $this->encrypted_pswd, $this->user_id);
+						$this->errors[] = sprintf($this->language->lang('SMARTFEED_BAD_PASSWORD_ERROR'), $this->encrypted_pswd, $this->user_id);
 					} 
 					
 				}
@@ -580,7 +588,7 @@ class feed
 					// Logically, if there are no bookmarked topics for this $this->user_id then there will be nothing in the feed.
 					// Send a message to this effect in the feed.
 					$error = true;
-					$this->errors[] = $this->user->lang('SMARTFEED_NO_BOOKMARKS');
+					$this->errors[] = $this->language->lang('SMARTFEED_NO_BOOKMARKS');
 				}
 			
 			}
@@ -642,7 +650,7 @@ class feed
 					// If this user cannot retrieve ANY forums, this suggests that this board is tightly locked down to members only,
 					// or every member must belong to a user group or have special forum permissions
 					$error = true;
-					$this->errors[] = $this->user->lang('SMARTFEED_NO_ACCESSIBLE_FORUMS');
+					$this->errors[] = $this->language->lang('SMARTFEED_NO_ACCESSIBLE_FORUMS');
 				}
 				
 				// Get the requested forums. If none are listed, user wants all forums for which they have read access.
@@ -710,7 +718,7 @@ class feed
 				{
 					// If there are no forums to fetch, this will result in an empty newsfeed. 
 					$error = true;
-					$this->errors[] = $this->user->lang('SMARTFEED_NO_FORUMS_ACCESSIBLE');
+					$this->errors[] = $this->language->lang('SMARTFEED_NO_FORUMS_ACCESSIBLE');
 				}
 			
 			}
@@ -902,7 +910,7 @@ class feed
 		
 		}
 
-		$display_name = $this->user->lang('SMARTFEED_FEED');	// As XML is generated to create a feed, there is no real page name to display so this is sort of moot.
+		$display_name = $this->language->lang('SMARTFEED_FEED');	// As XML is generated to create a feed, there is no real page name to display so this is sort of moot.
 
 		// These template variables apply to the overall feed, not to items in it. A post is an item in the newsfeed.
 		$this->template->assign_vars(array(
@@ -934,12 +942,12 @@ class feed
 			$this->template->assign_block_vars('items', array(
 
 				// Common and Atom 1.0 block variables follow
-				'L_CATEGORY'	=> $this->user->lang('SMARTFEED_ERROR'),
+				'L_CATEGORY'	=> $this->language->lang('SMARTFEED_ERROR'),
 				'L_CONTENT'		=> implode('<br>',$this->errors),
 				'L_EMAIL'		=> $this->config['board_contact'],
 				'L_NAME'		=> ($this->config['board_contact_name'] <> '') ? $this->config['board_contact_name'] : $this->config['board_contact'],
 				'L_SUMMARY'		=> implode('<br>',$this->errors),	// Should be a "line" or so, perhaps first 80 characters of the post, perhaps stripped of HTML. Irrelevant for errors.
-				'L_TITLE'		=> $this->user->lang('SMARTFEED_ERROR'),
+				'L_TITLE'		=> $this->language->lang('SMARTFEED_ERROR'),
 				'S_CREATOR'		=> ($this->config['board_contact_name'] <> '') ? $this->config['board_contact_name'] : $this->config['board_contact'],
 				'S_PUBLISHED'	=> date('c'),
 				'S_UPDATED'		=> date('c'),
@@ -969,16 +977,16 @@ class feed
 					// Create the username, title and link for the private message
 					if ($this->config['phpbbservices_smartfeed_new_post_notifications_only'])
 					{
-						$username = $this->user->lang('ADMINISTRATOR');
-						$title = $this->user->lang('SMARTFEED_NEW_PMS_NOTIFICATIONS_SHORT');
-						$link = htmlspecialchars($board_url . 'ucp.' . $this->phpEx . '?i=pm&folder=inbox');
-						$message = $this->user->lang('SMARTFEED_NEW_PMS_NOTIFICATIONS_ONLY');
+						$username = $this->language->lang('ADMINISTRATOR');
+						$title = $this->language->lang('SMARTFEED_NEW_PMS_NOTIFICATIONS_SHORT');
+						$link = htmlentities($board_url . 'ucp.' . $this->phpEx . '?i=pm&folder=inbox', ENT_QUOTES, 'UTF-8');
+						$message = $this->language->lang('SMARTFEED_NEW_PMS_NOTIFICATIONS_ONLY');
 					}
 					else
 					{
 						$username = $row['username']; // Don't need to worry about Anonymous users for private messages, they cannot send them
-						$title = $this->user->lang('PRIVATE_MESSAGE') . $this->user->lang('SMARTFEED_DELIMITER') . $row['message_subject'] . $this->user->lang('SMARTFEED_DELIMITER') . $this->user->lang('FROM') . ' ' . $username;
-						$link = htmlspecialchars($board_url . 'ucp.' . $this->phpEx . '?i=pm&mode=view&f=0&p=' . $row['msg_id']);
+						$title = $this->language->lang('PRIVATE_MESSAGE') . $this->language->lang('SMARTFEED_DELIMITER') . $row['message_subject'] . $this->language->lang('SMARTFEED_DELIMITER') . $this->language->lang('FROM') . ' ' . $username;
+						$link = htmlentities($board_url . 'ucp.' . $this->phpEx . '?i=pm&mode=view&f=0&p=' . $row['msg_id'], ENT_QUOTES, 'UTF-8');
 
 						// Set an email address associated with the poster of the private message. In most cases it should not be seen.
 						if ($this->config['phpbbservices_smartfeed_privacy_mode'])
@@ -1017,7 +1025,7 @@ class feed
 								$user_sig = rtrim($user_sig, '</');	// Bug in generate_text_for_display?
 							}
 				
-							$message = ($user_sig !== '') ? $message . $this->user->lang('SMARTFEED_POST_SIGNATURE_DELIMITER') . $user_sig : $message;
+							$message = ($user_sig !== '') ? $message . $this->language->lang('SMARTFEED_POST_SIGNATURE_DELIMITER') . $user_sig : $message;
 
 							$message = str_replace('<img src="./../../', '<img src="' . $board_url, $message); 
 							$message = str_replace('<img class="smilies" src="./../../', '<img class="smilies" src="' . $board_url, $message);
@@ -1045,7 +1053,7 @@ class feed
 					// Handle the maximum number of words requested per PM logic
 					if ($this->max_words !== 0)
 					{
-						$message = $this->truncate_words($message, intval($this->max_words), $this->user->lang('SMARTFEED_MAX_WORDS_NOTIFIER'));
+						$message = $this->truncate_words($message, intval($this->max_words), $this->language->lang('SMARTFEED_MAX_WORDS_NOTIFIER'));
 					}
 
 					if (($this->max_items == 0) || ($this->max_items !== 0 && $this->items_in_feed < $this->max_items))
@@ -1056,7 +1064,7 @@ class feed
 						$this->template->assign_block_vars('items', array(
 
 							// Common and Atom 1.0 block variables follow
-							'L_CATEGORY'  => $this->user->lang('PRIVATE_MESSAGE'),
+							'L_CATEGORY'  => $this->language->lang('PRIVATE_MESSAGE'),
 							'L_CONTENT'   => $message,
 							'L_EMAIL'     => $email,
 							'L_NAME'      => $username,
@@ -1149,7 +1157,7 @@ class feed
 					if 	($include_post &&
 							(
 								($this->min_words == 0) ||
-								($this->min_words !== 0 && $this->truncate_words($row['post_text'], intval($this->max_words), $this->user->lang('SMARTFEED_MAX_WORDS_NOTIFIER'), true) >= $this->min_words)
+								($this->min_words !== 0 && $this->truncate_words($row['post_text'], intval($this->max_words), $this->language->lang('SMARTFEED_MAX_WORDS_NOTIFIER'), true) >= $this->min_words)
 							)
 						)
 					{
@@ -1157,7 +1165,7 @@ class feed
 
 						if ($this->config['phpbbservices_smartfeed_new_post_notifications_only'])
 						{
-							$username = $this->user->lang('ADMINISTRATOR');
+							$username = $this->language->lang('ADMINISTRATOR');
 						}
 						else
 						{
@@ -1169,32 +1177,32 @@ class feed
 						{
 							if ($this->config['phpbbservices_smartfeed_suppress_forum_names'] || $this->suppress_forum_names)
 							{
-								$title = htmlspecialchars($row['topic_title']);
+								$title = htmlentities($row['topic_title'], ENT_QUOTES, 'UTF-8');
 							}
 							else
 							{
-								$forum_name = ($row['forum_name'] == NULL) ? $this->user->lang('SMARTFEED_GLOBAL_ANNOUNCEMENT') : htmlspecialchars($row['forum_name']);
-								$title = $forum_name . $this->user->lang('SMARTFEED_DELIMITER') . htmlspecialchars($row['topic_title']);
+								$forum_name = ($row['forum_name'] == NULL) ? $this->language->lang('SMARTFEED_GLOBAL_ANNOUNCEMENT') : htmlentities($row['forum_name'], ENT_QUOTES, 'UTF-8');
+								$title = $forum_name . $this->language->lang('SMARTFEED_DELIMITER') . htmlentities($row['topic_title'], ENT_QUOTES, 'UTF-8');
 							}
 						}
 						else
 						{
-							$forum_name = ($row['forum_name'] == NULL) ? $this->user->lang('SMARTFEED_GLOBAL_ANNOUNCEMENT') : htmlspecialchars($row['forum_name']);
+							$forum_name = ($row['forum_name'] == NULL) ? $this->language->lang('SMARTFEED_GLOBAL_ANNOUNCEMENT') : htmlentities($row['forum_name'], ENT_QUOTES, 'UTF-8');
 							$title = ($this->show_topic_titles) ? $row['topic_title'] : $row['post_subject'];
 							if ($title !== '')
 							{
-								$title = ($this->config['phpbbservices_smartfeed_suppress_forum_names'] || $this->suppress_forum_names) ? htmlspecialchars($title) : $forum_name . $this->user->lang('SMARTFEED_DELIMITER') . htmlspecialchars($title);
+								$title = ($this->config['phpbbservices_smartfeed_suppress_forum_names'] || $this->suppress_forum_names) ? htmlentities($title, ENT_QUOTES, 'UTF-8') : $forum_name . $this->language->lang('SMARTFEED_DELIMITER') . htmlentities($title, ENT_QUOTES, 'UTF-8');
 							}
 							else
 							{
 								if (!$this->show_topic_titles)
 								{
-									$title = ($this->config['phpbbservices_smartfeed_suppress_forum_names'] || $this->suppress_forum_names) ? 'Re: ' . htmlspecialchars($title) : $forum_name . $this->user->lang('SMARTFEED_DELIMITER') . 'Re: ' . htmlspecialchars($title);
+									$title = ($this->config['phpbbservices_smartfeed_suppress_forum_names'] || $this->suppress_forum_names) ? 'Re: ' . htmlentities($title, ENT_QUOTES, 'UTF-8') : $forum_name . $this->language->lang('SMARTFEED_DELIMITER') . 'Re: ' . htmlentities($title, ENT_QUOTES, 'UTF-8');
 
 								}
 								else
 								{
-									$title = ($this->config['phpbbservices_smartfeed_suppress_forum_names'] || $this->suppress_forum_names) ? htmlspecialchars($title) : $forum_name . $this->user->lang('SMARTFEED_DELIMITER') . htmlspecialchars($title);
+									$title = ($this->config['phpbbservices_smartfeed_suppress_forum_names'] || $this->suppress_forum_names) ? htmlentities($title, ENT_QUOTES, 'UTF-8') : $forum_name . $this->language->lang('SMARTFEED_DELIMITER') . htmlentities($title, ENT_QUOTES, 'UTF-8');
 								}
 							}
 							$title = html_entity_decode($title);
@@ -1203,21 +1211,21 @@ class feed
 							{
 								if ($this->config['phpbbservices_smartfeed_show_username_in_replies'] && !$this->suppress_usernames)
 								{
-									$title .= ($row['username'] == '') ? $this->user->lang('SMARTFEED_DELIMITER') . $this->user->lang('SMARTFEED_REPLY_BY') . ' ' . $this->user->lang('GUEST') . ' ' . $username : $this->user->lang('SMARTFEED_DELIMITER') . $this->user->lang('SMARTFEED_REPLY_BY') . ' ' . $username;
+									$title .= ($row['username'] == '') ? $this->language->lang('SMARTFEED_DELIMITER') . $this->language->lang('SMARTFEED_REPLY_BY') . ' ' . $this->language->lang('GUEST') . ' ' . $username : $this->language->lang('SMARTFEED_DELIMITER') . $this->language->lang('SMARTFEED_REPLY_BY') . ' ' . $username;
 								}
 							}
 							else
 							{
 								if ($this->config['phpbbservices_smartfeed_show_username_in_first_topic_post'] && !$this->suppress_usernames)
 								{
-									$title .= $this->user->lang('SMARTFEED_DELIMITER') . $this->user->lang('AUTHOR') . ' ' . $username;
+									$title .= $this->language->lang('SMARTFEED_DELIMITER') . $this->language->lang('AUTHOR') . ' ' . $username;
 								}
 							}
 						}
 						
 						$title = html_entity_decode(censor_text($title));
 						
-						$link = htmlspecialchars($board_url . 'viewtopic.' . $this->phpEx . '?f=' . $row['forum_id'] . '&t=' . $row['topic_id'] . '&p=' . $row['post_id']  . '#p' . $row['post_id']);
+						$link = htmlentities($board_url . 'viewtopic.' . $this->phpEx . '?f=' . $row['forum_id'] . '&t=' . $row['topic_id'] . '&p=' . $row['post_id']  . '#p' . $row['post_id'], ENT_QUOTES, 'UTF-8');
 						$category = html_entity_decode($row['forum_name']);
 
 						// Set an email address associated with the poster. In most cases it should not be seen.
@@ -1237,11 +1245,11 @@ class feed
 						{
 							if ($new_topic)
 							{
-								$post_text = $this->user->lang('SMARTFEED_NEW_TOPIC_NOTIFICATION');
+								$post_text = $this->language->lang('SMARTFEED_NEW_TOPIC_NOTIFICATION');
 							}
 							else
 							{
-								$post_text = $this->user->lang('SMARTFEED_NEW_POST_NOTIFICATION');
+								$post_text = $this->language->lang('SMARTFEED_NEW_POST_NOTIFICATION');
 							}
 						}
 						else
@@ -1271,7 +1279,7 @@ class feed
 									$user_sig = rtrim($user_sig, '</');	// Bug in generate_text_for_display?
 								}
 					
-								$post_text = ($user_sig !== '') ? $post_text . $this->user->lang('SMARTFEED_POST_SIGNATURE_DELIMITER') . $user_sig : $post_text;
+								$post_text = ($user_sig !== '') ? $post_text . $this->language->lang('SMARTFEED_POST_SIGNATURE_DELIMITER') . $user_sig : $post_text;
 
 								$post_text = str_replace('<img src="./../../', '<img src="' . $board_url, $post_text); 
 								$post_text = str_replace('<img class="smilies" src="./../../', '<img class="smilies" src="' . $board_url, $post_text);
@@ -1298,15 +1306,15 @@ class feed
 							// Handle the maximum number of words to display in a post.
 							if ($this->config['phpbbservices_smartfeed_max_word_size'] > 0 && $this->max_words > 0)
 							{
-								$post_text = $this->truncate_words($post_text, min($this->config['phpbbservices_smartfeed_max_word_size'],$this->max_words), $this->user->lang('SMARTFEED_MAX_WORDS_NOTIFIER'));
+								$post_text = $this->truncate_words($post_text, min($this->config['phpbbservices_smartfeed_max_word_size'],$this->max_words), $this->language->lang('SMARTFEED_MAX_WORDS_NOTIFIER'));
 							}
 							else if ($this->config['phpbbservices_smartfeed_max_word_size'] > 0 && $this->max_words == 0)
 							{
-								$post_text = $this->truncate_words($post_text, $this->config['phpbbservices_smartfeed_max_word_size'], $this->user->lang('SMARTFEED_MAX_WORDS_NOTIFIER'));
+								$post_text = $this->truncate_words($post_text, $this->config['phpbbservices_smartfeed_max_word_size'], $this->language->lang('SMARTFEED_MAX_WORDS_NOTIFIER'));
 							}
 							else if ($this->max_words > 0)
 							{
-								$post_text = $this->truncate_words($post_text, intval($this->max_words), $this->user->lang('SMARTFEED_MAX_WORDS_NOTIFIER'));
+								$post_text = $this->truncate_words($post_text, intval($this->max_words), $this->language->lang('SMARTFEED_MAX_WORDS_NOTIFIER'));
 							}
 						}
 						
@@ -1382,7 +1390,7 @@ class feed
 
 		static $my_styles;
 		
-		$attachment_markup = sprintf("<div class=\"box\">\n<p>%s</p>\n", $this->user->lang('ATTACHMENTS'));
+		$attachment_markup = sprintf("<div class=\"box\">\n<p>%s</p>\n", $this->language->lang('ATTACHMENTS'));
 		
 		// Get all attachments
 		$sql = 'SELECT *
@@ -1433,10 +1441,10 @@ class feed
 				{
 					$anchor_begin = sprintf("<a href=\"%s\">", generate_board_url() . "/download/file.$this->phpEx?id=" . $row['attach_id']);
 					$anchor_end = '</a>';
-					$pm_image_text = $this->user->lang('SMARTFEED_POST_IMAGE_TEXT');
+					$pm_image_text = $this->language->lang('SMARTFEED_POST_IMAGE_TEXT');
 					$thumbnail_parameter = '&t=1';
 				}
-				$attachment_markup .= sprintf("%s<br><em>%s</em> (%s %s)<br>%s<img src=\"%s\" alt=\"%s\" title=\"%s\" />%s\n<br>%s", $row['attach_comment'], $row['real_filename'], $file_size, $this->user->lang('KIB'), $anchor_begin, generate_board_url() . "/download/file.$this->phpEx?id=" . $row['attach_id'] . $thumbnail_parameter, $row['attach_comment'], $row['attach_comment'], $anchor_end, $pm_image_text);
+				$attachment_markup .= sprintf("%s<br><em>%s</em> (%s %s)<br>%s<img src=\"%s\" alt=\"%s\" title=\"%s\" />%s\n<br>%s", $row['attach_comment'], $row['real_filename'], $file_size, $this->language->lang('KIB'), $anchor_begin, generate_board_url() . "/download/file.$this->phpEx?id=" . $row['attach_id'] . $thumbnail_parameter, $row['attach_comment'], $row['attach_comment'], $anchor_end, $pm_image_text);
 			}
 			else
 			{
@@ -1448,7 +1456,7 @@ class feed
 						generate_board_url() . "/download/file.$this->phpEx?id=" . $row['attach_id'],
 						$row['real_filename'], 
 						$file_size,
-						$this->user->lang('KIB'));
+						$this->language->lang('KIB'));
 			}
 		}
 		$this->db->sql_freeresult($result);
@@ -1565,12 +1573,12 @@ class feed
 								$this->template->assign_block_vars('items', array(
 
 									// Common and Atom 1.0 block variables follow
-									'L_CATEGORY'  => (!is_null($feed_item->get_category())) ? $feed_item->get_category() : $this->user->lang['SMARTFEED_EXTERNAL_ITEM'],
+									'L_CATEGORY'  => (!is_null($feed_item->get_category())) ? $feed_item->get_category() : $this->language->lang['SMARTFEED_EXTERNAL_ITEM'],
 									'L_CONTENT'   => $content,
 									'L_EMAIL'     => $email,
 									'L_NAME'      => (count($author_names) > 0) ? $author_names[0] : '',
 									'L_SUMMARY'   => $content,
-									'L_TITLE'     => $this->user->lang['SMARTFEED_EXTERNAL_ITEM'] . $this->user->lang['SMARTFEED_DELIMITER'] . html_entity_decode($feed_title) . $this->user->lang['SMARTFEED_DELIMITER'] . html_entity_decode(censor_text($title)),
+									'L_TITLE'     => $this->language->lang['SMARTFEED_EXTERNAL_ITEM'] . $this->language->lang['SMARTFEED_DELIMITER'] . html_entity_decode($feed_title) . $this->language->lang['SMARTFEED_DELIMITER'] . html_entity_decode(censor_text($title)),
 									'S_PUBLISHED' => $feed_item->get_date('c'),
 									'S_UPDATED'   => $feed_item->get_date('c'),
 									'U_ID'        => $feed_item->get_permalink(),
