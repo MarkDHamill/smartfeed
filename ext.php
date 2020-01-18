@@ -23,7 +23,7 @@ class ext extends \phpbb\extension\base
 
 		if (
 			phpbb_version_compare($config['version'], '3.2.0', '>=') &&
-			phpbb_version_compare($config['version'], '3.3', '<') &&
+			phpbb_version_compare($config['version'], '4.0', '<') &&
 			extension_loaded('xml') &&
 			extension_loaded('pcre') &&
 			extension_loaded('openssl')

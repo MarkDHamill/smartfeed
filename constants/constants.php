@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Smartfeed
-* @copyright (c) 2019 Mark D. Hamill (mark@phpbbservices.com)
+* @copyright (c) 2020 Mark D. Hamill (mark@phpbbservices.com)
 * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
 *
 */
@@ -71,5 +71,5 @@ class constants {
 	const SMARTFEED_GENERATOR = 'Smartfeed extension for phpBB';	// Does not need to be language specific, used in feed text because some feed formats require it.
 	const SMARTFEED_NONE = 'NONE';
 	const SMARTFEED_REQUIRED_FORUMS_ONLY = -1;
-	const SMARTFEED_VERSION = '3.0.11'; // Update for each release. Needed to support <generator> tag in Atom 1.0.
+	const SMARTFEED_VERSION = '3.0.13'; // Update for each release. Needed to support <generator> tag in Atom 1.0.
 }

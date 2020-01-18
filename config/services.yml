@@ -28,6 +28,7 @@ services:
             - '@log'
             - '@phpbbservices.smartfeed.common'
             - '@language'
+            - '@notification_manager'
     phpbbservices.smartfeed.common:
         class: phpbbservices\smartfeed\core\common
         arguments:

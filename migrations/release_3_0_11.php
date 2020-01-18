@@ -2,7 +2,7 @@
 /**
  *
  * @package phpBB Extension - Smartfeed
- * @copyright (c) 2019 Mark D. Hamill (mark@phpbbservices.com)
+ * @copyright (c) 2020 Mark D. Hamill (mark@phpbbservices.com)
  * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
  *
  */
@@ -24,7 +24,8 @@ class release_3_0_11 extends \phpbb\db\migration\migration
 	public function update_data()
 	{
 		return array(
-			array('config.remove',	array('phpbbservices_smartfeed_public_feed_url_suffix_atom', 'phpbbservices_smartfeed_public_feed_url_suffix_rss')),
+			array('config.remove',	array('phpbbservices_smartfeed_public_feed_url_suffix_atom'),
+				  'config.remove',	array('phpbbservices_smartfeed_public_feed_url_suffix_rss')),
 		);
 	}
 

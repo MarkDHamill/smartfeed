@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Smartfeed
-* @copyright (c) 2019 Mark D. Hamill (mark@phpbbservices.com)
+* @copyright (c) 2020 Mark D. Hamill (mark@phpbbservices.com)
 * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
 *
 */
@@ -35,8 +35,6 @@ class main_module
 
 	function main($id, $mode)
 	{
-
-		$this->language->add_lang(array('info_acp_common'), 'phpbbservices/smartfeed');
 
 		$submit = $this->request->is_set_post('submit');
 
@@ -175,10 +173,11 @@ class main_module
 
 			if (strpos($config_key, 'legend') !== false)
 			{
+				$this_var = $this->language->lang($vars);
 				$this->template->assign_block_vars('options', array(
 					'S_LEGEND'		=> true,
-					'LEGEND'		=> (NULL !== $this->language->lang($vars)) ? $this->language->lang($vars) : $vars)
-				);
+					'LEGEND'		=> (isset($this_var)) ? $this_var : $vars,
+				));
 
 				continue;
 			}
@@ -186,13 +185,15 @@ class main_module
 			$type = explode(':', $vars['type']);
 
 			$l_explain = '';
+			$this_var = $this->language->lang($vars['lang_explain']);
 			if ($vars['explain'] && isset($vars['lang_explain']))
 			{
-				$l_explain = (NULL !== $this->language->lang($vars['lang_explain'])) ? $this->language->lang($vars['lang_explain']) : $vars['lang_explain'];
+				$l_explain = (isset($this_var)) ? $this_var : $vars['lang_explain'];
 			}
 			else if ($vars['explain'])
 			{
-				$l_explain = (NULL !== $this->language->lang($vars['lang'] . '_EXPLAIN')) ? $this->language->lang($vars['lang'] . '_EXPLAIN') : '';
+				$this_var = $this->language->lang($vars['lang'] . '_EXPLAIN');
+				$l_explain = (isset($this_var)) ? $this_var : '';
 			}
 
 			$content = build_cfg_template($type, $config_key, $new_config, $config_key, $vars);
@@ -202,11 +203,12 @@ class main_module
 				continue;
 			}
 
+			$this_var = $this->language->lang($vars['lang']);
 			$this->template->assign_block_vars('options', array(
 				'CONTENT'		=> $content,
 				'KEY'			=> $config_key,
 				'S_EXPLAIN'		=> $vars['explain'],
-				'TITLE'			=> (NULL !== $this->language->lang($vars['lang'])) ? $this->language->lang($vars['lang']) : $vars['lang'],
+				'TITLE'			=> (isset($this_var)) ? $this_var : $vars['lang'],
 				'TITLE_EXPLAIN'	=> $l_explain,
 				)
 			);

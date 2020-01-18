@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Smartfeed
-* @copyright (c) 2019 Mark D. Hamill (mark@phpbbservices.com)
+* @copyright (c) 2020 Mark D. Hamill (mark@phpbbservices.com)
 * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
 *
 */
@@ -27,10 +27,11 @@ class release_3_0_4 extends \phpbb\db\migration\migration
 		global $phpbb_container;
 
 		$language = $phpbb_container->get('language');
+		$logo_path = (phpbb_version_compare($this->config['version'], '3.3', '<')) ? 'theme/images/site_logo.gif' : 'theme/images/site_logo.svg';
 
 		return array(
-		
-			// Remove old Smartfeed mod configuration variables, if they were carried over from a 3.0.x to 3.1.x conversion.
+
+			// Remove old Smartfeed mod configuration variables, if they were carried over from a 3.0.x upgrade.
          	array('config.remove', array(
 				'sf_all_by_default', 
 				'sf_apache_htaccess_enabled', 
@@ -70,7 +71,7 @@ class release_3_0_4 extends \phpbb\db\migration\migration
 			array('config.add',	array('phpbbservices_smartfeed_auto_advertise_public_feed', '1')),
 			array('config.add',	array('phpbbservices_smartfeed_default_fetch_time_limit', (30 * 24))),
 			array('config.add',	array('phpbbservices_smartfeed_exclude_forums', '')),
-			array('config.add',	array('phpbbservices_smartfeed_feed_image_path', 'theme/images/site_logo.gif')),
+			array('config.add',	array('phpbbservices_smartfeed_feed_image_path', $logo_path)),
 			array('config.add',	array('phpbbservices_smartfeed_include_forums', '')),
 			array('config.add',	array('phpbbservices_smartfeed_max_items', '0')),
 			array('config.add',	array('phpbbservices_smartfeed_max_word_size', '0')),
