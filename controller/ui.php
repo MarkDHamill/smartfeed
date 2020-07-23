@@ -66,10 +66,10 @@ class ui
 	public function handle()
 	{
 
-		$display_name = $this->language->lang('SMARTFEED_TITLE');
-
 		// Load language variable specifically for this class
 		$this->language->add_lang(array('ui'), 'phpbbservices/smartfeed');
+
+		$display_name = $this->language->lang('SMARTFEED_TITLE');
 
 		// Smartfeed cannot be used with Apache authentication unless the .htaccess file is modified to allow smartfeed.php to bypass
 		// Apache authentication. If you have made these changes then set the constant SMARTFEED_APACHE_HTACCESS_ENABLED to true in the ACP interface.
@@ -320,7 +320,7 @@ class ui
 
 		// Set the template variables needed to generate a URL for Smartfeed. Note: most can be handled by template language variable substitution.
 		$this->template->assign_vars(array(
-		
+
 			'L_POWERED_BY'						=> $this->language->lang('POWERED_BY', '<a href="' . $this->config['phpbbservices_smartfeed_url'] . '" class="postlink" onclick="window.open(this.href);return false;">' . $this->language->lang('SMARTFEED_POWERED_BY') . '</a>'),
 			'L_SMARTFEED_EXCLUDED_FORUMS'		=> implode(",", $excluded_forum_ids),
 			'L_SMARTFEED_IGNORED_FORUMS'		=> implode(",", array_merge($required_forum_ids, $excluded_forum_ids)),
@@ -414,7 +414,7 @@ class ui
 		// Encrypt the data using the random IV.
 		$encrypted_string = openssl_encrypt($data_input, 'AES-128-CBC', $key, OPENSSL_RAW_DATA, $iv);
 
-		// Thanks to phpBB forum user klapray for this logic for creating a "urlsafe" fix for base64_encode and _decode.
+		// Thanks to phpBB forums user klapray for this logic for creating a "urlsafe" fix for base64_encode and _decode.
 		$encrypted_data = strtr(base64_encode($iv . $encrypted_string), '+/=', '-_.');
 		return $encrypted_data;
 

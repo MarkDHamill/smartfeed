@@ -1,11 +1,11 @@
 <?php
 /**
-*
-* @package phpBB Extension - Smartfeed
-* @copyright (c) 2020 Mark D. Hamill (mark@phpbbservices.com)
-* @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
-*
-*/
+ *
+ * @package phpBB Extension - Smartfeed
+ * @copyright (c) 2020 Mark D. Hamill (mark@phpbbservices.com)
+ * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
+ *
+ */
 
 namespace phpbbservices\smartfeed\acp;
 
@@ -42,11 +42,11 @@ class main_module
 		add_form_key($form_key);
 
 		/**
-		*	Validation types are:
-		*		string, int, bool,
-		*		script_path (absolute path in url - beginning with / and no trailing slash),
-		*		rpath (relative), rwpath (realtive, writable), path (relative path, but able to escape the root), wpath (writable)
-		*/
+		 *	Validation types are:
+		 *		string, int, bool,
+		 *		script_path (absolute path in url - beginning with / and no trailing slash),
+		 *		rpath (relative), rwpath (relative, writable), path (relative path, but able to escape the root), wpath (writable)
+		 */
 		switch ($mode)
 		{
 			case 'ppt':
@@ -61,11 +61,11 @@ class main_module
 					)
 				);
 			break;
-				
+
 			case 'security':
 				$display_vars = array(
 					'title'	=> 'ACP_SMARTFEED_SECURITY',
-					'vars'	=> array(						
+					'vars'	=> array(
 						'legend1'													=> 'GENERAL_OPTIONS',
 						'phpbbservices_smartfeed_require_ip_authentication'			=> array('lang' => 'ACP_SMARTFEED_REQUIRE_IP_AUTHENTICATION',			'validate' => 'bool',	'type' => 'radio:yes_no', 'explain' => true),
 						'phpbbservices_smartfeed_auto_advertise_public_feed'		=> array('lang' => 'ACP_SMARTFEED_AUTO_ADVERTISE_PUBLIC_FEED',			'validate' => 'bool',	'type' => 'radio:yes_no', 'explain' => true),
@@ -76,11 +76,11 @@ class main_module
 					)
 				);
 			break;
-				
+
 			case 'additional':
 				$display_vars = array(
 					'title'	=> 'ACP_SMARTFEED_ADDITIONAL',
-					'vars'	=> array(						
+					'vars'	=> array(
 						'legend1'											=> 'GENERAL_SETTINGS',
 						'phpbbservices_smartfeed_include_forums'			=> array('lang' => 'ACP_SMARTFEED_INCLUDE_FORUMS',						'validate' => 'string',	'type' => 'text:15:255', 'explain' => true),
 						'phpbbservices_smartfeed_exclude_forums'			=> array('lang' => 'ACP_SMARTFEED_EXCLUDE_FORUMS',						'validate' => 'string',	'type' => 'text:15:255', 'explain' => true),
@@ -101,7 +101,7 @@ class main_module
 				$display_vars = array();	// Keep phpStorm happy
 				trigger_error('NO_MODE', E_USER_ERROR);
 			break;
-				
+
 		}
 
 		$new_config = $this->config;
@@ -119,7 +119,7 @@ class main_module
 		{
 			$error[] = $this->language->lang('FORM_INVALID');
 		}
-		
+
 		// Do not write values if there is an error
 		if (count($error))
 		{
@@ -166,6 +166,7 @@ class main_module
 		// Output relevant page
 		foreach ($display_vars['vars'] as $config_key => $vars)
 		{
+
 			if (!is_array($vars) && strpos($config_key, 'legend') === false)
 			{
 				continue;
@@ -173,28 +174,16 @@ class main_module
 
 			if (strpos($config_key, 'legend') !== false)
 			{
-				$this_var = $this->language->lang($vars);
 				$this->template->assign_block_vars('options', array(
 					'S_LEGEND'		=> true,
-					'LEGEND'		=> (isset($this_var)) ? $this_var : $vars,
+					'LEGEND'		=> $this->language->lang($vars),
 				));
-
 				continue;
 			}
 
 			$type = explode(':', $vars['type']);
 
-			$l_explain = '';
-			$this_var = $this->language->lang($vars['lang_explain']);
-			if ($vars['explain'] && isset($vars['lang_explain']))
-			{
-				$l_explain = (isset($this_var)) ? $this_var : $vars['lang_explain'];
-			}
-			else if ($vars['explain'])
-			{
-				$this_var = $this->language->lang($vars['lang'] . '_EXPLAIN');
-				$l_explain = (isset($this_var)) ? $this_var : '';
-			}
+			$l_explain = (!empty($vars['explain'])) ? $this->language->lang($vars['lang'] . '_EXPLAIN') : '';
 
 			$content = build_cfg_template($type, $config_key, $new_config, $config_key, $vars);
 
@@ -208,12 +197,12 @@ class main_module
 				'CONTENT'		=> $content,
 				'KEY'			=> $config_key,
 				'S_EXPLAIN'		=> $vars['explain'],
-				'TITLE'			=> (isset($this_var)) ? $this_var : $vars['lang'],
-				'TITLE_EXPLAIN'	=> $l_explain,
-				)
+				'TITLE'			=> $this_var,
+				'TITLE_EXPLAIN'	=> $l_explain)
 			);
 
 			unset($display_vars['vars'][$config_key]);
+
 		}
 
 	}

@@ -13,7 +13,7 @@ class constants {
 
 	// These constants are used to identify URI key/value pair associations. Note these have changed since the phpBB 3.0 mod so URIs will be shorter.
 	const SMARTFEED_BOOKMARKS = 'b'; 					// was bookmarks
-	const SMARTFEED_ENCRYPTION_KEY = 'e';				// unchanged
+	const SMARTFEED_ENCRYPTION_KEY = 'e';				// unchanged from phpBB 3.0 mod parameter
 	const SMARTFEED_FEED_STYLE = 'd';					// was feed_style
 	const SMARTFEED_FEED_TYPE = 'y';					// was feed_type
 	const SMARTFEED_FILTER_FOES = 'ff';					// was filter_foes
@@ -31,7 +31,7 @@ class constants {
 	const SMARTFEED_SUPPRESS_FORUM_NAMES = 'fn';
 	const SMARTFEED_TIME_LIMIT = 't';					// was limit
 	const SMARTFEED_TOPIC_TITLES = 'tt';
-	const SMARTFEED_USER_ID = 'u';						// unchanged
+	const SMARTFEED_USER_ID = 'u';						// unchanged from phpBB 3.0 mod parameter
 	const SMARTFEED_USERNAMES = 'un';
 
 	// These constants are used to set the time limit for the feed
@@ -71,5 +71,5 @@ class constants {
 	const SMARTFEED_GENERATOR = 'Smartfeed extension for phpBB';	// Does not need to be language specific, used in feed text because some feed formats require it.
 	const SMARTFEED_NONE = 'NONE';
 	const SMARTFEED_REQUIRED_FORUMS_ONLY = -1;
-	const SMARTFEED_VERSION = '3.0.13'; // Update for each release. Needed to support <generator> tag in Atom 1.0.
+	const SMARTFEED_VERSION = '3.0.14'; // Update for each release. Needed to support <generator> tag in Atom 1.0.
 }

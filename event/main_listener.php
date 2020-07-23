@@ -53,7 +53,7 @@ class main_listener implements EventSubscriberInterface
 		$lang_set_ext = $event['lang_set_ext'];
 		$lang_set_ext[] = array(
 			'ext_name' => 'phpbbservices/smartfeed',
-			'lang_set' => 'common',
+			'lang_set' => array('common','ui'),
 		);
 		$event['lang_set_ext'] = $lang_set_ext;
 	}
@@ -67,7 +67,6 @@ class main_listener implements EventSubscriberInterface
 	
 	public function overall_header_head_append()
 	{
-
 		$this->template->assign_vars(array(
 			'S_AUTO_ADVERTISE_PUBLIC_FEED'		=> $this->config['phpbbservices_smartfeed_auto_advertise_public_feed'],
 			'U_SMARTFEED_URL_ATOM'				=> $this->helper->route('phpbbservices_smartfeed_feed_controller'),
