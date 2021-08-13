@@ -69,6 +69,7 @@ class main_listener implements EventSubscriberInterface
 	{
 		$this->template->assign_vars(array(
 			'S_AUTO_ADVERTISE_PUBLIC_FEED'		=> $this->config['phpbbservices_smartfeed_auto_advertise_public_feed'],
+			'S_SMARTFEED_UI_LOCATION'			=> $this->config['phpbbservices_smartfeed_ui_location'],
 			'U_SMARTFEED_URL_ATOM'				=> $this->helper->route('phpbbservices_smartfeed_feed_controller'),
 			'U_SMARTFEED_URL_RSS'				=> $this->helper->route('phpbbservices_smartfeed_feed_controller', array('y'=>2)),
 		));

@@ -68,7 +68,7 @@ $lang = array_merge($lang, array(
 	'SMARTFEED_NO_FORUMS_SELECTED'						=> 'You have not selected any forums, so no URL can be generated. Please select at least one forum.',
 	'SMARTFEED_NO_LIMIT'								=> 'None',
 	'SMARTFEED_NO_OPENSSL_SUPPORT'						=> '<strong>Note: this site can provide feeds for public forums only</strong>',
-	'SMARTFEED_NOT_LOGGED_IN'							=> '<strong>Because you are not logged in, OAuth authentication is used or your member status does not allow it, you can only subscribe to the list of public forums shown below. Please <a href="%s" class="postlink">log in</a> or <a href="%s" class="postlink">register</a> if you want to also subscribe to nonpublic forums or to access features for registered members only.</strong>',
+	'SMARTFEED_NOT_LOGGED_IN'							=> '<strong>Because you are not logged in or your member status does not allow it, you can only subscribe to the list of public forums shown below. Please <a href="%s" class="postlink">log in</a> or <a href="%s" class="postlink">register</a> if you want to also subscribe to nonpublic forums or to access features for registered members only.</strong>',
 	'SMARTFEED_POSTS_TYPE_ANY'							=> 'All posts',
 	'SMARTFEED_POSTS_TYPE_FIRST'						=> 'First post of topics only',
 	'SMARTFEED_POSTS_TYPE_LAST'							=> 'Last post of topics only',

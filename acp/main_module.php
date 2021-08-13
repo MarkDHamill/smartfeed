@@ -9,6 +9,8 @@
 
 namespace phpbbservices\smartfeed\acp;
 
+use phpbbservices\smartfeed\constants\constants;
+
 class main_module
 {
 
@@ -82,6 +84,7 @@ class main_module
 					'title'	=> 'ACP_SMARTFEED_ADDITIONAL',
 					'vars'	=> array(
 						'legend1'											=> 'GENERAL_SETTINGS',
+						'phpbbservices_smartfeed_ui_location'				=> array('lang' => 'ACP_SMARTFEED_UI_INTERFACE_LOCATION',				'validate' => 'string',	'type' => 'select', 'method' => 'pick_ui_interface_location', 'explain' 	=> true),
 						'phpbbservices_smartfeed_include_forums'			=> array('lang' => 'ACP_SMARTFEED_INCLUDE_FORUMS',						'validate' => 'string',	'type' => 'text:15:255', 'explain' => true),
 						'phpbbservices_smartfeed_exclude_forums'			=> array('lang' => 'ACP_SMARTFEED_EXCLUDE_FORUMS',						'validate' => 'string',	'type' => 'text:15:255', 'explain' => true),
 						'phpbbservices_smartfeed_external_feeds'			=> array('lang' => 'ACP_SMARTFEED_EXTERNAL_FEEDS',						'validate' => 'string',	'type' => 'textarea:3:85', 'explain' => true),
@@ -192,12 +195,12 @@ class main_module
 				continue;
 			}
 
-			$this_var = $this->language->lang($vars['lang']);
+			$config_var = $this->language->lang($vars['lang']);
 			$this->template->assign_block_vars('options', array(
 				'CONTENT'		=> $content,
 				'KEY'			=> $config_key,
 				'S_EXPLAIN'		=> $vars['explain'],
-				'TITLE'			=> $this_var,
+				'TITLE'			=> $config_var,
 				'TITLE_EXPLAIN'	=> $l_explain)
 			);
 
@@ -205,6 +208,26 @@ class main_module
 
 		}
 
+	}
+
+	function pick_ui_interface_location ()
+	{
+		// Returns a set of option tags allowing admin to pick a location for the Smartfeed user interface
+
+		$selected = ($this->config['phpbbservices_smartfeed_ui_location'] == constants::SMARTFEED_HEADER_NAVIGATION_PREPEND) ? ' selected="selected"' : '';
+		$ui_location_html = '<option value="' . constants::SMARTFEED_HEADER_NAVIGATION_PREPEND . '"' . $selected . '>' . $this->language->lang('ACP_SMARTFEED_HEADER_NAVIGATION_PREPEND') . '</option>';
+		$selected = ($this->config['phpbbservices_smartfeed_ui_location'] == constants::SMARTFEED_HEADER_NAVIGATION_APPEND) ? ' selected="selected"' : '';
+		$ui_location_html .= '<option value="' . constants::SMARTFEED_HEADER_NAVIGATION_APPEND . '"' . $selected .  '>' . $this->language->lang('ACP_SMARTFEED_HEADER_NAVIGATION_APPEND') . '</option>';
+		$selected = ($this->config['phpbbservices_smartfeed_ui_location'] == constants::SMARTFEED_BREADCRUMB_BEFORE) ? ' selected="selected"' : '';
+		$ui_location_html .= '<option value="' . constants::SMARTFEED_BREADCRUMB_BEFORE . '"' . $selected. '>' . $this->language->lang('ACP_SMARTFEED_BREADCRUMB_BEFORE') . '</option>';
+		$selected = ($this->config['phpbbservices_smartfeed_ui_location'] == constants::SMARTFEED_BREADCRUMB_AFTER) ? ' selected="selected"' : '';
+		$ui_location_html .= '<option value="' . constants::SMARTFEED_BREADCRUMB_AFTER . '"' . $selected. '>' . $this->language->lang('ACP_SMARTFEED_BREADCRUMB_AFTER') . '</option>';
+		$selected = ($this->config['phpbbservices_smartfeed_ui_location'] == constants::SMARTFEED_QUICK_LINKS_BEFORE) ? ' selected="selected"' : '';
+		$ui_location_html .= '<option value="' . constants::SMARTFEED_QUICK_LINKS_BEFORE . '"' . $selected. '>' . $this->language->lang('ACP_SMARTFEED_QUICK_LINKS_BEFORE') . '</option>';
+		$selected = ($this->config['phpbbservices_smartfeed_ui_location'] == constants::SMARTFEED_QUICK_LINKS_AFTER) ? ' selected="selected"' : '';
+		$ui_location_html .= '<option value="' . constants::SMARTFEED_QUICK_LINKS_AFTER . '"' . $selected. '>' . $this->language->lang('ACP_SMARTFEED_QUICK_LINKS_AFTER') . '</option>';
+
+		return $ui_location_html;
 	}
 
 }

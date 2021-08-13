@@ -83,8 +83,8 @@ class ui
 		$required_forum_ids = (isset($this->config['phpbbservices_smartfeed_include_forums']) && strlen(trim($this->config['phpbbservices_smartfeed_include_forums'])) > 0) ? explode(',', $this->config['phpbbservices_smartfeed_include_forums']) : array();
 		$excluded_forum_ids = (isset($this->config['phpbbservices_smartfeed_exclude_forums']) && strlen(trim($this->config['phpbbservices_smartfeed_exclude_forums'])) > 0) ? explode(',', $this->config['phpbbservices_smartfeed_exclude_forums']) : array();
 
-		// Pass encryption tokens to the user interface for generating URLs, unless the user is not registered, openssl is not supported or OAuth authentication is used
-		$is_guest = !$this->user->data['is_registered'] || !extension_loaded('openssl') || $this->config['auth_method'] == 'oauth';
+		// Pass encryption tokens to the user interface for generating URLs, unless the user is not registered or openssl is not supported
+		$is_guest = !$this->user->data['is_registered'] || !extension_loaded('openssl');
 		
 		if (!$is_guest)
 		{
@@ -192,7 +192,7 @@ class ui
 
 		$no_forums = false;
 		
-		if (sizeof($allowed_forum_ids) > 0)
+		if (count($allowed_forum_ids) > 0)
 		{
 			
 			$sql = 'SELECT forum_name, forum_id, parent_id, forum_type
@@ -294,15 +294,19 @@ class ui
 			$this->db->sql_freeresult($result);
 			
 			// Now out of the loop, it is important to remember to close any open <div> tags. Typically there is at least one.
-			while ((int) $row['parent_id'] != (int) end($parent_stack))
+			if (isset($row) && is_array($row))
 			{
-				array_pop($parent_stack);
-				$current_level--;
-				// Need to close the <div> tag
-				$this->template->assign_block_vars('forums', array( 
-					'S_SMARTFEED_DIV_OPEN' => false,
-					'S_SMARTFEED_PRINT' => false));
+				while ((int) $row['parent_id'] != (int) end($parent_stack))
+				{
+					array_pop($parent_stack);
+					$current_level--;
+					// Need to close the <div> tag
+					$this->template->assign_block_vars('forums', array(
+						'S_SMARTFEED_DIV_OPEN' => false,
+						'S_SMARTFEED_PRINT' => false));
+				}
 			}
+
 			
 		}
 		else
@@ -375,7 +379,7 @@ class ui
 			'S_SMARTFEED_PWD'					=> $encrypted_password, 
 			'S_SMARTFEED_PWD_WITH_IP'			=> $encrypted_password_with_ip, 
 			'S_SMARTFEED_REMOVE_MINE' 			=> constants::SMARTFEED_REMOVE_MINE,
-			'S_SMARTFEED_REQUIRED_FORUMS'		=> (sizeof($required_forum_ids) > 0) ? 'true' : 'false',
+			'S_SMARTFEED_REQUIRED_FORUMS'		=> (count($required_forum_ids) > 0) ? 'true' : 'false',
 			'S_SMARTFEED_REQUIRED_IP_AUTHENTICATION'	=> $this->config['phpbbservices_smartfeed_require_ip_authentication'],
 			'S_SMARTFEED_RSS_10_VALUE'			=> constants::SMARTFEED_RSS1,
 			'S_SMARTFEED_RSS_20_VALUE'			=> constants::SMARTFEED_RSS2,

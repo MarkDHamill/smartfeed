@@ -3,7 +3,7 @@
 <h2>{{ lang('SMARTFEED_TITLE') }}</h2>
 
 {% if S_SMARTFEED_NO_FORUMS %}
-<p style="text-align:center"><span class="gen">{{ lang('SMARTFEED_NO_FORUMS_AVAILABLE') }}<br><br></span></p>
+<p style="text-align:center"><span>{{ lang('SMARTFEED_NO_FORUMS_AVAILABLE') }}<br><br></span></p>
 {% else %}
 
 {% if S_SMARTFEED_IS_GUEST %}
@@ -13,13 +13,13 @@
 <p>{{ lang('SMARTFEED_EXPLANATION') }}</p>
 <form id="phpbbservices_smartfeed" action="#">
 	<div class="panel">
-		<div class="inner">
+		<div>
 
 			<h3>{{ lang('SMARTFEED_FORUM_SELECTION') }}</h3>
 
 			<fieldset>
 				<dl>
-					<dt><label for="all_forums">{{ lang('SMARTFEED_SELECT_FORUMS') }}{{ lang('COLON') }}</label><br><span class="gensmall">{{ lang('SMARTFEED_SELECT_FORUMS_EXPLAIN') }}</span></dt>
+					<dt><label for="all_forums">{{ lang('SMARTFEED_SELECT_FORUMS') }}{{ lang('COLON') }}</label><br><span>{{ lang('SMARTFEED_SELECT_FORUMS_EXPLAIN') }}</span></dt>
 					<dd>
 						<input type="checkbox" name="all_forums" id="all_forums" {{ S_SMARTFEED_ALL_BY_DEFAULT }} /> <label for="all_forums"><b>{{ lang('SMARTFEED_ALL_FORUMS') }}</b></label><br><br>
 						<div id="div_0">
@@ -60,7 +60,7 @@
 					</dd>
 				</dl>
 				<dl>
-					<dt><label for="post_limit">{{ lang('SMARTFEED_LIMIT') }}{{ lang('COLON') }}</label><br><span class="gensmall">{{ lang('SMARTFEED_LIMIT_EXPLAIN') }} {{ lang('SMARTFEED_LIMIT_SET_EXPLAIN') }}</span></dt>
+					<dt><label for="post_limit">{{ lang('SMARTFEED_LIMIT') }}{{ lang('COLON') }}</label><br><span>{{ lang('SMARTFEED_LIMIT_EXPLAIN') }} {{ lang('SMARTFEED_LIMIT_SET_EXPLAIN') }}</span></dt>
 					<dd>
 						<select name="post_limit" id="post_limit" >
 							{% if not S_SMARTFEED_IS_GUEST %}
@@ -82,12 +82,12 @@
 					</dd>
 				</dl>
 				<dl>
-					<dt><label for="max_items">{{ lang('SMARTFEED_MAX_ITEMS') }}{{ lang('COLON') }}</label><br><span class="gensmall">{{ lang('SMARTFEED_MAX_ITEMS_EXPLAIN_MAX') }}</span></dt>
+					<dt><label for="max_items">{{ lang('SMARTFEED_MAX_ITEMS') }}{{ lang('COLON') }}</label><br><span>{{ lang('SMARTFEED_MAX_ITEMS_EXPLAIN_MAX') }}</span></dt>
 					<dd><input type="number" class="inputbox autowidth" name="max_items" id="max_items" min="0" max="{{ S_SMARTFEED_MAX_ITEMS_REAL }}" value="{{ S_SMARTFEED_MAX_ITEMS }}" />
 					</dd>
 				</dl>
 				<dl>
-					<dt><label for="min_words">{{ lang('SMARTFEED_MIN_WORDS') }}{{ lang('COLON') }}</label><br><span class="gensmall">{{ lang('SMARTFEED_MIN_WORDS_EXPLAIN') }}</span></dt>
+					<dt><label for="min_words">{{ lang('SMARTFEED_MIN_WORDS') }}{{ lang('COLON') }}</label><br><span>{{ lang('SMARTFEED_MIN_WORDS_EXPLAIN') }}</span></dt>
 					<dd><input type="number" class="inputbox autowidth" name="min_words" id="min_words" min="0" value="0" />
 					</dd>
 				</dl>
@@ -113,7 +113,7 @@
 
 			<fieldset>
 				<dl>
-					<dt><label for="sort_by">{{ lang('SMARTFEED_SORT_BY') }}{{ lang('COLON') }}</label><br><span class="gensmall">{{ lang('SMARTFEED_SORT_BY_EXPLAIN') }}</span></dt>
+					<dt><label for="sort_by">{{ lang('SMARTFEED_SORT_BY') }}{{ lang('COLON') }}</label><br><span>{{ lang('SMARTFEED_SORT_BY_EXPLAIN') }}</span></dt>
 					<dd>
 						<select name="sort_by" id="sort_by" >
 							{% if not S_SMARTFEED_IS_GUEST %}
@@ -136,25 +136,25 @@
 				</dl>
 				{% endif %}
 				<dl>
-					<dt><label for="max_word_size">{{ lang('SMARTFEED_MAX_WORD_SIZE') }}{{ lang('COLON') }}</label><br><span class="gensmall">{{ lang('SMARTFEED_MAX_WORD_SIZE_EXPLAIN') }}</span></dt>
+					<dt><label for="max_word_size">{{ lang('SMARTFEED_MAX_WORD_SIZE') }}{{ lang('COLON') }}</label><br><span>{{ lang('SMARTFEED_MAX_WORD_SIZE_EXPLAIN') }}</span></dt>
 					<dd><input type="number" class="inputbox autowidth" name="max_word_size" id="max_word_size" min="0" max="{{ S_SMARTFEED_MAX_WORD_SIZE_REAL }}" value="{{ S_SMARTFEED_MAX_WORD_SIZE }}" />
 					</dd>
 				</dl>
 				{% if not S_SMARTFEED_SUPPRESS_FORUM_NAMES %}
 				<dl>
-					<dt><label for="max_word_size">{{ lang('SMARTFEED_SUPPRESS_FORUM_NAMES') }}{{ lang('COLON') }}</label><br><span class="gensmall">{{ lang('SMARTFEED_SUPPRESS_FORUM_NAMES_EXPLAIN') }}</span></dt>
+					<dt><label for="max_word_size">{{ lang('SMARTFEED_SUPPRESS_FORUM_NAMES') }}{{ lang('COLON') }}</label><br><span>{{ lang('SMARTFEED_SUPPRESS_FORUM_NAMES_EXPLAIN') }}</span></dt>
 					<dd><input type="checkbox" name="suppress_forum_names" id="suppress_forum_names" />
 					</dd>
 				</dl>
 				{% endif %}
 				<dl>
-					<dt><label for="max_word_size">{{ lang('SMARTFEED_TOPIC_TITLES') }}{{ lang('COLON') }}</label><br><span class="gensmall">{{ lang('SMARTFEED_TOPIC_TITLES_EXPLAIN') }}</span></dt>
+					<dt><label for="max_word_size">{{ lang('SMARTFEED_TOPIC_TITLES') }}{{ lang('COLON') }}</label><br><span>{{ lang('SMARTFEED_TOPIC_TITLES_EXPLAIN') }}</span></dt>
 					<dd><input type="checkbox" name="topic_titles" id="topic_titles" />
 					</dd>
 				</dl>
 				{% if not S_SMARTFEED_SUPPRESS_USERNAMES %}
 				<dl>
-					<dt><label for="max_word_size">{{ lang('SMARTFEED_SUPPRESS_USERNAMES') }}{{ lang('COLON') }}</label><br><span class="gensmall">{{ lang('SMARTFEED_SUPPRESS_USERNAMES_EXPLAIN') }}</span></dt>
+					<dt><label for="max_word_size">{{ lang('SMARTFEED_SUPPRESS_USERNAMES') }}{{ lang('COLON') }}</label><br><span>{{ lang('SMARTFEED_SUPPRESS_USERNAMES_EXPLAIN') }}</span></dt>
 					<dd><input type="checkbox" name="usernames" id="usernames" />
 					</dd>
 				</dl>
@@ -165,7 +165,7 @@
 	</div>
 
 	<div class="panel bg2">
-		<div class="inner">
+		<div>
 
 			<h3>{{ lang('SMARTFEED_FORMAT_AND_ACCESS') }}</h3>
 
@@ -179,7 +179,7 @@
 					</dd>
 				</dl>
 				<dl>
-					<dt><label>{{ lang('SMARTFEED_FEED_STYLING') }}{{ lang('COLON') }}</label><br><span class="gensmall">{{ lang('SMARTFEED_FEED_STYLING_EXPLAIN') }}</span></dt>
+					<dt><label>{{ lang('SMARTFEED_FEED_STYLING') }}{{ lang('COLON') }}</label><br><span>{{ lang('SMARTFEED_FEED_STYLING_EXPLAIN') }}</span></dt>
 					<dd>
 						<label for="style1" title="{{ lang('SMARTFEED_STYLE_COMPACT_EXPLAIN') }}"><input type="radio" name="style" id="style1" value="{{ S_SMARTFEED_COMPACT_VALUE }}" checked="checked" /> {{ lang('SMARTFEED_STYLE_COMPACT') }}</label><br>
 						<label for="style2" title="{{ lang('SMARTFEED_STYLE_BASIC_EXPLAIN') }}"><input type="radio" name="style" id="style2" style="margin-top: 3px;" value="{{ S_SMARTFEED_BASIC_VALUE }}" /> {{ lang('SMARTFEED_STYLE_BASIC') }}</label><br>
@@ -198,7 +198,7 @@
 				</dl>
 				{% if not S_SMARTFEED_REQUIRED_IP_AUTHENTICATION %}
 				<dl>
-					<dt><label>{{ lang('SMARTFEED_IP_AUTH') }}{{ lang('COLON') }}</label><br><span class="gensmall">{{ lang('SMARTFEED_IP_AUTHENTICATION_EXPLAIN') }}</span></dt>
+					<dt><label>{{ lang('SMARTFEED_IP_AUTH') }}{{ lang('COLON') }}</label><br><span>{{ lang('SMARTFEED_IP_AUTHENTICATION_EXPLAIN') }}</span></dt>
 					<dd>
 						<label for="ip_auth1"><input type="radio" name="ip_auth" id="ip_auth1" value="YES" /> {{ lang('YES') }}</label>
 						<label for="ip_auth2"><input type="radio" name="ip_auth" id="ip_auth2" value="NO" checked="checked" /> {{ lang('NO') }}</label><br>
@@ -213,20 +213,20 @@
 	</div>
 
 	<div class="panel bg3">
-		<div class="inner">
+		<div>
 
 			<h3>{{ lang('SMARTFEED_URL') }}</h3>
 
 			<fieldset>
 				<dl>
-					<dt><label for="url">{{ lang('SMARTFEED_GENERATE_BUTTON') }}{{ lang('COLON') }}</label><br><span class="gensmall">{{ lang('SMARTFEED_GENERATE_BUTTON_EXPLAIN') }}</span></dt>
+					<dt><label for="url">{{ lang('SMARTFEED_GENERATE_BUTTON') }}{{ lang('COLON') }}</label><br><span>{{ lang('SMARTFEED_GENERATE_BUTTON_EXPLAIN') }}</span></dt>
 					<dd>
 						<input type="button" value="{{ lang('SMARTFEED_GENERATE_URL_TEXT') }}" id="generate" class="button1" onClick="create_URL();" /><br>
 						<input type="text" class="inputbox" name="url" id="url" style="margin-top: 3px;" maxlength="3000" onFocus="this.select();" />
 					</dd>
 				</dl>
 				<dl>
-					<dt><label>{{ lang('SMARTFEED_VIEW_FEED_BUTTON') }}{{ lang('COLON') }}</label><br><span class="gensmall">{{ lang('SMARTFEED_VIEW_FEED_BUTTON_EXPLAIN') }}</span></dt>
+					<dt><label>{{ lang('SMARTFEED_VIEW_FEED_BUTTON') }}{{ lang('COLON') }}</label><br><span>{{ lang('SMARTFEED_VIEW_FEED_BUTTON_EXPLAIN') }}</span></dt>
 					<dd>
 						<input type="button" name="runit" id="runit" value="{{ lang('SMARTFEED_VIEW_FEED') }}" class="button1" onClick="view_feed();"/><br>
 					</dd>

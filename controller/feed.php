@@ -519,8 +519,8 @@ class feed
 
 		// These template variables apply to the overall feed, not to items in it. A post is an item in the newsfeed.
 		$this->template->assign_vars(array(
-				'L_SMARTFEED_FEED_DESCRIPTION' 		=> html_entity_decode($this->config['site_desc']),
-				'L_SMARTFEED_FEED_TITLE' 			=> html_entity_decode($this->config['sitename']),
+				'S_SMARTFEED_FEED_DESCRIPTION' 		=> html_entity_decode($this->config['site_desc']),
+				'S_SMARTFEED_FEED_TITLE' 			=> html_entity_decode($this->config['sitename']),
 
 				'S_SMARTFEED_FEED_LANGUAGE'			=> ($this->config['phpbbservices_smartfeed_rfc1766_lang'] <> '') ? $this->config['phpbbservices_smartfeed_rfc1766_lang'] : $this->config['default_lang'],	// For RSS 2.0 and ATOM 1.0
 				'S_SMARTFEED_FEED_PUBDATE'			=> date('r'),	// for RSS 2.0

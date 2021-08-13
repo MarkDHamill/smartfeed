@@ -22,7 +22,7 @@ class ext extends \phpbb\extension\base
 		$config = $this->container->get('config');
 
 		if (
-			phpbb_version_compare($config['version'], '3.2.0', '>=') &&
+			phpbb_version_compare($config['version'], '3.3.0', '>=') &&
 			phpbb_version_compare($config['version'], '4.0', '<') &&
 			extension_loaded('xml') &&
 			extension_loaded('pcre') &&
@@ -34,13 +34,15 @@ class ext extends \phpbb\extension\base
 		}
 		else
 		{
+
+			// Import my extension's language file
 			$language = $this->container->get('language');
-			$language->add_lang(array('common'), 'phpbbservices/smartfeed');
-			$message_type = E_USER_WARNING;
-			$message = $language->lang('SMARTFEED_INSTALL_REQUIREMENTS');
-			trigger_error($message, $message_type);
-			return false;
-		};
+			$language->add_lang('common', 'phpbbservices/smartfeed');
+
+			// Return generic message indicating not all install requirements were met.
+			return [$language->lang('SMARTFEED_INSTALL_REQUIREMENTS')];
+
+		}
 
 	}
 

@@ -66,7 +66,15 @@ class constants {
 	const SMARTFEED_ATOM = 0; 							// Was ATOM1.0
 	const SMARTFEED_RSS1 = 1; 							// Was RSS1.0
 	const SMARTFEED_RSS2 = 2; 							// Was RSS2.0
-	
+
+	// User interface locations
+	const SMARTFEED_HEADER_NAVIGATION_PREPEND = 0;
+	const SMARTFEED_HEADER_NAVIGATION_APPEND = 1;
+	const SMARTFEED_BREADCRUMB_BEFORE = 2;
+	const SMARTFEED_BREADCRUMB_AFTER = 3;
+	const SMARTFEED_QUICK_LINKS_BEFORE = 4;
+	const SMARTFEED_QUICK_LINKS_AFTER = 5;
+
 	// Miscellaneous
 	const SMARTFEED_GENERATOR = 'Smartfeed extension for phpBB';	// Does not need to be language specific, used in feed text because some feed formats require it.
 	const SMARTFEED_NONE = 'NONE';
