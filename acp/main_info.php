@@ -16,7 +16,7 @@ class main_info
 		return array(
 			'filename'	=> '\phpbbservices\smartfeed\acp\main_module',
 			'title'		=> 'ACP_SMARTFEED_TITLE',
-			'version'	=> '3.0.15',
+			'version'	=> '3.0.16',
 			'modes'		=> array(
 				'ppt'			=> array('title' => 'ACP_SMARTFEED_PPT', 'auth' => 'ext_phpbbservices/smartfeed && acl_a_extensions', 'cat' => array('ACP_SMARTFEED_TITLE')),
 				'security'		=> array('title' => 'ACP_SMARTFEED_SECURITY', 'auth' => 'ext_phpbbservices/smartfeed && acl_a_extensions', 'cat' => array('ACP_SMARTFEED_TITLE')),

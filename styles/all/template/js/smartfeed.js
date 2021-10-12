@@ -4,7 +4,6 @@ $(document).ready(function(){
 	// Clear the generated URL field and the code view window when an input or select field changes.
 	$("input, select").change(function(){
 		$("#url").val('');
-		$("#viewer-block").hide();
 	});
 
 	// If the all forums checkbox is checked, all individual forums should be checked, and visa versa. Ignore excluded

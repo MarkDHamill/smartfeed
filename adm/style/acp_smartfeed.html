@@ -15,36 +15,120 @@
 
 <form id="acp_smartfeed" method="post" action="{{ U_ACTION }}">
 
-	{% for options in loops.options %}
-	{% if options.S_LEGEND %}
-	{% if not options.S_FIRST_ROW %}
-	</fieldset>
-	{% endif %}
 	<fieldset>
-		<legend>{{ options.LEGEND }}</legend>
-		{% else %}
-
+		<legend>{{ lang('GENERAL_SETTINGS') }}</legend>
+		{% if S_SMARTFEED_PPT %}
 		<dl>
-			<dt><label for="{{ options.KEY }}">{{ options.TITLE }}{{ lang('COLON') }}</label>{% if options.S_EXPLAIN %}<br><span>{{ options.TITLE_EXPLAIN }}</span>{% endif %}</dt>
-			<dd>{{ options.CONTENT }}</dd>
+			<dt><label for="phpbbservices_smartfeed_max_items">{{ lang('ACP_SMARTFEED_MAX_ITEMS') ~ lang('COLON') }}</label><br><span>{{ lang('ACP_SMARTFEED_MAX_ITEMS_EXPLAIN') }}</span></dt>
+			<dd><input id="phpbbservices_smartfeed_max_items" type="text" size="5" maxlength="5" name="phpbbservices_smartfeed_max_items" value="{{ SMARTFEED_MAX_ITEMS }}" /></dd>
 		</dl>
-
+		<dl>
+			<dt><label for="phpbbservices_smartfeed_default_fetch_time_limit">{{ lang('ACP_SMARTFEED_DEFAULT_FETCH_TIME_LIMIT') ~ lang('COLON') }}</label><br><span>{{ lang('ACP_SMARTFEED_DEFAULT_FETCH_TIME_LIMIT_EXPLAIN') }}</span></dt>
+			<dd><input id="phpbbservices_smartfeed_default_fetch_time_limit" type="text" size="5" maxlength="5" name="phpbbservices_smartfeed_default_fetch_time_limit" value="{{ SMARTFEED_DEFAULT_FETCH_TIME_LIMIT }}" /> hrs</dd>
+		</dl>
+		<dl>
+			<dt><label for="phpbbservices_smartfeed_max_word_size">{{ lang('ACP_SMARTFEED_MAX_WORD_SIZE') ~ lang('COLON') }}</label><br><span>{{ lang('ACP_SMARTFEED_MAX_WORD_SIZE_EXPLAIN') }}</span></dt>
+			<dd><input id="phpbbservices_smartfeed_max_word_size" type="text" size="5" maxlength="5" name="phpbbservices_smartfeed_max_word_size" value="{{ SMARTFEED_MAX_WORD_SIZE }}" /></dd>
+		</dl>
+		<dl>
+			<dt><label for="phpbbservices_smartfeed_ttl">{{ lang('ACP_SMARTFEED_TTL') ~ lang('COLON') }}</label><br><span>{{ lang('ACP_SMARTFEED_TTL_EXPLAIN') }}</span></dt>
+			<dd><input id="phpbbservices_smartfeed_ttl" type="text" size="4" maxlength="4" name="phpbbservices_smartfeed_ttl" value="{{ SMARTFEED_TTL }}" /> min</dd>
+		</dl>
 		{% endif %}
-		{% endfor %}
 
-		{% if S_AUTH %}
+		{% if S_SMARTFEED_SECURITY %}
+		<dl>
+			<dt><label for="phpbbservices_smartfeed_public_only">{{ lang('ACP_SMARTFEED_PUBLIC_ONLY') ~ lang('COLON') }}</label><br><span>{{ lang('ACP_SMARTFEED_PUBLIC_ONLY_EXPLAIN') }}</span></dt>
+			<dd><label><input type="radio" id="phpbbservices_smartfeed_public_only" name="phpbbservices_smartfeed_public_only" value="1" {{ SMARTFEED_PUBLIC_ONLY_YES }} class="radio" /> {{ lang('YES') }}</label><label><input type="radio" name="phpbbservices_smartfeed_public_only" value="0" {{ SMARTFEED_PUBLIC_ONLY_NO }} class="radio" /> {{ lang('NO') }}</label></dd>
+		</dl>
+		<dl>
+			<dt><label for="phpbbservices_smartfeed_require_ip_authentication">{{ lang('ACP_SMARTFEED_REQUIRE_IP_AUTHENTICATION') ~ lang('COLON') }}</label><br><span>{{ lang('ACP_SMARTFEED_REQUIRE_IP_AUTHENTICATION_EXPLAIN') }}</span></dt>
+			<dd><label><input type="radio" id="phpbbservices_smartfeed_require_ip_authentication" name="phpbbservices_smartfeed_require_ip_authentication" value="1" {{ SMARTFEED_REQUIRE_IP_AUTHENTICATION_YES }} class="radio" /> {{ lang('YES') }}</label><label><input type="radio" name="phpbbservices_smartfeed_require_ip_authentication" value="0" {{ SMARTFEED_REQUIRE_IP_AUTHENTICATION_NO }} class="radio" /> {{ lang('NO') }}</label></dd>
+		</dl>
+		<dl>
+			<dt><label for="phpbbservices_smartfeed_auto_advertise_public_feed">{{ lang('ACP_SMARTFEED_AUTO_ADVERTISE_PUBLIC_FEED') ~ lang('COLON') }}</label><br><span>{{ lang('ACP_SMARTFEED_AUTO_ADVERTISE_PUBLIC_FEED_EXPLAIN') }}</span></dt>
+			<dd><label><input type="radio" id="phpbbservices_smartfeed_auto_advertise_public_feed" name="phpbbservices_smartfeed_auto_advertise_public_feed" value="1" {{ SMARTFEED_AUTO_ADVERTISE_PUBLIC_FEED_YES }} class="radio" /> {{ lang('YES') }}</label><label><input type="radio" name="phpbbservices_smartfeed_auto_advertise_public_feed" value="0" {{ SMARTFEED_AUTO_ADVERTISE_PUBLIC_FEED_NO }} class="radio" /> {{ lang('NO') }}</label></dd>
+		</dl>
+		<dl>
+			<dt><label for="phpbbservices_smartfeed_privacy_mode">{{ lang('ACP_SMARTFEED_PRIVACY_MODE') ~ lang('COLON') }}</label><br><span>{{ lang('ACP_SMARTFEED_PRIVACY_MODE_EXPLAIN') }}</span></dt>
+			<dd><label><input type="radio" id="phpbbservices_smartfeed_privacy_mode" name="phpbbservices_smartfeed_privacy_mode" value="1" {{ SMARTFEED_PRIVACY_MODE_YES }} class="radio" /> {{ lang('YES') }}</label><label><input type="radio" name="phpbbservices_smartfeed_privacy_mode" value="0" {{ SMARTFEED_PRIVACY_MODE_NO }} lass="radio" /> {{ lang('NO') }}</label></dd>
+		</dl>
+		<dl>
+			<dt><label for="phpbbservices_smartfeed_show_username_in_first_topic_post">{{ lang('ACP_SMARTFEED_SHOW_USERNAME_IN_FIRST_TOPIC_POST') ~ lang('COLON') }}</label><br><span>{{ lang('ACP_SMARTFEED_SHOW_USERNAME_IN_FIRST_TOPIC_POST_EXPLAIN') }}</span></dt>
+			<dd><label><input type="radio" id="phpbbservices_smartfeed_show_username_in_first_topic_post" name="phpbbservices_smartfeed_show_username_in_first_topic_post" value="1" {{ SMARTFEED_SHOW_USERNAME_IN_FIRST_TOPIC_POST_YES }}class="radio" /> {{ lang('YES') }}</label><label><input type="radio" name="phpbbservices_smartfeed_show_username_in_first_topic_post" value="0" {{ SMARTFEED_SHOW_USERNAME_IN_FIRST_TOPIC_POST_NO }}class="radio" /> {{ lang('NO') }}</label></dd>
+		</dl>
+		<dl>
+			<dt><label for="phpbbservices_smartfeed_show_username_in_replies">{{ lang('ACP_SMARTFEED_SHOW_USERNAME_IN_REPLIES') ~ lang('COLON') }}</label><br><span>{{ lang('ACP_SMARTFEED_SHOW_USERNAME_IN_REPLIES_EXPLAIN') }}</span></dt>
+			<dd><label><input type="radio" id="phpbbservices_smartfeed_show_username_in_replies" name="phpbbservices_smartfeed_show_username_in_replies" value="1" {{ SMARTFEED_SHOW_USERNAME_IN_REPLIES_YES }} class="radio" /> {{ lang('YES') }}</label><label><input type="radio" name="phpbbservices_smartfeed_show_username_in_replies" value="0" {{ SMARTFEED_SHOW_USERNAME_IN_REPLIES_NO }} class="radio" /> {{ lang('NO') }}</label></dd>
+		</dl>
+		<dl>
+			<dt><label for="phpbbservices_smartfeed_new_post_notifications_only">{{ lang('ACP_SMARTFEED_NEW_POST_NOTIFICATIONS_ONLY') ~ lang('COLON') }}</label><br><span>{{ lang('ACP_SMARTFEED_NEW_POST_NOTIFICATIONS_ONLY_EXPLAIN') }}</span></dt>
+			<dd><label><input type="radio" id="phpbbservices_smartfeed_new_post_notifications_only" name="phpbbservices_smartfeed_new_post_notifications_only" value="1" {{ SMARTFEED_NEW_POST_NOTIFICATIONS_ONLY_YES }} class="radio" /> {{ lang('YES') }}</label><label><input type="radio" name="phpbbservices_smartfeed_new_post_notifications_only" value="0" {{ SMARTFEED_NEW_POST_NOTIFICATIONS_ONLY_NO }} class="radio" /> {{ lang('NO') }}</label></dd>
+		</dl>
+		{% endif %}
+
+		{% if S_SMARTFEED_ADDITIONAL %}
+		<dl>
+			<dt><label for="phpbbservices_smartfeed_ui_location">{{ lang('ACP_SMARTFEED_UI_INTERFACE_LOCATION') ~ lang('COLON') }}</label><br><span>>{{ lang('ACP_SMARTFEED_UI_INTERFACE_LOCATION_EXPLAIN') }}</span></dt>
+			<dd>
+				<select id="phpbbservices_smartfeed_ui_location" name="phpbbservices_smartfeed_ui_location">
+					<option value="0" {{ SMARTFEED_UI_LOCATION_0 }}>{{ lang('ACP_SMARTFEED_HEADER_NAVIGATION_PREPEND') }}</option>
+					<option value="1" {{ SMARTFEED_UI_LOCATION_1 }}>{{ lang('ACP_SMARTFEED_HEADER_NAVIGATION_APPEND') }}</option>
+					<option value="2" {{ SMARTFEED_UI_LOCATION_2 }}>{{ lang('ACP_SMARTFEED_BREADCRUMB_BEFORE') }}</option>
+					<option value="3" {{ SMARTFEED_UI_LOCATION_3 }}>{{ lang('ACP_SMARTFEED_BREADCRUMB_AFTER') }}</option>
+					<option value="4" {{ SMARTFEED_UI_LOCATION_4 }}>{{ lang('ACP_SMARTFEED_QUICK_LINKS_BEFORE') }}</option>
+					<option value="5" {{ SMARTFEED_UI_LOCATION_5 }}>{{ lang('ACP_SMARTFEED_QUICK_LINKS_AFTER') }}</option>
+				</select></dd>
+		</dl>
+		<dl>
+			<dt><label for="phpbbservices_smartfeed_include_forums">{{ lang('ACP_SMARTFEED_INCLUDE_FORUMS') ~ lang('COLON') }}</label><br><span>{{ lang('ACP_SMARTFEED_INCLUDE_FORUMS_EXPLAIN') }}</span></dt>
+			<dd><input id="phpbbservices_smartfeed_include_forums" type="text" size="15" maxlength="255" name="phpbbservices_smartfeed_include_forums" value="{{ SMARTFEED_INCLUDE_FORUMS }}" /></dd>
+		</dl>
+		<dl>
+			<dt><label for="phpbbservices_smartfeed_exclude_forums">{{ lang('ACP_SMARTFEED_EXCLUDE_FORUMS') ~ lang('COLON') }}</label><br><span>{{ lang('ACP_SMARTFEED_EXCLUDE_FORUMS_EXPLAIN') }}</span></dt>
+			<dd><input id="phpbbservices_smartfeed_exclude_forums" type="text" size="15" maxlength="255" name="phpbbservices_smartfeed_exclude_forums" value="{{ SMARTFEED_EXCLUDE_FORUMS }}" /></dd>
+		</dl>
+		<dl>
+			<dt><label for="phpbbservices_smartfeed_external_feeds">{{ lang('ACP_SMARTFEED_EXTERNAL_FEEDS') ~ lang('COLON') }}</label><br><span>{{ lang('ACP_SMARTFEED_EXTERNAL_FEEDS_EXPLAIN') }}</span></dt>
+			<dd><textarea id="phpbbservices_smartfeed_external_feeds" name="phpbbservices_smartfeed_external_feeds" rows="3" cols="85">{{ SMARTFEED_EXTERNAL_FEEDS }}</textarea></dd>
+		</dl>
+		<dl>
+			<dt><label for="phpbbservices_smartfeed_external_feeds_top">{{ lang('ACP_SMARTFEED_EXTERNAL_FEEDS_TOP') ~ lang('COLON') }}</label><br><span>{{ lang('ACP_SMARTFEED_EXTERNAL_FEEDS_TOP_EXPLAIN') }}</span></dt>
+			<dd><label><input type="radio" id="phpbbservices_smartfeed_external_feeds_top" name="phpbbservices_smartfeed_external_feeds_top" value="1" {{ SMARTFEED_EXTERNAL_FEEDS_TOP_YES }} class="radio" /> {{ lang('YES') }}</label><label><input type="radio" name="phpbbservices_smartfeed_external_feeds_top" value="0" {{ SMARTFEED_EXTERNAL_FEEDS_TOP_NO }} class="radio" /> {{ lang('NO') }}</label></dd>
+		</dl>
+		<dl>
+			<dt><label for="phpbbservices_smartfeed_rfc1766_lang">{{ lang('ACP_SMARTFEED_RFC1766_LANG') ~ lang('COLON') }}</label><br><span>{{ lang('ACP_SMARTFEED_RFC1766_LANG_EXPLAIN') }}</span></dt>
+			<dd><input id="phpbbservices_smartfeed_rfc1766_lang" type="text" size="8" maxlength="8" name="phpbbservices_smartfeed_rfc1766_lang" value="{{ SMARTFEED_RFC1766_LANG }}" /></dd>
+		</dl>
+		<dl>
+			<dt><label for="phpbbservices_smartfeed_feed_image_path">{{ lang('ACP_SMARTFEED_FEED_IMAGE_PATH') ~ lang('COLON') }}</label><br><span>{{ lang('ACP_SMARTFEED_FEED_IMAGE_PATH_EXPLAIN') }}</span></dt>
+			<dd><input id="phpbbservices_smartfeed_feed_image_path" type="text" size="40" maxlength="255" name="phpbbservices_smartfeed_feed_image_path" value="{{ SMARTFEED_FEED_IMAGE_PATH }}" /></dd>
+		</dl>
+		<dl>
+			<dt><label for="phpbbservices_smartfeed_webmaster">{{ lang('ACP_SMARTFEED_WEBMASTER') ~ lang('COLON') }}</label><br><span>{{ lang('ACP_SMARTFEED_WEBMASTER_EXPLAIN') }}</span></dt>
+			<dd><input id="phpbbservices_smartfeed_webmaster" type="email" size="40" maxlength="255" name="phpbbservices_smartfeed_webmaster" value="{{ SMARTFEED_WEBMASTER }}" /></dd>
+		</dl>
 	</fieldset>
-	{% for auth_tpl in loops.auth_tpl %}
-	{% INCLUDE ''~ auth_tpl.TEMPLATE_FILE ~'' %}
-	{% endfor %}
 	<fieldset>
-		<legend>{{ lang('ACP_SUBMIT_CHANGES') }}</legend>
+		<legend>{{ lang('GENERAL_OPTIONS') }}</legend>
+		<dl>
+			<dt><label for="phpbbservices_smartfeed_all_by_default">{{ lang('ACP_SMARTFEED_ALL_BY_DEFAULT') ~ lang('COLON') }}</label><br><span>{{ lang('ACP_SMARTFEED_ALL_BY_DEFAULT_EXPLAIN') }}</span></dt>
+			<dd><label><input type="radio" id="phpbbservices_smartfeed_all_by_default" name="phpbbservices_smartfeed_all_by_default" value="1" {{ SMARTFEED_ALL_BY_DEFAULT_YES }}  class="radio" /> {{ lang('YES') }}</label><label><input type="radio" name="phpbbservices_smartfeed_all_by_default" value="0" {{ SMARTFEED_ALL_BY_DEFAULT_NO }} class="radio" /> {{ lang('NO') }}</label></dd>
+		</dl>
+		<dl>
+			<dt><label for="phpbbservices_smartfeed_suppress_forum_names">{{ lang('ACP_SMARTFEED_SUPPRESS_FORUM_NAMES') ~ lang('COLON') }}</label><br><span>{{ lang('ACP_SMARTFEED_SUPPRESS_FORUM_NAMES_EXPLAIN') }}</span></dt>
+			<dd><label><input type="radio" id="phpbbservices_smartfeed_suppress_forum_names" name="phpbbservices_smartfeed_suppress_forum_names" value="1" {{ SMARTFEED_SUPPRESS_FORUM_NAMES_YES }} class="radio" /> {{ lang('YES') }}</label><label><input type="radio" name="phpbbservices_smartfeed_suppress_forum_names" value="0" {{ SMARTFEED_SUPPRESS_FORUM_NAMES_NO }} class="radio" /> {{ lang('NO') }}</label></dd>
+		</dl>
+		<dl>
+			<dt><label for="phpbbservices_smartfeed_apache_htaccess_enabled">{{ lang('ACP_SMARTFEED_APACHE_HTACCESS_ENABLED') ~ lang('COLON') }}</label><br><span>{{ lang('ACP_SMARTFEED_APACHE_HTACCESS_ENABLED_EXPLAIN') }}</span></dt>
+			<dd><label><input type="radio" id="phpbbservices_smartfeed_apache_htaccess_enabled" name="phpbbservices_smartfeed_apache_htaccess_enabled" value="1" {{ SMARTFEED_APACHE_HTACCESS_ENABLED_YES }} class="radio" /> {{ lang('YES') }}</label><label><input type="radio" name="phpbbservices_smartfeed_apache_htaccess_enabled" value="0" {{ SMARTFEED_APACHE_HTACCESS_ENABLED_NO }} class="radio" /> {{ lang('NO') }}</label></dd>
+		</dl>
 		{% endif %}
-
 		<p class="submit-buttons">
-			<input class="button1" type="submit" id="submit" name="submit" value="{{ lang('SUBMIT') }}" />&nbsp;
+			<input class="button1" type="submit" id="submit" name="submit" value="{{ lang('SUBMIT') }}" />
 			<input class="button2" type="reset" id="reset" name="reset" value="{{ lang('RESET') }}" />
 		</p>
+
 		{{ S_FORM_TOKEN }}
 	</fieldset>
 </form>

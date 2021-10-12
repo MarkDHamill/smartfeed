@@ -14,17 +14,17 @@ use phpbbservices\smartfeed\constants\constants;
 class ui
 {
 
-	private $auth;
-	private $common;
-	private $config;
-	private $db;
-	private $ext_root_path;
-	private $helper;
-	private $language;
-	private $phpbb_root_path; // Only used in functions.
-	private $phpEx;
-	private $template;
-	private $user;
+	protected $auth;
+	protected $common;
+	protected $config;
+	protected $db;
+	protected $ext_root_path;
+	protected $helper;
+	protected $language;
+	protected $phpbb_root_path; // Only used in functions.
+	protected $phpEx;
+	protected $template;
+	protected $user;
 
 	/**
 	* Constructor
@@ -84,8 +84,8 @@ class ui
 		$excluded_forum_ids = (isset($this->config['phpbbservices_smartfeed_exclude_forums']) && strlen(trim($this->config['phpbbservices_smartfeed_exclude_forums'])) > 0) ? explode(',', $this->config['phpbbservices_smartfeed_exclude_forums']) : array();
 
 		// Pass encryption tokens to the user interface for generating URLs, unless the user is not registered or openssl is not supported
-		$is_guest = !$this->user->data['is_registered'] || !extension_loaded('openssl');
-		
+		$is_guest = ((bool) $this->config['phpbbservices_smartfeed_public_only']) || !$this->user->data['is_registered'] || !extension_loaded('openssl');
+
 		if (!$is_guest)
 		{
 			// If the user is registered then great, they can authenticate and see private forums
@@ -322,17 +322,36 @@ class ui
 		$max_items = ($this->config['phpbbservices_smartfeed_max_items'] == '0') ? 0 : 1;
 		$size_error_msg = $this->language->lang('SMARTFEED_SIZE_ERROR', $this->config['phpbbservices_smartfeed_max_items'], 0);
 
+		$public_only = (bool) $this->config['phpbbservices_smartfeed_public_only'];
+
+		if ($public_only)
+		{
+			$intro_message = $this->language->lang('SMARTFEED_EXPLANATION_PUBLIC_ONLY');
+			$not_logged_in_message = '';
+		}
+		else if ($this->config['phpbbservices_smartfeed_default_fetch_time_limit'] == '0')
+		{
+			$intro_message = $this->language->lang('SMARTFEED_EXPLANATION');
+			$not_logged_in_message = $this->language->lang('SMARTFEED_NO_OPENSSL_SUPPORT');
+		}
+		else
+		{
+			$intro_message = $this->language->lang('SMARTFEED_EXPLANATION');
+			$not_logged_in_message = $this->language->lang('SMARTFEED_NOT_LOGGED_IN', append_sid($this->phpbb_root_path . 'ucp.' . $this->phpEx . '?mode=login'), append_sid($this->phpbb_root_path . 'ucp.' . $this->phpEx . '?mode=register'));
+		}
+
 		// Set the template variables needed to generate a URL for Smartfeed. Note: most can be handled by template language variable substitution.
 		$this->template->assign_vars(array(
 
 			'L_POWERED_BY'						=> $this->language->lang('POWERED_BY', '<a href="' . $this->config['phpbbservices_smartfeed_url'] . '" class="postlink" onclick="window.open(this.href);return false;">' . $this->language->lang('SMARTFEED_POWERED_BY') . '</a>'),
 			'L_SMARTFEED_EXCLUDED_FORUMS'		=> implode(",", $excluded_forum_ids),
+			'L_SMARTFEED_EXPLANATION'			=> $intro_message,
 			'L_SMARTFEED_IGNORED_FORUMS'		=> implode(",", array_merge($required_forum_ids, $excluded_forum_ids)),
 			'L_SMARTFEED_IP_AUTHENTICATION_EXPLAIN'	=> $smartfeed_ip_auth_explain,
 			'L_SMARTFEED_LIMIT_SET_EXPLAIN'		=> ($this->config['phpbbservices_smartfeed_default_fetch_time_limit'] == '0') ? '' : $this->language->lang('SMARTFEED_LIMIT_SET_EXPLAIN', round(($this->config['phpbbservices_smartfeed_default_fetch_time_limit']/24), 0)),
 			'L_SMARTFEED_MAX_ITEMS_EXPLAIN_MAX' => ($this->config['phpbbservices_smartfeed_max_items'] == 0) ? $this->language->lang('SMARTFEED_MAX_ITEMS_EXPLAIN_BLANK') : $this->language->lang('SMARTFEED_MAX_ITEMS_EXPLAIN', $this->config['phpbbservices_smartfeed_max_items'], $max_items),
 			'L_SMARTFEED_MAX_WORD_SIZE_EXPLAIN' => ($this->config['phpbbservices_smartfeed_max_word_size'] == '0') ? $this->language->lang('SMARTFEED_MAX_WORD_SIZE_EXPLAIN_BLANK') : $this->language->lang('SMARTFEED_MAX_WORD_SIZE_EXPLAIN', $this->config['phpbbservices_smartfeed_max_word_size']),
-			'L_SMARTFEED_NOT_LOGGED_IN'			=> !extension_loaded('openssl') ? $this->language->lang('SMARTFEED_NO_OPENSSL_SUPPORT') : $this->language->lang('SMARTFEED_NOT_LOGGED_IN', append_sid($this->phpbb_root_path . 'ucp.' . $this->phpEx . '?mode=login'), append_sid($this->phpbb_root_path . 'ucp.' . $this->phpEx . '?mode=register')),
+			'L_SMARTFEED_NOT_LOGGED_IN'			=> $not_logged_in_message,
 			'LA_SMARTFEED_SIZE_ERROR'			=> $size_error_msg,
 			'S_SMARTFEED_ALL_BY_DEFAULT'		=> ($this->config['phpbbservices_smartfeed_all_by_default'] == '1') ? 'checked="checked"' : '',
 			'S_SMARTFEED_ATOM_10_VALUE'			=> constants::SMARTFEED_ATOM,
@@ -419,8 +438,7 @@ class ui
 		$encrypted_string = openssl_encrypt($data_input, 'AES-128-CBC', $key, OPENSSL_RAW_DATA, $iv);
 
 		// Thanks to phpBB forums user klapray for this logic for creating a "urlsafe" fix for base64_encode and _decode.
-		$encrypted_data = strtr(base64_encode($iv . $encrypted_string), '+/=', '-_.');
-		return $encrypted_data;
+		return strtr(base64_encode($iv . $encrypted_string), '+/=', '-_.');
 
 	}
 	

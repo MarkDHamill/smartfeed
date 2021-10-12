@@ -19,21 +19,27 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 */
 class main_listener implements EventSubscriberInterface
 {
-	private $config;
-	private $helper;
-	private $template;
+	protected $config;
+	protected $helper;
+	protected $language;
+	protected $request;
+	protected $template;
 
 	/**
 	* Constructor
 	*
-	* @param \phpbb\config\config		$config
+	* @param \phpbb\config\config		$config		Config object
 	* @param \phpbb\controller\helper	$helper		Controller helper object
+	* @param \phpbb\language\language   $language   Language object
+	* @param \phpbb\request\request     $request    Request object
 	* @param \phpbb\template\template	$template	Template object
 	*/
-	public function __construct(\phpbb\config\config $config, \phpbb\controller\helper $helper, \phpbb\template\template $template)
+	public function __construct(\phpbb\config\config $config, \phpbb\controller\helper $helper, \phpbb\template\template $template, \phpbb\request\request $request, \phpbb\language\language $language)
 	{
 		$this->config = $config;
 		$this->helper = $helper;
+		$this->language = $language;
+		$this->request = $request;
 		$this->template = $template;
 	}
 
@@ -67,12 +73,27 @@ class main_listener implements EventSubscriberInterface
 	
 	public function overall_header_head_append()
 	{
+		$script_name = $this->request->server('script_name', 'NONE');
+
 		$this->template->assign_vars(array(
-			'S_AUTO_ADVERTISE_PUBLIC_FEED'		=> $this->config['phpbbservices_smartfeed_auto_advertise_public_feed'],
-			'S_SMARTFEED_UI_LOCATION'			=> $this->config['phpbbservices_smartfeed_ui_location'],
-			'U_SMARTFEED_URL_ATOM'				=> $this->helper->route('phpbbservices_smartfeed_feed_controller'),
-			'U_SMARTFEED_URL_RSS'				=> $this->helper->route('phpbbservices_smartfeed_feed_controller', array('y'=>2)),
+			'L_SMARTFEED_PUBLIC_ATOM_TITLE'			=> $this->config['sitename'] . ' - ' . $this->language->lang('SMARTFEED_ATOM_FEED'),
+			'L_SMARTFEED_PUBLIC_RSS_TITLE'			=> $this->config['sitename'] . ' - ' .  $this->language->lang('SMARTFEED_RSS_FEED'),
+			'S_AUTO_ADVERTISE_PUBLIC_FEED'			=> $this->config['phpbbservices_smartfeed_auto_advertise_public_feed'],
+			'S_SMARTFEED_UI_LOCATION'				=> $this->config['phpbbservices_smartfeed_ui_location'],
+			'U_SMARTFEED_URL_ATOM'					=> $this->helper->route('phpbbservices_smartfeed_feed_controller'),
+			'U_SMARTFEED_URL_RSS'					=> $this->helper->route('phpbbservices_smartfeed_feed_controller', array('y'=>2)),
 		));
+
+		if (stristr($script_name, 'viewtopic'))
+		{
+			$topic_id = $this->request->variable('t', 0);
+			// If on the view topic page, show the generated feed links
+			$this->template->assign_vars(array(
+				'S_SHOW_TOPIC_FEED'				=> true,
+				'U_SMARTFEED_TOPIC_URL_ATOM'	=> $this->helper->route('phpbbservices_smartfeed_feed_controller', array('tf'=>$topic_id)),
+				'U_SMARTFEED_TOPIC_URL_RSS' 	=> $this->helper->route('phpbbservices_smartfeed_feed_controller', array('y'=>2,'tf'=>$topic_id)),
+			));
+		}
 	}
    	
 }

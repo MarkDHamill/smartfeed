@@ -1,4 +1,13 @@
 services:
+    phpbbservices.smartfeed.controller.acp:
+        class: phpbbservices\smartfeed\controller\acp_controller
+        arguments:
+            - '@config'
+            - '@language'
+            - '@log'
+            - '@request'
+            - '@template'
+            - '@user'
     phpbbservices.smartfeed.controller.ui:
         class: phpbbservices\smartfeed\controller\ui
         arguments:
@@ -29,6 +38,7 @@ services:
             - '@phpbbservices.smartfeed.common'
             - '@language'
             - '@notification_manager'
+            - '@ext.manager'
     phpbbservices.smartfeed.common:
         class: phpbbservices\smartfeed\core\common
         arguments:
@@ -39,5 +49,7 @@ services:
             - '@config'
             - '@controller.helper'
             - '@template'
+            - '@request'
+            - '@language'
         tags:
             - { name: event.listener }

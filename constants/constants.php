@@ -30,6 +30,7 @@ class constants {
 	const SMARTFEED_SORT_BY = 's';						// was sort_by
 	const SMARTFEED_SUPPRESS_FORUM_NAMES = 'fn';
 	const SMARTFEED_TIME_LIMIT = 't';					// was limit
+	const SMARTFEED_TOPIC_FEED = 'tf';
 	const SMARTFEED_TOPIC_TITLES = 'tt';
 	const SMARTFEED_USER_ID = 'u';						// unchanged from phpBB 3.0 mod parameter
 	const SMARTFEED_USERNAMES = 'un';
@@ -67,17 +68,8 @@ class constants {
 	const SMARTFEED_RSS1 = 1; 							// Was RSS1.0
 	const SMARTFEED_RSS2 = 2; 							// Was RSS2.0
 
-	// User interface locations
-	const SMARTFEED_HEADER_NAVIGATION_PREPEND = 0;
-	const SMARTFEED_HEADER_NAVIGATION_APPEND = 1;
-	const SMARTFEED_BREADCRUMB_BEFORE = 2;
-	const SMARTFEED_BREADCRUMB_AFTER = 3;
-	const SMARTFEED_QUICK_LINKS_BEFORE = 4;
-	const SMARTFEED_QUICK_LINKS_AFTER = 5;
-
 	// Miscellaneous
 	const SMARTFEED_GENERATOR = 'Smartfeed extension for phpBB';	// Does not need to be language specific, used in feed text because some feed formats require it.
 	const SMARTFEED_NONE = 'NONE';
 	const SMARTFEED_REQUIRED_FORUMS_ONLY = -1;
-	const SMARTFEED_VERSION = '3.0.14'; // Update for each release. Needed to support <generator> tag in Atom 1.0.
 }

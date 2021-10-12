@@ -36,7 +36,7 @@
 	</item>
 {% endfor %}
 </rdf:RDF>
-{ else if S_SMARTFEED_FEED_TYPE eq 2 }
+{% elseif S_SMARTFEED_FEED_TYPE eq 2 %}
 <?xml version="1.0" encoding="utf-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 	<channel>
@@ -68,7 +68,7 @@
 			<comments>{{ item.U_ID }}</comments>
 			{% endif %}
 			<pubDate>{{ item.S_PUBDATE }}</pubDate>
-			<guid isPermaLink="false">{{ item.U_ID }}</guid>
+			<guid>{{ item.U_ID }}</guid>
 		</item>
 {% endfor %}
 	</channel>

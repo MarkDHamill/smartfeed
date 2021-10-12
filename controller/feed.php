@@ -1,4 +1,5 @@
 <?php
+
 /**
 *
 * @package phpBB Extension - Smartfeed
@@ -13,19 +14,20 @@ use phpbbservices\smartfeed\constants\constants;
 
 class feed
 {
-	private $auth;
-	private $common;
-	private $config;
-	private $db;
-	private $helper;
-	private $language;
-	private $template;
-	private $phpbb_log;
-	private $phpbb_notifications;
-	private $phpbb_root_path; // Only used in functions.
-	private $phpEx;
-	private $request;
-	private $user;
+	protected $auth;
+	protected $common;
+	protected $config;
+	protected $db;
+	protected $ext_manager;
+	protected $helper;
+	protected $language;
+	protected $template;
+	protected $phpbb_log;
+	protected $phpbb_notifications;
+	protected $phpbb_root_path; // Only used in functions.
+	protected $phpEx;
+	protected $request;
+	protected $user;
 
 	/**
 	* Constructor
@@ -34,6 +36,7 @@ class feed
 	* @param \phpbbservices\smartfeed\core\common	$common
 	* @param \phpbb\config\config					$config
 	* @param \phpbb\db\driver\factory				$db
+	* @param \phpbb\extension\manager				$ext_manager
 	* @param \phpbb\controller\helper				$helper
 	* @param \phpbb\language\language 				$language
 	* @param \phpbb\log\log							$phpbb_log
@@ -42,12 +45,13 @@ class feed
 	* @param \phpbb\request\request 				$request
 	* @param \phpbb\template\template				$template
 	* @param \phpbb\user							$user
-	* @param \phpbb\notification\manager 			$notification_manager 	Notifications manager
+	* @param \phpbb\notification\manager 			$notification_manager
 	*/
 	
 	public function __construct(\phpbb\config\config $config, \phpbb\controller\helper $helper, \phpbb\template\template $template, \phpbb\user $user,
 		$php_ext, \phpbb\db\driver\factory $db, \phpbb\auth\auth $auth, $phpbb_root_path, \phpbb\request\request $request, \phpbb\log\log $phpbb_log,
-		\phpbbservices\smartfeed\core\common $common, \phpbb\language\language $language, \phpbb\notification\manager $notification_manager)
+		\phpbbservices\smartfeed\core\common $common, \phpbb\language\language $language, \phpbb\notification\manager $notification_manager,
+		\phpbb\extension\manager $ext_manager)
 	{
 
 		// External classes and variables injected into the class
@@ -55,6 +59,7 @@ class feed
 		$this->common = $common;
 		$this->config = $config;
 		$this->db = $db;
+		$this->ext_manager = $ext_manager;
 		$this->helper = $helper;
 		$this->language = $language;
 		$this->phpEx = $php_ext;
@@ -83,6 +88,7 @@ class feed
 		$this->max_items = NULL;
 		$this->max_words = NULL;
 		$this->min_words = NULL;
+		$this->public_only = false;
 		$this->remove_my_posts = NULL;
 		$this->show_topic_titles = NULL;
 		$this->show_pms = NULL;
@@ -138,20 +144,16 @@ class feed
 			}
 		}
 
-		// Check the limit parameter. It limits the size of the newsfeed to a point in time from the present, either a day/hour/minute interval, no limit
-		// or the time since the user's last visit. If it doesn't exist, $this->config['phpbbservices_smartfeed_default_fetch_time_limit'] is used.
-		$this->time_limit = $this->request->variable(constants::SMARTFEED_TIME_LIMIT, $this->config['phpbbservices_smartfeed_default_fetch_time_limit']);
+		// Check the limit parameter. It limits the size of the newsfeed to a point in time from the present, either a
+		// day/hour/minute interval, no limit or the time since the user's last visit.
+		$time_limit_default = ($this->is_registered) ? constants::SMARTFEED_SINCE_LAST_VISIT_VALUE : constants::SMARTFEED_NO_LIMIT_VALUE;
+		$this->time_limit = $this->request->variable(constants::SMARTFEED_TIME_LIMIT, $time_limit_default);
 		if (!is_numeric($this->time_limit))
 		{
 			$this->errors[] = $this->language->lang('SMARTFEED_LIMIT_FORMAT_ERROR');
 		}
-		// If the user is registered, the time limit parameter must be an integer between 1 and 13. 1 allows for a feed with posts since last visit
-		else if ($this->is_registered && (((int) ($this->time_limit) < (int) (constants::SMARTFEED_SINCE_LAST_VISIT_VALUE)) || ((int) ($this->time_limit) > (int) (constants::SMARTFEED_LAST_15_MINUTES_VALUE))) )
-		{
-			$this->errors[] = $this->language->lang('SMARTFEED_LIMIT_FORMAT_ERROR');
-		}
-		// If the user is not registered, the time limit parameter must be an integer between 2 and 13.
-		else if ((!($this->is_registered)) && (((int) ($this->time_limit) < (int) (constants::SMARTFEED_NO_LIMIT_VALUE)) || ((int) ($this->time_limit) > (int) (constants::SMARTFEED_LAST_15_MINUTES_VALUE))) )
+		// The time limit parameter must be an integer between $time_limit_default and 13
+		else if ($this->is_registered && (((int) ($this->time_limit) < (int) ($time_limit_default)) || ((int) ($this->time_limit) > (int) (constants::SMARTFEED_LAST_15_MINUTES_VALUE))) )
 		{
 			$this->errors[] = $this->language->lang('SMARTFEED_LIMIT_FORMAT_ERROR');
 		}
@@ -177,7 +179,7 @@ class feed
 			$this->errors[] = $this->language->lang('SMARTFEED_LAST_POST_ONLY_ERROR');
 		}
 
-		// Check for max items parameter. the maximum number of feed items wanted. It is not required, but if present
+		// Check for max items parameter: the maximum number of feed items wanted. It is not required, but if present
 		// should be a positive whole number only. The value must be less than or equal to $this->config['phpbbservices_smartfeed_max_items'].
 		// But if $this->config['phpbbservices_smartfeed_max_items'] == 0 then any positive whole number is allowed.
 		// If not present, the max items is $this->config['phpbbservices_smartfeed_max_items'] is used if positive, or unlimited if this value is zero.
@@ -295,7 +297,7 @@ class feed
 	/**
 	* Smartfeed controller for route /smartfeed/{name}
 	*
-	* @return Response object containing rendered feed in Atom or RSS syntax
+	* returns an object containing rendered feed in Atom or RSS syntax
 	*/
 	public function handle()
 	{
@@ -310,10 +312,17 @@ class feed
 		$continue = true;
 
 		// Get the user id. The feed may be customized based on being a registered user. A public user won't be identified as a user in the URL.
-		$this->user_id = $this->request->variable(constants::SMARTFEED_USER_ID, ANONYMOUS);
-		
-		// Get the encrypted password. When decrypted it is still encoded as it shows in the database.
-		$this->encrypted_pswd = $this->request->variable(constants::SMARTFEED_ENCRYPTION_KEY, constants::SMARTFEED_NONE, true);
+		if ((bool) $this->config['phpbbservices_smartfeed_public_only'])
+		{
+			// In this mode the u and e parameters if present are ignored and only public forums can be used in a feed.
+			$this->user_id = ANONYMOUS;
+			$this->encrypted_pswd = constants::SMARTFEED_NONE;
+		}
+		else
+		{
+			$this->user_id = $this->request->variable(constants::SMARTFEED_USER_ID, ANONYMOUS);
+			$this->encrypted_pswd = $this->request->variable(constants::SMARTFEED_ENCRYPTION_KEY, constants::SMARTFEED_NONE, true);
+		}
 
 		// Check for incorrect or invalid URL key/value pairs. We want to ensure unwanted behavior cannot occur based on hacking the URL.
 		// Normally, ui.php creates a valid URL that is used.
@@ -369,7 +378,8 @@ class feed
 			}
 
 			// Function returns some SQL that limits the time range of posts retrieved for the feed.
-			$date_limit_sql = $this->set_date_limit($this->time_limit);
+			$date_limit_sql = $this->set_date_limit($this->time_limit, true);	// Returns SQL fragment
+			$this->date_limit = (int) $this->set_date_limit($this->time_limit, false);	// Returns timestamp
 
 			// We need to get a list of forum_ids that we will retrieve from. The forum_ids to be fetched
 			// depend on whether bookmarked topics only are being requested. The result is a snippet of SQL used
@@ -411,9 +421,13 @@ class feed
 			// Create SQL to remove your foes from the feed
 			$filter_foes_sql = $this->get_foes_sql();
 
+			// If this is a topic feed, constrain SQL to return only the topic requested.
+			$topic_id = $this->request->variable('tf',0);
+			$topic_only_sql = ($topic_id !== 0) ? ' AND t.topic_id = ' . $topic_id : '';
+
 			// At last, construct the SQL to return the relevant posts in a feed
 			$sql_ary = array(
-				'SELECT'	=> 'f.*, t.*, p.*, u.*, tt.mark_time AS topic_mark_time, ft.mark_time AS forum_mark_time',
+				'SELECT'	=> 'f.*, t.*, p.*, u.*',
 
 				'FROM'		=> array(
 					FORUMS_TABLE => 'f',
@@ -429,22 +443,12 @@ class feed
 						$new_topics_sql
 						$remove_my_posts_sql
 						$filter_foes_sql
+						$topic_only_sql
 						AND p.post_visibility = " . ITEM_APPROVED . " 
 						AND forum_password = ''
 						AND topic_status <> " . ITEM_MOVED,
 
 				'ORDER_BY'	=> $order_by_sql
-			);
-
-			$sql_ary['LEFT_JOIN'] = array(
-				array(
-					'FROM'	=> array(TOPICS_TRACK_TABLE => 'tt'),
-					'ON'	=> 't.topic_id = tt.topic_id AND tt.user_id = u.user_id'
-				),
-				array(
-					'FROM'	=> array(FORUMS_TRACK_TABLE => 'ft'),
-					'ON'	=> 'f.forum_id = ft.forum_id AND ft.user_id = u.user_id'
-				)
 			);
 
 			$sql = $this->db->sql_build_query('SELECT', $sql_ary);
@@ -511,11 +515,16 @@ class feed
 	private function assemble_feed(&$rowset, &$pm_rowset, $error)
 
 	{
+
 		// This function creates the overall feed. The rows of posts and private messages are already fetched.
 		//
 		// $rowset = array of posts wanted in the feed
 		// $pm_rowset = array of private messages wanated in the feed
 		// $error = if true, report a logical feed error, otherwise present a normal feed
+
+		// Get the version of the extension from the composer.json file
+		$md_manager = $this->ext_manager->create_extension_metadata_manager('phpbbservices/smartfeed');
+		$ext_version = $md_manager->get_metadata('version');
 
 		// These template variables apply to the overall feed, not to items in it. A post is an item in the newsfeed.
 		$this->template->assign_vars(array(
@@ -527,8 +536,8 @@ class feed
 				'S_SMARTFEED_FEED_TTL' 				=> ($this->config['phpbbservices_smartfeed_ttl'] <> '') ? $this->config['phpbbservices_smartfeed_ttl'] : '60',	// for RSS 2.0
 				'S_SMARTFEED_FEED_TYPE' 			=> $this->feed_type,	// Atom 1.0, RSS 1.0, RSS 2.0, used as a switch. Must be 0, 1 or 2. Atom 1.0 is used to show feed type errors if they occur.
 				'S_SMARTFEED_FEED_UPDATED'			=> date('c'),	// for Atom and RSS 2.0
-				'S_SMARTFEED_FEED_VERSION' 			=> constants::SMARTFEED_VERSION,
-				'S_SMARTFEED_SHOW_WEBMASTER'		=> ($this->config['phpbbservices_smartfeed_webmaster'] <> '') ? true : false,	// RSS 2.0
+				'S_SMARTFEED_FEED_VERSION' 			=> $ext_version,
+				'S_SMARTFEED_SHOW_WEBMASTER'		=> $this->config['phpbbservices_smartfeed_webmaster'] <> '',	// RSS 2.0
 
 				'U_SMARTFEED_FEED_GENERATOR' 		=> constants::SMARTFEED_GENERATOR,
 				'U_SMARTFEED_FEED_ID'				=> generate_board_url(),
@@ -613,8 +622,6 @@ class feed
 		// $item_id = msg_id or post_id
 		// $is_post = true if $item_id is a post, false if $item_id is private message
 
-		static $my_styles;
-		
 		$attachment_markup = sprintf("<div class=\"box\">\n<p>%s</p>\n", $this->language->lang('ATTACHMENTS'));
 		
 		// Get all attachments
@@ -635,7 +642,7 @@ class feed
 				$anchor_end = '';
 				$pm_image_text = '';
 				$thumbnail_parameter = '';
-				$is_thumbnail = ($row['thumbnail'] == 1) ? true : false;
+				$is_thumbnail = $row['thumbnail'] == 1;
 				// Logic to resize the image, if needed
 				if ($is_thumbnail)
 				{
@@ -682,9 +689,7 @@ class feed
 
 		// Encrypted data starts after the IV portion of the string
 		$encrypted_data = substr($data_input, openssl_cipher_iv_length('AES-128-CBC'));
-		$decrypted_data = openssl_decrypt($encrypted_data, 'AES-128-CBC', $key, OPENSSL_RAW_DATA, $iv);
-
-		return $decrypted_data;
+		return openssl_decrypt($encrypted_data, 'AES-128-CBC', $key, OPENSSL_RAW_DATA, $iv);
 
 	}
 	
@@ -829,8 +834,6 @@ class feed
 
 			}
 		}
-
-		return;
 
 	}
 
@@ -979,12 +982,13 @@ class feed
 
 	}
 
-	private function set_date_limit($time_limit)
+	private function set_date_limit($time_limit, $sql=true)
 	{
 
 		// This function contains the logic to limit the range of posts fetched in the feed follows by creating the appropriate SQL snippet
 		//
 		// $time_limit = Time limit from now for the feed requested, which comes from the URI supplied by the feed
+		// $sql = true|false. If true, returns a SQL string. If false, returns the timestamp for the date limit
 		//
 		// Returns a snippet of SQL used to construct the SQL query
 
@@ -1048,7 +1052,7 @@ class feed
 
 		}
 
-		return ' AND p.post_time > ' . $date_limit;
+		return $sql ? ' AND p.post_time > ' . $date_limit : $date_limit;
 
 	}
 
@@ -1230,7 +1234,6 @@ class feed
 		else
 		{
 			// If there are no forums to fetch, this will result in an empty newsfeed.
-			$error = true;
 			$this->errors[] = $this->language->lang('SMARTFEED_NO_FORUMS_ACCESSIBLE');
 			return false;
 		}
@@ -1431,41 +1434,18 @@ class feed
 
 				if (($this->feed_style == constants::SMARTFEED_HTML) || ($this->feed_style == constants::SMARTFEED_HTMLSAFE))
 				{
-
 					// Add any attachments to the private message item
 					if ($row['message_attachment'] > 0)
 					{
 						$message .= $this->create_attachment_markup ($row['msg_id'], false);
 					}
-
-					if ($user_sig !== '')
-					{
-						$user_sig = generate_text_for_display($user_sig, $row['user_sig_bbcode_uid'], $row['user_sig_bbcode_bitfield'], $flags);
-						$user_sig = rtrim($user_sig, '</');	// Bug in generate_text_for_display?
-					}
-
-					$message = ($user_sig !== '') ? $message . $this->language->lang('SMARTFEED_POST_SIGNATURE_DELIMITER') . $user_sig : $message;
-
-					$message = str_replace('<img src="./../../', '<img src="' . $this->board_url, $message);
-					$message = str_replace('<img class="smilies" src="./../../', '<img class="smilies" src="' . $this->board_url, $message);
-
-					if ($this->feed_style == constants::SMARTFEED_HTMLSAFE)
-					{
-						$message = strip_tags($message, $allowable_tags);
-					}
+					$this->append_user_signature($user_sig, $message, $row, $allowable_tags, $flags);
 
 				}
 				else
 				{
 					// Either Compact or Basic Style wanted
-					if ($this->feed_style == constants::SMARTFEED_BASIC)
-					{
-						$message = ($user_sig !== '') ? $message . "\n\n" . $user_sig : $message;
-					}
-					strip_bbcode($message); 			// Remove the BBCode
-					$message = strip_tags($message, '<br>');	// Gets rid of any embedded HTML except break for formatting
-					// Either condense all text or make line feeds explicit
-					$message = ($this->feed_style == constants::SMARTFEED_BASIC) ? nl2br($message) : str_replace("\n", ' ', $message);
+					$this->condense_feed_item($user_sig, $message);
 				}
 			}
 
@@ -1552,7 +1532,6 @@ class feed
 
 		}
 
-		return;
 	}
 
 	private function publish_posts (&$rowset, &$allowable_tags)
@@ -1564,29 +1543,13 @@ class feed
 		// $rowset = array of posts in the feed for the user
 		// $allowable_tags = a set of allowed HTML tags if HTML safe feed is wanted.
 
+		$topic_feed = $this->first_post_only || $this->last_post_only;
+
 		foreach ($rowset as $row)
 		{
 
-			// Determine if a new topic
-			$new_topic = ($row['topic_time'] > $this->date_limit);
-
-			// Is this topic or forum associated with the post being tracked by this user? If so, exclude the post if the topic track
-			// time or forum track time is before the earliest time allowed for a post.
-			if (((!is_null($row['forum_mark_time']) && ($row['forum_mark_time']) < $this->date_limit)) ||
-				((!is_null($row['topic_mark_time']) && ($row['topic_mark_time']) < $this->date_limit)))
-			{
-				$include_post = false;
-			}
-			else
-			{
-				$include_post = true;
-			}
-
-			if 	($include_post &&
-				(
-					($this->min_words == 0) ||
-					($this->min_words !== 0 && $this->truncate_words($row['post_text'], intval($this->max_words), $this->language->lang('SMARTFEED_MAX_WORDS_NOTIFIER'), true) >= $this->min_words)
-				)
+			if (($this->min_words == 0) ||
+				($this->min_words !== 0 && $this->truncate_words($row['post_text'], intval($this->max_words), $this->language->lang('SMARTFEED_MAX_WORDS_NOTIFIER'), true) >= $this->min_words)
 			)
 			{
 				// This post goes in the newsfeed
@@ -1653,7 +1616,14 @@ class feed
 
 				$item_title = html_entity_decode(censor_text($item_title));
 
-				$link = htmlentities($this->board_url . 'viewtopic.' . $this->phpEx . '?f=' . $row['forum_id'] . '&t=' . $row['topic_id'] . '&p=' . $row['post_id']  . '#p' . $row['post_id'], ENT_QUOTES, 'UTF-8');
+				if ($topic_feed)
+				{
+					$link = htmlentities($this->board_url . 'viewtopic.' . $this->phpEx . '?f=' . $row['forum_id'] . '&t=' . $row['topic_id'], ENT_QUOTES, 'UTF-8');
+				}
+				else
+				{
+					$link = htmlentities($this->board_url . 'viewtopic.' . $this->phpEx . '?f=' . $row['forum_id'] . '&t=' . $row['topic_id'] . '&p=' . $row['post_id']  . '#p' . $row['post_id'], ENT_QUOTES, 'UTF-8');
+				}
 				$item_category = html_entity_decode($row['forum_name']);
 
 				// Set an email address associated with the poster. In most cases it should not be seen.
@@ -1671,6 +1641,7 @@ class feed
 				// To "dress up" the post text with bbCode, images, smilies etc., we need to use generate_text_for_display() function.
 				if ($this->config['phpbbservices_smartfeed_new_post_notifications_only'])
 				{
+					$new_topic = $row['post_id'] == $row['topic_first_post_id'];
 					if ($new_topic)
 					{
 						$item_text = $this->language->lang('SMARTFEED_NEW_TOPIC_NOTIFICATION');
@@ -1694,41 +1665,17 @@ class feed
 
 					if (($this->feed_style == constants::SMARTFEED_HTML) || ($this->feed_style == constants::SMARTFEED_HTMLSAFE))
 					{
-
 						// If there is an image, show it. If there is a file, link to the attachment
 						if ($row['post_attachment'] > 0)
 						{
 							$item_text .= $this->create_attachment_markup ($row['post_id'], true);
 						}
-
-						if ($user_sig !== '')
-						{
-							$user_sig = generate_text_for_display($user_sig, $row['user_sig_bbcode_uid'], $row['user_sig_bbcode_bitfield'], $flags);
-							$user_sig = rtrim($user_sig, '</');	// Bug in generate_text_for_display?
-						}
-
-						$item_text = ($user_sig !== '') ? $item_text . $this->language->lang('SMARTFEED_POST_SIGNATURE_DELIMITER') . $user_sig : $item_text;
-
-						$item_text = str_replace('<img src="./../../', '<img src="' . $this->board_url, $item_text);
-						$item_text = str_replace('<img class="smilies" src="./../../', '<img class="smilies" src="' . $this->board_url, $item_text);
-
-						if ($this->feed_style == constants::SMARTFEED_HTMLSAFE)
-						{
-							$item_text = strip_tags($item_text, $allowable_tags);
-						}
-
+						$this->append_user_signature($user_sig, $item_text, $row, $allowable_tags, $flags);
 					}
 					else
 					{
 						// Either Compact or Basic Style wanted
-						if ($this->feed_style == constants::SMARTFEED_BASIC)
-						{
-							$item_text = ($user_sig !== '') ? $item_text . "\n\n" . $user_sig : $item_text;
-						}
-						strip_bbcode($item_text); 			// Remove the BBCode
-						$item_text = strip_tags($item_text, '<br>');	// Gets rid of any embedded HTML
-						// Either condense all text or make line feeds explicit
-						$item_text = ($this->feed_style == constants::SMARTFEED_BASIC) ? nl2br($item_text) : str_replace("\n", ' ', $item_text);
+						$this->condense_feed_item($user_sig, $item_text);
 					}
 
 					// Handle the maximum number of words to display in a post.
@@ -1785,8 +1732,48 @@ class feed
 
 		}
 
-		return;
+	}
+
+	function append_user_signature($user_sig, $item_text, $row, $allowable_tags, $flags)
+	{
+
+		// Intelligently applies a user's signature to a post/private message and pretties up the result for display.
+
+		if ($user_sig !== '')
+		{
+			$user_sig = generate_text_for_display($user_sig, $row['user_sig_bbcode_uid'], $row['user_sig_bbcode_bitfield'], $flags);
+			$user_sig = rtrim($user_sig, '</');	// Bug in generate_text_for_display?
+		}
+
+		$item_text = ($user_sig !== '') ? $item_text . $this->language->lang('SMARTFEED_POST_SIGNATURE_DELIMITER') . $user_sig : $item_text;
+
+		$item_text = str_replace('<img src="./../../', '<img src="' . $this->board_url, $item_text);
+		$item_text = str_replace('<img class="smilies" src="./../../', '<img class="smilies" src="' . $this->board_url, $item_text);
+
+		if ($this->feed_style == constants::SMARTFEED_HTMLSAFE)
+		{
+			$item_text = strip_tags($item_text, $allowable_tags);
+		}
+		return $item_text;
 
 	}
 
+	function condense_feed_item($user_sig, $item_text)
+	{
+
+		// Condenses an item in the feed, stripping tags and returning plain text.
+		
+		if ($this->feed_style == constants::SMARTFEED_BASIC)
+		{
+			$item_text = ($user_sig !== '') ? $item_text . "\n\n" . $user_sig : $item_text;
+		}
+		
+		strip_bbcode($item_text); 			// Remove the BBCode
+		$item_text = strip_tags($item_text, '<br>');	// Gets rid of any embedded HTML except break for formatting
+		
+		// Either condense all text or make line feeds explicit
+		$item_text = ($this->feed_style == constants::SMARTFEED_BASIC) ? nl2br($item_text) : str_replace("\n", ' ', $item_text);
+		return $item_text;
+		
+	}
 }
