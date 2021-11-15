@@ -43,7 +43,7 @@ class ui
 	*/
 	
 	public function __construct(\phpbb\config\config $config, \phpbb\controller\helper $helper, \phpbb\template\template $template, \phpbb\user $user,
-		$php_ext, \phpbb\db\driver\factory $db, \phpbb\auth\auth $auth, $phpbb_root_path, \phpbbservices\smartfeed\core\common $common, $ext_root_path, \phpbb\language\language $language)
+		string $php_ext, \phpbb\db\driver\factory $db, \phpbb\auth\auth $auth, string $phpbb_root_path, \phpbbservices\smartfeed\core\common $common, string $ext_root_path, \phpbb\language\language $language)
 	{
 		$this->config = $config;
 		$this->helper = $helper;

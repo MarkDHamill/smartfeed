@@ -27,7 +27,7 @@ class release_3_0_16 extends \phpbb\db\migration\migration
 	{
 		return array(
 			'add_index' => array(
-				$this->table_prefix . 'sfposts' => array(
+				$this->table_prefix . 'posts' => array(
 					'post_time' => array('post_time'),
 				),
 			),
@@ -38,7 +38,7 @@ class release_3_0_16 extends \phpbb\db\migration\migration
 	{
 		return array(
 			'drop_keys' => array(
-				$this->table_prefix . 'sfposts' => array(
+				$this->table_prefix . 'posts' => array(
 					'post_time',
 				),
 			),

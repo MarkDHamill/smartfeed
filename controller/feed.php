@@ -49,7 +49,7 @@ class feed
 	*/
 	
 	public function __construct(\phpbb\config\config $config, \phpbb\controller\helper $helper, \phpbb\template\template $template, \phpbb\user $user,
-		$php_ext, \phpbb\db\driver\factory $db, \phpbb\auth\auth $auth, $phpbb_root_path, \phpbb\request\request $request, \phpbb\log\log $phpbb_log,
+		string $php_ext, \phpbb\db\driver\factory $db, \phpbb\auth\auth $auth, string $phpbb_root_path, \phpbb\request\request $request, \phpbb\log\log $phpbb_log,
 		\phpbbservices\smartfeed\core\common $common, \phpbb\language\language $language, \phpbb\notification\manager $notification_manager,
 		\phpbb\extension\manager $ext_manager)
 	{
@@ -343,6 +343,9 @@ class feed
 			$this->errors[] = $this->language->lang('SMARTFEED_BOARD_DISABLED');
 		}
 
+		$rowset = array();
+		$pm_rowset = array();
+
 		// The while loop construct allows a more elegant way of handling errors by breaking out of the loop if an error occurs.
 		while ($continue)
 		{
@@ -512,7 +515,7 @@ class feed
 	
 	}
 
-	private function assemble_feed(&$rowset, &$pm_rowset, $error)
+	private function assemble_feed($rowset, $pm_rowset, $error)
 
 	{
 
@@ -1382,7 +1385,7 @@ class feed
 
 	}
 
-	private function publish_private_messages(&$pm_rowset, &$allowable_tags)
+	private function publish_private_messages($pm_rowset, $allowable_tags)
 	{
 
 		// This function handles publishing any private messages in the feed using a list of private messages
@@ -1534,7 +1537,7 @@ class feed
 
 	}
 
-	private function publish_posts (&$rowset, &$allowable_tags)
+	private function publish_posts ($rowset, $allowable_tags)
 	{
 
 		// This function handles the publishing of any posts in the feed for the user, using the SQL already gathered
