@@ -121,25 +121,6 @@ class ui
 		}
 
 		$allowed_forum_ids = array();
-		$forum_read_ary = array();
-		
-		// Get forum read permissions for this user. They are also usually stored in the user_permissions column, but sometimes the field is empty. This always works.
-		$forum_array = $this->auth->acl_raw_data_single_user($smartfeed_user_id);
-		
-		foreach ($forum_array as $key => $value)
-		{
-			foreach ($value as $auth_option_id => $auth_setting)
-			{
-				if ($this->auth->acl_get('f_read', $key))
-				{
-					$forum_read_ary[$key]['f_read'] = 1;
-				}
-				if ($this->auth->acl_get('f_list', $key))
-				{
-					$forum_read_ary[$key]['f_list'] = 1;
-				}
-			}
-		}
 
 		// Get a list of parent_ids for each forum and put them in an array.
 		$parent_array = array();
@@ -153,35 +134,32 @@ class ui
 		}
 		$this->db->sql_freeresult($result);
 
-		if (sizeof($forum_read_ary) > 0) // This should avoid a PHP Notice
+		foreach ($parent_array as $forum_id => $parent_id)
 		{
-			foreach ($forum_read_ary as $forum_id => $allowed)
+			if ($this->auth->acl_get('f_read', $forum_id) && $this->auth->acl_get('f_list', $forum_id) && $this->common->check_all_parents($parent_array, $forum_id))
 			{
-				if ($this->auth->acl_get('f_read', $forum_id) && $this->auth->acl_get('f_list', $forum_id) && $this->common->check_all_parents($parent_array, $forum_id))
+				// Since this user has read access to this forum, add it to the $allowed_forum_ids array
+				$allowed_forum_ids[] = (int) $forum_id;
+
+				// Also add to $allowed_forum_ids the parents, if any, of this forum. Actually we have to find the parent's parents, etc., going up as far as necessary because
+				// $this->auth->act_getf does not return the parents for which the user has access, yet parents must be shown are in the user interface
+				$there_are_parents = true;
+				$this_forum_id = (int) $forum_id;
+
+				while ($there_are_parents)
 				{
-					// Since this user has read access to this forum, add it to the $allowed_forum_ids array
-					$allowed_forum_ids[] = (int) $forum_id;
-					
-					// Also add to $allowed_forum_ids the parents, if any, of this forum. Actually we have to find the parent's parents, etc., going up as far as necessary because 
-					// $this->auth->act_getf does not return the parents for which the user has access, yet parents must be shown are in the user interface
-					$there_are_parents = true;
-					$this_forum_id = (int) $forum_id;
-					
-					while ($there_are_parents)
+					if ($parent_array[$this_forum_id] == 0)
 					{
-						if ($parent_array[$this_forum_id] == 0)
+						$there_are_parents = false;
+					}
+					else
+					{
+						// Do not add this parent to the list of allowed forums if it is already in the array
+						if (!in_array((int) $parent_array[$this_forum_id], $allowed_forum_ids))
 						{
-							$there_are_parents = false;
+							$allowed_forum_ids[] = (int) $parent_array[$this_forum_id];
 						}
-						else
-						{
-							// Do not add this parent to the list of allowed forums if it is already in the array
-							if (!in_array((int) $parent_array[$this_forum_id], $allowed_forum_ids))
-							{
-								$allowed_forum_ids[] = (int) $parent_array[$this_forum_id];
-							} 
-							$this_forum_id = (int) $parent_array[$this_forum_id];	// Keep looping...
-						}
+						$this_forum_id = (int) $parent_array[$this_forum_id];	// Keep looping...
 					}
 				}
 			}

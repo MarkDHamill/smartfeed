@@ -2,8 +2,9 @@
 	"name": "phpbbservices/smartfeed",
 	"type": "phpbb-extension",
 	"description": "Provides RSS 1.0, RSS 2.0 or Atom 1.0 customized newsfeeds. Users select forums they want, including protected forums if they can access them. There are myriad options to customize the feed.",
-	"homepage": "https://phpbbservices.com/smartfeed_wp",
-	"version": "3.0.16",
+	"homepage": "https://www.phpbbservices.com/my-software/smartfeed_wp/",
+	"version": "3.0.17",
+	"time": "2022-03-04",
 	"license": "GPL-2.0-only",
 	"authors": [
 		{
