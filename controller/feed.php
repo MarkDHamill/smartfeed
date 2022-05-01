@@ -522,7 +522,7 @@ class feed
 		// This function creates the overall feed. The rows of posts and private messages are already fetched.
 		//
 		// $rowset = array of posts wanted in the feed
-		// $pm_rowset = array of private messages wanated in the feed
+		// $pm_rowset = array of private messages wanted in the feed
 		// $error = if true, report a logical feed error, otherwise present a normal feed
 
 		// Get the version of the extension from the composer.json file
@@ -1630,7 +1630,7 @@ class feed
 				{
 					$link = htmlentities($this->board_url . 'viewtopic.' . $this->phpEx . '?f=' . $row['forum_id'] . '&t=' . $row['topic_id'] . '&p=' . $row['post_id']  . '#p' . $row['post_id'], ENT_QUOTES, 'UTF-8');
 				}
-				$item_category = html_entity_decode($row['forum_name']);
+				$item_category = $row['forum_name'];
 
 				// Set an email address associated with the poster. In most cases it should not be seen.
 				if ($this->config['phpbbservices_smartfeed_privacy_mode'])
