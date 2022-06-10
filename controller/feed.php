@@ -539,7 +539,8 @@ class feed
 				'SMARTFEED_FEED_LANGUAGE'			=> ($this->config['phpbbservices_smartfeed_rfc1766_lang'] <> '') ? $this->config['phpbbservices_smartfeed_rfc1766_lang'] : $this->config['default_lang'],	// For RSS 2.0 and ATOM 1.0
 				'SMARTFEED_FEED_PUBDATE'			=> date('r'),	// for RSS 2.0
 				'SMARTFEED_FEED_TITLE' 				=> html_entity_decode($this->config['sitename']),
-				'SMARTFEED_FEED_TTL' 				=> ($this->config['phpbbservices_smartfeed_ttl'] <> '') ? $this->config['phpbbservices_smartfeed_ttl'] : '60',	// for RSS 2.0			'SMARTFEED_FEED_UPDATED'			=> date('c'),	// for Atom and RSS 2.0
+				'SMARTFEED_FEED_TTL' 				=> ($this->config['phpbbservices_smartfeed_ttl'] <> '') ? $this->config['phpbbservices_smartfeed_ttl'] : '60',	// for RSS 2.0
+				'SMARTFEED_FEED_UPDATED'			=> date('c'),	// for Atom and RSS 2.0
 				'SMARTFEED_FEED_VERSION' 			=> $ext_version,
 
 				'S_SMARTFEED_FEED_TYPE' 			=> $this->feed_type,	// Atom 1.0, RSS 1.0, RSS 2.0, used as a switch. Must be 0, 1 or 2. Atom 1.0 is used to show feed type errors if they occur.
