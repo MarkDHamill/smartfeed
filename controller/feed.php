@@ -1184,16 +1184,17 @@ class feed
 		$required_forums_only = false;
 		foreach ($params as $item)
 		{
-			if ($item == constants::SMARTFEED_FORUMS . '=' . constants::SMARTFEED_REQUIRED_FORUMS_ONLY)
+			$pieces = explode('=', $item); // $pieces[0] = parameter name, $pieces[1] = parameter value
+			if ($pieces[0] == constants::SMARTFEED_FORUMS && $pieces[1] == constants::SMARTFEED_REQUIRED_FORUMS_ONLY)
 			{
 				// This is an unusual case and it means that no forums were selected but there are required forums.
 				// In this case the feed is restricted to returning content ONLY for required forums.
 				$required_forums_only = true;
 				break;
 			}
-			if (substr($item,0,2) == constants::SMARTFEED_FORUMS . '=')
+			if ($pieces[0] == constants::SMARTFEED_FORUMS)
 			{
-				$requested_forum_ids[] = (int) substr($item,2);
+				$requested_forum_ids[] = (int) substr($pieces[1]);
 			}
 		}
 
