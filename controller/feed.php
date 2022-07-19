@@ -1194,7 +1194,7 @@ class feed
 			}
 			if ($pieces[0] == constants::SMARTFEED_FORUMS)
 			{
-				$requested_forum_ids[] = (int) substr($pieces[1]);
+				$requested_forum_ids[] = (int) $pieces[1];
 			}
 		}
 
