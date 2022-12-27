@@ -1,5 +1,4 @@
 {% if S_SMARTFEED_FEED_TYPE eq 1 %}
-<?xml version="1.0" encoding="utf-8"?>
 <rdf:RDF
 	xmlns="http://purl.org/rss/1.0/"
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -37,7 +36,6 @@
 {% endfor %}
 </rdf:RDF>
 {% elseif S_SMARTFEED_FEED_TYPE eq 2 %}
-<?xml version="1.0" encoding="utf-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 	<channel>
 		<title><![CDATA[{{ SMARTFEED_FEED_TITLE }}]]></title>
@@ -74,7 +72,6 @@
 	</channel>
 </rss>
 {% else %}
-<?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom" xml:lang="{{ SMARTFEED_FEED_LANGUAGE }}">
 	<title><![CDATA[{{ SMARTFEED_FEED_TITLE }}]]></title>
 	<subtitle><![CDATA[{{ SMARTFEED_FEED_DESCRIPTION }}]]></subtitle>
